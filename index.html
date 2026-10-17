@@ -1,0 +1,1471 @@
+<!doctype html><html lang="es"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style><link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0b6e8a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Tarifa SAT">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="boot.css?v=202610171221">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="config.js?v=202610171221"></script>
+<script src="shim.js?v=202610171221"></script>
+</head><body>
+
+
+
+
+<title>Tarifa SAT Reparo Novo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=Public+Sans:wght@400;500;600&display=swap">
+<style>
+/* Mostrador: buscador arriba, ficha del modelo debajo. Precio grande, tiempo al lado. */
+:root{
+  --bg:#f3f5f6; --panel:#ffffff; --fg:#14232b; --muted:#5b6b73; --line:#d9e0e3;
+  --accent:#0b6e8a; --accent-ink:#ffffff; --soft:#e4f0f3; --warn:#9a5b00; --warn-bg:#fdf1dc; --ok:#1f6b3a; --ok-bg:#e3f3e8;
+  --display:"IBM Plex Sans Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f171b; --panel:#162228; --fg:#e6eef1; --muted:#93a5ad; --line:#26363d;
+  --accent:#4cb7d4; --accent-ink:#06222b; --soft:#18323b; --warn:#f0b65c; --warn-bg:#33270f; --ok:#7fd49a; --ok-bg:#15301f; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f171b; --panel:#162228; --fg:#e6eef1; --muted:#93a5ad; --line:#26363d;
+  --accent:#4cb7d4; --accent-ink:#06222b; --soft:#18323b; --warn:#f0b65c; --warn-bg:#33270f; --ok:#7fd49a; --ok-bg:#15301f; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.45}
+.wrap{max-width:980px;margin:0 auto;padding-inline:16px;padding-block:18px 40px;display:flex;flex-direction:column;gap:16px}
+header{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:6px 16px}
+h1{font-family:var(--display);font-weight:700;font-size:1.7rem;letter-spacing:.01em;margin:0}
+.upd{color:var(--muted);font-size:.85rem}
+.search{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:6px;display:flex;flex-direction:column;gap:10px}
+#q{width:100%;font:500 1.15rem var(--body);padding:14px 16px;border:2px solid var(--line);border-radius:10px;background:var(--panel);color:var(--fg)}
+#q:focus{outline:none;border-color:var(--accent)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:600 .85rem var(--display);letter-spacing:.03em;text-transform:uppercase;border:1px solid var(--line);background:var(--panel);color:var(--fg);padding:6px 11px;border-radius:999px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.chip:focus-visible,.mbtn:focus-visible,#q:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.grid{display:grid;grid-template-columns:minmax(0,260px) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:720px){.grid{grid-template-columns:minmax(0,1fr)}}
+.list{display:flex;flex-direction:column;gap:2px;max-height:70vh;overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px}
+@media (max-width:720px){.list{max-height:34vh}}
+.mbtn{text-align:left;border:0;background:transparent;color:var(--fg);font:500 .98rem var(--body);padding:8px 10px;border-radius:7px;cursor:pointer;display:flex;justify-content:space-between;gap:8px}
+.mbtn small{color:var(--muted);font-size:.78rem}
+.mbtn:hover{background:var(--soft)}
+.mbtn[aria-current="true"]{background:var(--accent);color:var(--accent-ink)}
+.mbtn[aria-current="true"] small{color:inherit;opacity:.8}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;min-width:0}
+.card h2{font-family:var(--display);font-size:1.6rem;margin:0 0 2px;text-wrap:balance}
+.brand{color:var(--muted);font-size:.85rem;text-transform:uppercase;letter-spacing:.06em}
+table{width:100%;border-collapse:collapse;margin-top:12px}
+th{font:600 .74rem var(--display);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+td{padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+.rep{font-weight:600}
+.q{display:block;color:var(--muted);font-weight:400;font-size:.86rem}
+.price{font:700 1.35rem var(--display);font-variant-numeric:tabular-nums;white-space:nowrap;text-align:right}
+.price.na{font:500 .9rem var(--body);color:var(--muted)}
+.t{font-variant-numeric:tabular-nums;min-width:7.5em}
+.t .na{color:var(--muted)}
+.note{margin-top:4px;font-size:.82rem;color:var(--warn);background:var(--warn-bg);padding:4px 8px;border-radius:6px;display:inline-block}
+.hay{display:inline-block;margin-top:5px;font:600 .74rem var(--display);letter-spacing:.03em;text-transform:uppercase;padding:3px 9px;border-radius:999px;border:1px dashed var(--line);background:transparent;color:var(--muted);cursor:pointer}
+span.hay{cursor:default}
+.hay.on{border:1px solid var(--ok);background:var(--ok-bg);color:var(--ok)}
+.hay:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+td .hay{display:block;width:max-content}
+tr.instock .ts{color:var(--ok);font-weight:700}
+tr.instock .tw{opacity:.55}
+.t b{font-weight:600}
+.cut{margin:4px 0 0;color:var(--muted);font-size:.88rem}
+.calcgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:12px;margin-top:14px}
+.calcgrid label{display:flex;flex-direction:column;gap:6px;font-size:.85rem;color:var(--muted);min-width:0}
+.calcgrid select,.calcgrid input{font:500 1rem var(--body);padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg);width:100%}
+.calcgrid select:focus-visible,.calcgrid input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.calcout{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px 28px;align-items:baseline}
+.calcout .big{font:700 2rem var(--display);font-variant-numeric:tabular-nums}
+.calcout .lbl{font:600 .72rem var(--display);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);display:block}
+.tablewrap{overflow-x:auto}
+@media (max-width:520px){td,th{padding:8px 4px}.price{font-size:1.1rem}.t{white-space:normal;font-size:.88rem}.card{padding:14px 12px}th{font-size:.66rem}}
+.empty{color:var(--muted);padding:20px 4px}
+.foot{color:var(--muted);font-size:.82rem;max-width:70ch}
+details.serv{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 18px}
+details.serv summary{font:700 1.15rem var(--display);cursor:pointer}
+.sg{font:600 .8rem var(--display);text-transform:uppercase;letter-spacing:.06em;color:var(--accent);padding-top:14px}
+@media (prefers-reduced-motion:no-preference){.card{animation:in .18s ease-out}@keyframes in{from{transform:translateY(4px)}to{transform:none}}}
+/* Atajos, accesorios, WhatsApp, tasador y respuestas rápidas */
+.jump{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.88rem}
+.jump a{color:var(--accent);font-weight:600;text-decoration:none}
+.jump a:hover{text-decoration:underline}
+.ofrece{margin-top:14px;border:1px solid var(--line);border-left:4px solid var(--ok);border-radius:8px;padding:10px 12px;background:var(--bg)}
+.ofrece h3{font:700 .8rem var(--display);text-transform:uppercase;letter-spacing:.07em;color:var(--ok);margin:0 0 6px}
+.ofrece ul{margin:0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:4px 18px}
+.ofrece li{font-size:.92rem}
+.ofrece .p{font-weight:700;font-variant-numeric:tabular-nums}
+.wa{display:inline-flex;align-items:center;gap:6px;margin-top:10px;font:600 .92rem var(--body);color:#fff;background:#1f8a4c;border:0;border-radius:8px;padding:9px 14px;text-decoration:none;cursor:pointer}
+.wa:hover{filter:brightness(1.08)}
+.selr{display:flex;gap:8px;align-items:flex-start;cursor:pointer}
+.selr input{width:24px;height:24px;margin-top:0;accent-color:var(--accent);flex:none}
+.combo{position:sticky;bottom:8px;z-index:4;margin-top:12px;border:2px solid var(--accent);border-radius:10px;padding:6px 14px;background:var(--panel);display:flex;flex-direction:column;gap:6px;box-shadow:0 4px 18px rgba(0,0,0,.12)}
+.combo .crow{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:.9rem}
+.combo .centrega{display:flex;flex-direction:column;gap:2px;font-size:.92rem;padding:6px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.combo .centrega .lbl{font:600 .72rem var(--display);text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+.combo .centrega.urg{color:var(--ok)}
+.combo .urgsel{font-size:.95rem;padding:4px 0}
+.combo .cdto{color:var(--ok);font-weight:600}
+.combo .ctot{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.combo .ctot .big{font:700 1.8rem var(--display);font-variant-numeric:tabular-nums}
+.combo .chead{display:flex;align-items:center;gap:10px;width:100%;background:none;border:0;padding:0;color:var(--fg);font:inherit;cursor:pointer;text-align:left;min-height:44px}
+.combo .chead .cn{font-size:.9rem;color:var(--muted);flex:1;min-width:0}
+.combo .chead .cn b{color:var(--fg)}
+.combo .chead .big{font:700 1.5rem var(--display);font-variant-numeric:tabular-nums}
+.combo .chead .flecha{flex:none;display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-size:1.5rem;line-height:1;transition:transform .15s}
+.combo.abierto .chead .flecha{transform:rotate(180deg)}
+.combo .cdet{display:flex;flex-direction:column;gap:6px}
+.combo>*{flex-shrink:0}
+.combo:not(.abierto) .cdet{display:none}
+.combo.abierto{max-height:62vh;overflow-y:auto}
+.combo .ctot .lbl{font:600 .72rem var(--display);text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+.rapido{display:inline-block;margin:4px 6px 0 0;font:700 .72rem var(--display);letter-spacing:.05em;text-transform:uppercase;color:var(--ok);background:var(--ok-bg);padding:2px 8px;border-radius:999px}
+.afinar{font-size:.8rem;color:var(--accent);font-weight:600}
+.deja{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin-top:10px}
+.deja label{font:600 .8rem var(--display);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.dejadia{font:700 .95rem var(--display);text-transform:capitalize;margin-right:4px}
+.deja input,.deja select{font:500 .95rem var(--body);padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg)}
+.deja button{font:600 .85rem var(--body);padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--fg);cursor:pointer}
+.t b{display:block}
+.wabox{margin-top:10px;border:1px solid var(--line);border-left:4px solid #1f8a4c;border-radius:8px;padding:10px 12px;background:var(--bg);font-size:.9rem}
+.wabox pre{white-space:pre-wrap;font:inherit;margin:6px 0 0;user-select:all}
+.wabox a{color:var(--accent);font-weight:600}
+.wa:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.askgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:12px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+.askgrid label,.tasgrid label{display:flex;flex-direction:column;gap:6px;font-size:.85rem;color:var(--muted);min-width:0}
+.askgrid input,.tasgrid select{font:500 1rem var(--body);padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg);width:100%}
+.askgrid input:focus-visible,.tasgrid select:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.tasgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:12px;margin-top:14px}
+.checks{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.checks label{display:flex;gap:8px;align-items:flex-start;font-size:.95rem;cursor:pointer}
+.checks input{width:18px;height:18px;margin-top:2px;accent-color:var(--accent);flex:none}
+.must{margin-top:12px;font-size:.88rem;color:var(--muted)}
+.must b{color:var(--fg)}
+.tasout{margin-top:14px;display:flex;flex-wrap:wrap;gap:10px 32px;align-items:flex-end}
+.tasout .big{font:700 2.2rem var(--display);font-variant-numeric:tabular-nums;color:var(--ok);line-height:1}
+.tasout .mid{font:700 1.4rem var(--display);font-variant-numeric:tabular-nums;line-height:1}
+.tasout .lbl{font:600 .72rem var(--display);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);display:block;margin-bottom:4px}
+.faq{display:flex;flex-direction:column;margin-top:8px}
+.faq div{padding:10px 0;border-bottom:1px solid var(--line)}
+.faq div:last-child{border-bottom:0}
+.faq dt{font-weight:700;margin:0 0 3px}
+.faq dd{margin:0;color:var(--fg);max-width:75ch}
+.faq dd .q{display:inline;font-size:.9rem}
+/* ==== FUNDAS v1 ==== */
+.fform{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:10px;margin-top:12px;align-items:end}
+.fform label{display:flex;flex-direction:column;gap:5px;font-size:.85rem;color:var(--muted);min-width:0}
+.fform input:not([type=checkbox]){font:500 1rem var(--body);padding:9px 11px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg);width:100%}
+.fform .fchk{flex-direction:row;align-items:center;gap:8px;color:var(--fg)}
+.fbtn{margin-top:0;justify-content:center}
+.fh{font:700 .8rem var(--display);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:16px 0 4px}
+.flist{display:flex;flex-direction:column}
+.fitem{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 12px;padding:9px 0;border-bottom:1px solid var(--line)}
+.fitem:last-child{border-bottom:0}
+.fitem .q{display:block}
+.fitem button{font:600 .82rem var(--body);padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--fg);cursor:pointer}
+.ftarea{border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;padding:10px 12px;margin-top:10px;background:var(--bg)}
+.ftarea b{color:var(--fg)}
+.fok{color:var(--ok);font-weight:600}
+.fwarn{color:var(--warn);font-weight:600}
+.fcount{font:600 .8rem var(--display);color:var(--accent-ink);background:var(--accent);border-radius:999px;padding:1px 8px;margin-left:6px}
+.fcount:empty{display:none}
+.fform textarea,.fedit textarea,.fedit input:not([type=checkbox]){font:500 1rem var(--body);padding:9px 11px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg);width:100%;resize:vertical}
+.fform .fobs{grid-column:1/-1}
+.fobsv{display:block;margin-top:3px;font-size:.88rem;color:var(--fg);background:var(--soft);border-radius:6px;padding:3px 8px;white-space:pre-wrap}
+.fedit{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:8px;width:100%;padding:10px 0;border-bottom:1px solid var(--line)}
+.fedit label{display:flex;flex-direction:column;gap:4px;font-size:.82rem;color:var(--muted)}
+.fedit .fobs{grid-column:1/-1}
+.fedit .fchk{flex-direction:row;align-items:center;gap:8px;color:var(--fg)}
+.fedit .fbtns{display:flex;gap:8px;align-items:center}
+.fitem .acc button{margin:0}
+.fpag{display:inline-block;margin:0 6px 2px 0;font:600 .74rem var(--display);letter-spacing:.04em;color:var(--ok);background:var(--ok-bg);border:1px solid var(--ok);border-radius:999px;padding:1px 8px;vertical-align:1px}
+#f-pend,#f-res{counter-reset:fn;gap:8px}
+#f-pend>.fitem,#f-res>.fitem{counter-increment:fn;flex-wrap:nowrap;align-items:flex-start;gap:12px;background:var(--bg);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;padding:10px 12px}
+#f-res>.fitem{border-left-color:var(--ok)}
+#f-pend>.fitem::before,#f-res>.fitem::before{content:counter(fn);flex:none;width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font:700 .95rem/28px var(--display);text-align:center}
+#f-res>.fitem::before{background:var(--ok);color:#fff}
+#f-pend>.fitem>span:first-of-type,#f-res>.fitem>span:first-of-type{flex:1;min-width:0}
+#f-pend>.fitem .acc,#f-res>.fitem .acc{flex:none;flex-direction:column;align-items:stretch}
+@media (max-width:520px){#f-pend>.fitem,#f-res>.fitem{flex-wrap:wrap}#f-pend>.fitem .acc,#f-res>.fitem .acc{flex-direction:row;width:100%;padding-left:40px}}
+/* ==== FIN FUNDAS ==== */
+/* ==== VISTAS v1 ==== */
+[data-oculto]{display:none!important}
+header .jump{display:none}
+.vnav{display:flex;gap:4px;position:sticky;top:0;z-index:20;background:var(--bg);padding:6px 0;border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+.vnav::-webkit-scrollbar{display:none}
+.vnav button{flex:1 0 auto;display:flex;flex-direction:column;align-items:center;gap:2px;border:0;background:transparent;color:var(--muted);font:600 .8rem var(--display);letter-spacing:.03em;padding:6px 10px;border-radius:10px;cursor:pointer;position:relative}
+.vnav button .ic{font-size:1.25rem;line-height:1}
+.vnav button[aria-current="true"]{background:var(--soft);color:var(--accent)}
+.vnav button .vc{position:absolute;top:2px;right:6px;min-width:18px;height:18px;border-radius:9px;background:var(--accent);color:var(--accent-ink);font:700 .7rem/18px var(--display);padding:0 5px}
+.vnav button .vc:empty{display:none}
+.vnav button:focus-visible{outline:3px solid var(--accent);outline-offset:-3px}
+@media (max-width:720px){
+  .vnav{position:fixed;top:auto;bottom:0;left:0;right:0;z-index:30;padding:4px 4px calc(4px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);border-bottom:0;box-shadow:0 -4px 14px rgba(0,0,0,.12);justify-content:space-around;overflow-x:auto}
+  .vnav button{flex:1 1 0;min-width:60px;min-height:62px;padding:7px 2px;font-size:.74rem;gap:3px}
+  .vnav button .ic{font-size:1.7rem}
+  .vnav button .vc{top:3px;right:4px;min-width:20px;height:20px;font-size:.75rem;line-height:20px}
+  body{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+  .wrap{padding-block:10px 20px}
+  .combo{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+  .combo.abierto{max-height:calc(100vh - 260px)}
+  .search{gap:8px}
+  #q{padding:11px 14px;font-size:1.05rem}
+  .chips{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-inline:-16px;padding-inline:16px;-webkit-overflow-scrolling:touch}
+  .chips::-webkit-scrollbar{display:none}
+  .chip{flex:none}
+  /* Tarifa en el móvil: cada reparación es una ficha (sin tabla ancha que se salga por la derecha). */
+  #card .tablewrap{overflow-x:visible}
+  #card .tablewrap table,#card .tablewrap tbody{display:block;width:100%}
+  #card .tablewrap thead{display:none}
+  #card .tablewrap tbody tr{display:grid;grid-template-columns:1fr 1fr auto;gap:6px 12px;padding:12px 0;border-bottom:1px solid var(--line)}
+  #card .tablewrap tbody td{display:block;padding:0;border:0;min-width:0}
+  #card .tablewrap tbody td:nth-child(1){grid-column:1 / 3}
+  #card .tablewrap tbody td:nth-child(2){grid-column:3;align-self:start}
+  #card .tablewrap tbody td:nth-child(3){grid-column:1 / 2;font-size:.9rem}
+  #card .tablewrap tbody td:nth-child(4){grid-column:2 / 4;font-size:.9rem}
+  #card .tablewrap tbody td:nth-child(3)::before,#card .tablewrap tbody td:nth-child(4)::before{display:block;font:600 .66rem var(--display);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:2px}
+  #card .tablewrap tbody td:nth-child(3)::before{content:"Pieza en tienda"}
+  #card .tablewrap tbody td:nth-child(4)::before{content:"Si hay que pedirla"}
+  #card .tablewrap .t{min-width:0}
+  .combo{padding:4px 12px}
+  .combo .chead{min-height:40px}
+  .combo .chead .cn{font-size:.82rem}
+  .combo .chead .big{font-size:1.3rem}
+}
+/* ==== FIN VISTAS ==== */
+/* ==== RESERVAS v1 ==== */
+#r-list{counter-reset:rn;gap:8px}
+#r-list>.fitem{counter-increment:rn;flex-wrap:nowrap;align-items:flex-start;gap:12px;background:var(--bg);border:1px solid var(--line);border-left:4px solid var(--rc,var(--accent));border-radius:10px;padding:10px 12px}
+#r-list>.fitem::before{content:counter(rn);flex:none;width:28px;height:28px;border-radius:50%;background:var(--rc,var(--accent));color:#fff;font:700 .95rem/28px var(--display);text-align:center}
+#r-list>.fitem>span:first-of-type{flex:1;min-width:0}
+#r-list>.fitem .acc{flex:none;flex-direction:column;align-items:stretch}
+@media (max-width:520px){#r-list>.fitem{flex-wrap:wrap}#r-list>.fitem .acc{flex-direction:row;width:100%;padding-left:40px}}
+.rest{display:inline-block;margin:0 6px 3px 0;font:600 .74rem var(--display);letter-spacing:.04em;text-transform:uppercase;border-radius:999px;padding:1px 8px;color:var(--rc);border:1px solid var(--rc);background:var(--bg)}
+.rmoney{display:flex;flex-wrap:wrap;gap:2px 14px;margin-top:3px;font-size:.9rem}
+.rmoney b{font-variant-numeric:tabular-nums}
+.rdebe{color:var(--warn);font-weight:700}
+.requipo textarea{font-size:1.05rem;min-height:5.5em}
+#reservas .fedit{gap:10px}
+#reservas .fedit .requipo{grid-column:1/-1}
+#r-list .requip{white-space:pre-wrap}
+/* ==== FIN RESERVAS ==== */
+/* ==== TAREAS Y GARANTIAS v1 ==== */
+.fform select{font:500 1rem var(--body);padding:9px 11px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg);width:100%}
+.fitem .acc{display:flex;flex-wrap:wrap;gap:6px;align-items:flex-start}
+.fitem select{font:500 .85rem var(--body);padding:5px 8px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--fg)}
+.tag{display:inline-block;font:700 .7rem var(--display);letter-spacing:.05em;text-transform:uppercase;padding:2px 8px;border-radius:999px;background:var(--soft);color:var(--accent);margin-right:6px}
+.late{color:var(--warn);font-weight:700}
+#f-pend>.fitem.urg,#r-list>.fitem.urg{border-color:#c62828;border-left-color:#c62828;background:color-mix(in srgb,#c62828 9%,var(--bg))}
+#f-pend>.fitem.urg::before{background:#c62828;color:#fff}
+.fok{background:var(--ok-bg)!important;color:var(--ok)!important;border-color:var(--ok)!important;font-weight:700}
+.fanular{opacity:.75;font-size:.85rem}
+#toasterr{position:fixed;left:12px;right:12px;top:calc(10px + env(safe-area-inset-top,0px));z-index:50;background:#c62828;color:#fff;border-radius:12px;padding:12px 14px;font-weight:600;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.urgtag{display:inline-block;margin:0 6px 4px 0;font:700 .72rem var(--display);letter-spacing:.05em;text-transform:uppercase;color:#fff;background:#c62828;border-radius:999px;padding:2px 9px}
+.gsum{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:10px;font-size:.9rem}
+.gsum b{font:700 1.2rem var(--display)}
+details.hechas{margin-top:10px}
+details.hechas summary{cursor:pointer}
+#t-list,#g-list,#f-tareas{counter-reset:tn;display:flex;flex-direction:column;gap:8px}
+#t-list>.fitem,#g-list>.fitem,#f-tareas>.fitem{counter-increment:tn;flex-wrap:nowrap;align-items:flex-start;gap:12px;background:var(--bg);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;padding:10px 12px}
+#t-list>.fitem::before,#g-list>.fitem::before,#f-tareas>.fitem::before{content:counter(tn);flex:none;width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font:700 .95rem/28px var(--display);text-align:center}
+#t-list>.fitem.tprio0{border-left-color:#c62828}#t-list>.fitem.tprio0::before{background:#c62828;color:#fff}
+#t-list>.fitem.tprio1{border-left-color:#e07b00}#t-list>.fitem.tprio1::before{background:#e07b00;color:#fff}
+#t-list>.fitem.tprio3{opacity:.8}
+#t-list .ptag{background:transparent;border:1px solid currentColor}
+#t-list .tacc{display:flex;align-items:center;gap:6px;flex:none;flex-wrap:wrap;justify-content:flex-end}
+#t-list .tacc select{font:500 .9rem var(--body);padding:7px 8px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--fg)}
+#t-list .tmov{display:inline-flex;gap:4px}
+#t-list .tmov button{min-width:40px;min-height:40px;padding:0;font-size:1rem}
+#t-list .tmov button:disabled{opacity:.3}
+@media (max-width:520px){#t-list>.fitem .tacc{width:100%;padding-left:40px;justify-content:flex-start}}
+#n-list{display:flex;flex-direction:column;gap:8px}
+#n-list>.fitem{background:var(--warn-bg);border:1px solid var(--line);border-left:4px solid var(--warn);border-radius:10px;padding:10px 12px;align-items:flex-start;gap:12px}
+#n-list>.fitem>span:first-child{flex:1;min-width:0}
+.sindb{margin:10px 0 0;background:var(--warn-bg);border:1px solid var(--line);border-left:4px solid var(--warn);border-radius:10px;padding:10px 12px;font-size:.92rem}
+.nuevo{display:block;width:100%;margin:10px 0 4px;font:700 1rem var(--body);color:var(--accent-ink);background:var(--accent);border:0;border-radius:10px;padding:12px 14px;cursor:pointer;text-align:center}
+.nuevo[aria-expanded="true"]{background:var(--soft);color:var(--accent)}
+.fform.plegado{display:none!important}
+.nbanner{margin-top:10px;background:var(--warn-bg);color:var(--fg);border:1px solid var(--line);border-left:4px solid var(--warn);border-radius:10px;padding:8px 12px;font-size:.92rem;cursor:pointer}
+.nbanner ul{margin:4px 0 0;padding-left:18px;display:flex;flex-direction:column;gap:2px}
+#f-tareas>.fitem{border-left-color:var(--warn)}#f-tareas>.fitem::before{background:var(--warn);color:#fff}
+#t-list>.fitem>span:first-of-type,#g-list>.fitem>span:first-of-type,#f-tareas>.fitem>span:first-of-type{flex:1;min-width:0}
+@media (max-width:520px){#t-list>.fitem,#g-list>.fitem,#f-tareas>.fitem{flex-wrap:wrap}#g-list>.fitem .acc{width:100%;padding-left:40px}}
+/* ==== FIN TAREAS Y GARANTIAS ==== */
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Tarifa SAT · Reparo Novo</h1>
+    <span class="upd" id="upd"></span>
+    <nav class="jump" aria-label="Ir a"><a href="#fundas" data-open>Peticiones de funda</a><a href="#reservas" data-open>Reservas de equipos</a><a href="#tareas" data-open>Tareas</a><a href="#garantias" data-open>Garantías</a><a href="#calc" data-open>¿No está el modelo?</a><a href="#tasador" data-open>Tasador de iPhone</a><a href="#faq" data-open>Respuestas rápidas</a><a href="#serv" data-open>Servicios</a></nav>
+  </header>
+  <!-- ==== VISTAS v1 ==== -->
+  <nav class="vnav" id="vnav" aria-label="Secciones">
+    <button data-v="tarifa"><span class="ic" aria-hidden="true">🔧</span>Tarifa</button>
+    <button data-v="fundas"><span class="ic" aria-hidden="true">📱</span>Fundas<span class="vc" data-of="f-count"></span></button>
+    <button data-v="reservas"><span class="ic" aria-hidden="true">📦</span>Reservas<span class="vc" data-of="r-count"></span></button>
+    <button data-v="tareas"><span class="ic" aria-hidden="true">✅</span>Tareas<span class="vc" data-of="t-count"></span></button>
+    <button data-v="garantias"><span class="ic" aria-hidden="true">🛡️</span>Garantías<span class="vc" data-of="g-count"></span></button>
+    <button data-v="mas"><span class="ic" aria-hidden="true">☰</span>Más</button>
+  </nav>
+  <!-- ==== FIN VISTAS ==== -->
+
+  <div class="search">
+    <input id="q" type="search" placeholder="Escribe el modelo: iphone 13, a15, redmi note 12…" autocomplete="off" aria-label="Buscar modelo">
+    <div class="chips" id="chips" role="group" aria-label="Marca"></div>
+  </div>
+
+  <div class="nbanner" id="n-banner" hidden role="button" tabindex="0" title="Ver notas"></div>
+  <div class="grid">
+    <nav class="list" id="list" aria-label="Modelos"></nav>
+    <section class="card" id="card" aria-live="polite"></section>
+  </div>
+
+
+  <details class="serv" id="calc">
+    <summary>¿El modelo no está? Calcular precio con el coste de la pieza</summary>
+    <div class="calcgrid">
+      <label for="c-pieza" style="grid-column:1/-1">Pieza ya buscada en los proveedores (rellena sola el precio y el proveedor)
+        <select id="c-pieza"><option value="">— Elige modelo y reparación, o escribe el precio abajo —</option></select></label>
+      <label for="c-marca">Marca
+        <select id="c-marca"><option value="iphone">iPhone</option><option value="samsung">Samsung</option><option value="android" selected>Xiaomi / Redmi / Poco</option><option value="otras">Otras Android (Oppo, Realme, Honor…)</option><option value="raros">Modelos raros (Doogee, Blackview, Ulefone…)</option><option value="tablet">Tablet / iPad</option><option value="pc">Portátil / PC</option></select></label>
+      <label for="c-rep">Reparación
+        <select id="c-rep"></select></label>
+      <label for="c-prov">Proveedor
+        <select id="c-prov"><option value="esm">Esmovil (llega al día siguiente)</option><option value="ms">MobileSentrix (pedido antes de las 18:00, 2 días laborables)</option><option value="se">Spain Electro (pantallas originales de desmontaje; pedido antes de las 19:30, llega mañana)</option><option value="ssr">Apple Self Service Repair (baterías originales; viene de Alemania, 1,5–2 semanas)</option><option value="es">Otro distribuidor de España: SpainSeller, Recambiostablet…</option><option value="depau">Depau (informática: SSD, RAM…)</option><option value="ali">AliExpress (modelos raros)</option></select></label>
+      <label for="c-coste"><span id="c-coste-lbl">Precio de la pieza (sin IVA, como sale en la web)</span>
+        <input id="c-coste" type="number" inputmode="decimal" min="0" step="0.01" placeholder="p. ej. 32,50"></label>
+    </div>
+    <div class="calcout" id="c-out" aria-live="polite"></div>
+    <p class="foot">Busca la pieza exacta (ojo con 4G / 5G) primero en Esmovil y MobileSentrix; si no está, en Spain Electro, SpainSeller o Recambiostablet, y para modelos raros en AliExpress. Escribe su precio (o elige la pieza arriba si ya está buscada). Solo consulta con Miguel si no encuentras la pieza en ningún proveedor o si el precio sale de 150 € o más.</p>
+    <div class="askgrid">
+      <label for="a-modelo">Modelo exacto (como sale en Ajustes)
+        <input id="a-modelo" type="text" placeholder="p. ej. Redmi Note 13 Pro 5G" autocomplete="off"></label>
+      <label for="a-averia">Avería y lo que quiere el cliente
+        <input id="a-averia" type="text" placeholder="p. ej. pantalla rota, no se ve nada" autocomplete="off"></label>
+    </div>
+    <a class="wa" id="a-wa" href="#" target="_blank" rel="noopener">Preguntar precio a Miguel por WhatsApp</a>
+    <p class="foot">Se abre WhatsApp con el mensaje ya escrito (modelo, avería y el precio que haya calculado la página). Elige a Miguel y envíalo. Dile al cliente que le confirmas el precio por WhatsApp en un rato y apunta su teléfono.</p>
+  </details>
+
+  <details class="serv" id="tasador">
+    <summary>Tasador de iPhone usados: ¿cuánto le damos por su móvil?</summary>
+    <div class="tasgrid">
+      <label for="t-modelo">Modelo y capacidad
+        <select id="t-modelo"></select></label>
+    </div>
+    <div class="checks" role="group" aria-label="Estado del iPhone">
+      <label><input type="checkbox" id="t-bat"> Batería por debajo del 85 % o aviso de batería no original (Ajustes › Batería › Estado)</label>
+      <label><input type="checkbox" id="t-pant"> Pantalla rota o con manchas</label>
+      <label><input type="checkbox" id="t-sucio"> Muy sucio (hay que limpiarlo a fondo): −25 €</label>
+      <label><input type="checkbox" id="t-carga"> Problemas de carga (conector o placa de carga): −50 €</label>
+      <label><input type="checkbox" id="t-golpes"> Golpes, tapa trasera rota o arañazos marcados</label>
+    </div>
+    <div class="tasout" id="t-out" aria-live="polite"></div>
+    <a class="wa" id="t-wa" href="#" target="_blank" rel="noopener">Mandar la tasación a Miguel para que la confirme</a>
+    <p class="must"><b>Antes de dar la cifra comprueba:</b> que encienda y se pueda revisar, que tenga Buscar mi iPhone y la cuenta de iCloud quitados delante de ti, y que no esté bloqueado por la compañía. Para cerrar la compra hace falta el DNI y el contrato de compraventa en SATTPV.</p>
+    <p class="foot">Ofrece siempre primero el vale: se lleva más dinero si lo gasta aquí (móvil, reparación o accesorios). En efectivo se le da menos. Con el iPhone en buen estado la cifra se da cerrada. <b>Solo si tiene la pantalla rota o golpes</b>, mándasela a Miguel con el botón para que la ajuste. Para un Android o un iPhone que no esté en la lista, manda los datos a Miguel con el botón.</p>
+  </details>
+
+  <!-- ==== FUNDAS v1 ==== -->
+  <details class="serv" id="fundas">
+    <summary>Peticiones de funda <span class="fcount" id="f-count"></span></summary>
+    <p class="foot">Apunta aquí cada funda que pida un cliente y no tengamos. Cuando Miguel meta la factura en SATTPV, el sistema la detecta, avisa al cliente por WhatsApp y te dice aquí dónde dejar cada funda.</p>
+    <button type="button" class="nuevo" data-abre="f-form" aria-expanded="false">+ Nueva petición de funda</button>
+    <form class="fform plegado" id="f-form" autocomplete="off">
+      <label>Cliente<input name="cliente" required placeholder="Nombre"></label>
+      <label>Móvil del cliente<input name="telefono" required inputmode="tel" pattern="[0-9 ]{9,12}" placeholder="600 000 000"></label>
+      <label>Modelo de teléfono<input name="modelo" required placeholder="p. ej. iPhone 15 Pro, Galaxy A55"></label>
+      <label>Qué funda<input name="detalle" placeholder="p. ej. transparente MagSafe, libro negra"></label>
+      <label class="fobs">Observaciones<textarea name="obs" rows="2" placeholder="p. ej. la quiere antes del viernes, si no hay negra vale azul"></textarea></label>
+      <label class="fchk"><input type="checkbox" name="pagada"> Ya pagada o con señal</label>
+      <button type="submit" class="wa fbtn">Apuntar petición</button>
+    </form>
+    <p class="q" id="f-msg" aria-live="polite"></p>
+    <div id="f-tareas"></div>
+    <h3 class="fh">Pendientes de llegar</h3><div id="f-pend" class="flist"></div>
+    <h3 class="fh">Reservadas (esperando al cliente)</h3><div id="f-res" class="flist"></div>
+  </details>
+  <!-- ==== FIN FUNDAS ==== -->
+  <!-- ==== RESERVAS v1 ==== -->
+  <details class="serv" id="reservas">
+    <summary>Reservas y pedidos de equipos <span class="fcount" id="r-count"></span></summary>
+    <p class="foot">Teléfonos, tablets, portátiles… que un cliente ha reservado o encargado. Apunta lo que ha dado a cuenta y cambia el estado según avance: así se ve qué hay que pedir, qué está en camino y quién tiene que pasar a recoger.</p>
+    <div class="gsum" id="r-sum"></div>
+    <button type="button" class="nuevo" data-abre="r-form" aria-expanded="false">+ Nueva reserva</button>
+    <form class="fform plegado" id="r-form" autocomplete="off">
+      <label>Cliente<input name="cliente" required placeholder="Nombre"></label>
+      <label>Móvil del cliente<input name="telefono" required inputmode="tel" placeholder="600 000 000"></label>
+      <label>Tipo<select name="tipo"><option>Teléfono</option><option>Tablet</option><option>Portátil</option><option>Reloj</option><option>Otro</option></select></label>
+      <label class="fobs requipo">Equipo y características<textarea name="equipo" required rows="3" placeholder="p. ej. iPhone 15 128 GB negro, reacondicionado grado A, batería 100 %, con funda y cristal"></textarea></label>
+      <label>Precio total (€)<input name="precio" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0"></label>
+      <label>Dado a cuenta (€)<input name="cuenta" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0"></label>
+      <label>Estado<select name="estado"></select></label>
+      <label>Proveedor<input name="proveedor" placeholder="Opcional (J.J., stock tienda…)"></label>
+      <label class="fobs">Observaciones<textarea name="obs" rows="2" placeholder="p. ej. lo quiere para el cumpleaños del día 20, color alternativo azul"></textarea></label>
+      <button type="submit" class="wa fbtn">Apuntar reserva</button>
+    </form>
+    <p class="q" id="r-msg" aria-live="polite"></p>
+    <div id="r-list" class="flist"></div>
+    <details class="hechas"><summary class="q">Entregadas o anuladas (último mes)</summary><div id="r-done" class="flist"></div></details>
+  </details>
+  <!-- ==== FIN RESERVAS ==== -->
+  <!-- ==== TAREAS Y GARANTIAS v1 ==== -->
+  <details class="serv" id="notas">
+    <summary>Notas informativas <span class="fcount" id="n-count"></span></summary>
+    <button type="button" class="nuevo" data-abre="n-form" aria-expanded="false">+ Nueva nota</button>
+    <form class="fform plegado" id="n-form" autocomplete="off">
+      <label style="grid-column:1/-1">Nota<input name="texto" required placeholder="p. ej. Va a llegar un contrarreembolso de 10 €"></label>
+      <label>Hasta el día (opcional)<input name="hasta" type="date"></label>
+      <button type="submit" class="wa fbtn">Añadir nota</button>
+    </form>
+    <p class="q" id="n-msg" aria-live="polite"></p>
+    <div id="n-list" class="flist"></div>
+  </details>
+  <details class="serv" id="tareas">
+    <summary>Tareas <span class="fcount" id="t-count"></span></summary>
+    <button type="button" class="nuevo" data-abre="t-form" aria-expanded="false">+ Nueva tarea</button>
+    <form class="fform plegado" id="t-form" autocomplete="off">
+      <label style="grid-column:1/-1">Qué hay que hacer<input name="texto" required placeholder="p. ej. Llamar a Antonio para que recoja su portátil"></label>
+      <label>Para<select name="para"><option>Todos</option><option>Lourdes</option><option>Miguel</option></select></label>
+      <label>Antes de<input name="limite" type="date"></label>
+      <label>Para cuándo<select name="prio"><option value="0">🔴 Para hoy</option><option value="1">🟠 Esta semana</option><option value="2" selected>Sin prioridad</option></select></label>
+      <button type="submit" class="wa fbtn">Añadir tarea</button>
+    </form>
+    <p class="q" id="t-msg" aria-live="polite"></p>
+    <div id="t-list" class="flist"></div>
+    <details class="hechas"><summary class="q">Hechas recientemente</summary><div id="t-done" class="flist"></div></details>
+  </details>
+
+  <details class="serv" id="garantias">
+    <summary>Garantías con proveedores <span class="fcount" id="g-count"></span></summary>
+    <p class="foot">Piezas o equipos en garantía con COOL, Apokin o Esmovil. Si el cliente está esperando, aparece arriba y en rojo cuando lleva más de 14 días sin respuesta: reclama al proveedor y avisa al cliente de cómo va.</p>
+    <div class="gsum" id="g-sum"></div>
+    <button type="button" class="nuevo" data-abre="g-form" aria-expanded="false">+ Nueva garantía</button>
+    <form class="fform plegado" id="g-form" autocomplete="off">
+      <label>Proveedor<select name="proveedor"><option>COOL</option><option>Apokin</option><option>Esmovil</option><option>Otro</option></select></label>
+      <label>Qué es<input name="equipo" required placeholder="p. ej. Pantalla iPhone 13 / Redmi Note 13"></label>
+      <label>Problema<input name="problema" placeholder="p. ej. táctil falla, no carga"></label>
+      <label>Fecha de factura<input type="date" name="fecha_factura" required></label>
+      <label>Nº RMA o pedido<input name="ref" placeholder="Opcional"></label>
+      <label>Cliente (si espera)<input name="cliente" placeholder="Vacío si es pieza de stock"></label>
+      <label>Móvil del cliente<input name="telefono" inputmode="tel" placeholder="Opcional"></label>
+      <label class="fchk"><input type="checkbox" name="esperando" checked> El cliente está esperando</label>
+      <button type="submit" class="wa fbtn">Registrar garantía</button>
+    </form>
+    <p class="q" id="g-msg" aria-live="polite"></p>
+    <div id="g-list" class="flist"></div>
+    <details class="hechas"><summary class="q">Cerradas recientemente</summary><div id="g-done" class="flist"></div></details>
+  </details>
+  <!-- ==== FIN TAREAS Y GARANTIAS ==== -->
+  <details class="serv" id="faq">
+    <summary>Respuestas rápidas para el cliente</summary>
+    <dl class="faq" id="faql"></dl>
+  </details>
+  <details class="serv" id="serv">
+    <summary>Servicios con precio fijo (todas las marcas, portátiles y consolas)</summary>
+    <div class="tablewrap"><table id="servt"></table></div>
+  </details>
+
+  <p class="foot">Precio = lo que solemos cobrar por esa reparación (media del último año en SATTPV) o, si casi no la hemos hecho, la tarifa de la tienda. «Pieza en tienda» = lo que tardamos de normal en repararlo con la pieza aquí (sin contar la espera de pieza). «Si hay que pedirla» = cuándo estaría listo pidiéndola ahora: Esmovil sirve al día siguiente a las 9:30–10:00 los pedidos de lunes a viernes antes de las 19:15 (también entrega el sábado); MobileSentrix: pedido de lunes a viernes antes de las 18:00, llega 2 días laborables después hacia las 13:00. Si el pedido del día a Esmovil no llega a 100 € + IVA se pagan portes: intenta juntar piezas en un mismo pedido. Si un modelo no aparece, usa «¿El modelo no está?»: muchas piezas ya salen buscadas y el precio se rellena solo.</p>
+</div>
+
+<script id="agenda" type="application/json"></script>
+<script id="data" type="application/json"></script>
+<script type="text/x-diferido">
+const DATA = JSON.parse(document.getElementById('data').textContent);
+// ==== PRECIOS FIJOS v1 ==== (fijados por Miguel; mandan sobre el histórico)
+// Precios mínimos por margen (revisados el 12/10/2026 con el coste de Esmovil y el último coste de SATTPV: coste con IVA+RE × 1,25 + 40 en pantallas,
+// tabla de Miguel en pantallas baratas, coste + 40/45 en baterías). Si la tarifa regenerada sale por debajo, se sube a este mínimo.
+const MINIMOS = {"iPhone 13 Pro|Cámara · Compatible":109,"iPhone 13 Pro Max|Cámara · Compatible":89,"iPhone 15 Pro|Pantalla · Original":489,"iPhone 15 Pro|Cámara · Original":229,"iPhone 17|Pantalla · Original":549,"iPhone 5|Batería · Compatible":59,"iPhone 6|Batería · Compatible":59,"iPhone 6 Plus|Batería · Compatible":59,"iPhone 7|Batería · Compatible":59,"iPhone 8|Batería · Compatible":59,"iPhone 8 Plus|Batería · Compatible":69,"iPhone SE 2020|Pantalla · Compatible":69,"iPhone SE 2020|Batería · Compatible":59,"Galaxy A05S|Pantalla · Original":79,"Galaxy A14|Batería · Original":79,"Galaxy A16 4G|Pantalla · Original":119,"Galaxy A16 5G|Batería · Original":79,"Galaxy A16 5G|Tapa trasera · Chasis original grado B":49,"Galaxy A17|Pantalla · Original":119,"Galaxy A21S|Pantalla · Original":119,"Galaxy A22 5G|Batería · Original":79,"Galaxy A25|Pantalla · Original":149,"Galaxy A26 5G|Pantalla · Original":129,"Galaxy A32 4G|Pantalla · Original":139,"Galaxy A34|Pantalla · Original":149,"Galaxy A40|Pantalla · Original":169,"Galaxy A51|Pantalla · Original":179,"Galaxy A52|Pantalla · Original":169,"Galaxy A52 4G|Pantalla · Original":169,"Galaxy A52 4G|Conector de carga · Original":59,"Galaxy A52S|Pantalla · Original":159,"Galaxy A52S|Conector de carga · Original":59,"Galaxy A53 5G|Pantalla · Original":159,"Galaxy A54|Pantalla · Original":149,"Galaxy A54 5G|Pantalla · Original":149,"Galaxy A55|Pantalla · Original":149,"Galaxy A56|Pantalla · Original":149,"Galaxy A70|Pantalla · Original":179,"Galaxy A71|Pantalla · Original":199,"Galaxy A71|Batería · Compatible":69,"Galaxy M13 4G|Pantalla · Original":119,"Galaxy Note 10 Lite|Pantalla · Original":259,"Galaxy Note 10 Plus|Pantalla · Original":369,"Galaxy Note 10 Plus|Batería · Original":79,"Galaxy Note 20 5G|Pantalla · Original":249,"Galaxy Note 20 5G|Batería · Original":79,"Galaxy Note 20 Ultra|Pantalla · Original":369,"Galaxy Note 20 Ultra|Batería · Original":89,"Galaxy S10|Pantalla · Original":309,"Galaxy S10|Batería · Original":79,"Galaxy S10 Plus|Pantalla · Original":319,"Galaxy S10 Plus|Batería · Original":79,"Galaxy S20 FE|Pantalla · Original":169,"Galaxy S20 FE|Batería · Original":89,"Galaxy S20 Plus|Pantalla · Original":309,"Galaxy S21 5G|Pantalla · Original":249,"Galaxy S21 FE|Batería · Original":79,"Galaxy S21 Plus|Pantalla · Original":259,"Galaxy S21 Plus|Batería · Original":89,"Galaxy S21 Plus|Tapa trasera · Chasis original grado B":69,"Galaxy S22|Pantalla · Original":239,"Galaxy S22 5G|Pantalla · Original":239,"Galaxy S22 5G|Batería · Original":79,"Galaxy S22 Plus|Pantalla · Original":259,"Galaxy S22 Plus|Batería · Original":89,"Galaxy S22 Ultra|Pantalla · Original":349,"Galaxy S22 Ultra|Conector de carga · Original":59,"Galaxy S23|Pantalla · Original":249,"Galaxy S23|Batería · Original":79,"Galaxy S23 Plus|Pantalla · Original":239,"Galaxy S23 Plus|Batería · Original":79,"Galaxy S23 Plus|Conector de carga · Original":59,"Galaxy S23 Ultra|Pantalla · Original":369,"Galaxy S23 Ultra|Conector de carga · Original":59,"Galaxy S23 Ultra|Tapa trasera · Chasis original grado B":79,"Galaxy S24|Pantalla · Original":319,"Galaxy S24|Batería · Original":79,"Galaxy S25 Ultra|Pantalla · Original":379,"Galaxy S8 Plus|Pantalla · Original":259,"Galaxy S9|Pantalla · Original":199,"Galaxy S9|Tapa trasera · Chasis original grado B":59,"Mi 10 Lite|Pantalla · Original":79,"Mi 10T Lite|Pantalla · Compatible":59,"Mi 10T Lite|Pantalla · Original":129,"Mi 10T Lite 5G|Pantalla · Compatible":65,"Mi 10T Lite 5G|Pantalla · Original":129,"Mi 11|Pantalla · Original":269,"Mi 11|Cámara · Compatible":49,"Mi 11 Lite|Pantalla · Original":139,"Mi 11T Pro 5G|Pantalla · Original":109,"Poco C65|Pantalla · Original":79,"Poco F1|Pantalla · Compatible":59,"Poco F1|Conector de carga · Original desmontaje":109,"Poco F2 Pro|Pantalla · Original":209,"Poco X3|Pantalla · Original":109,"Poco X3|Batería · Original":79,"Poco X3 Pro|Pantalla · Original":75,"Poco X6 Pro|Pantalla · Original":129,"Redmi 10|Pantalla · Compatible":65,"Redmi 10|Pantalla · Original":79,"Redmi 10 2022|Pantalla · Compatible":69,"Redmi 10A|Pantalla · Original":75,"Redmi 10C|Pantalla · Original":75,"Redmi 12|Pantalla · Compatible":79,"Redmi 12|Pantalla · Original":75,"Redmi 13|Cámara · Compatible":59,"Redmi 13C|Pantalla · Original":79,"Redmi 13T Pro|Tapa trasera · Chasis original grado B":79,"Redmi 15C|Pantalla · Compatible":99,"Redmi 15C|Pantalla · Original":109,"Redmi 7A|Pantalla · Compatible":59,"Redmi 9|Pantalla · Original":75,"Redmi 9|Conector de carga · Original":59,"Redmi 9A|Pantalla · Compatible":59,"Redmi 9C|Pantalla · Original":69,"Redmi A2|Pantalla · Original":75,"Redmi Note 10|Pantalla · Compatible":65,"Redmi Note 10|Pantalla · Original":79,"Redmi Note 10 5G|Pantalla · Original":75,"Redmi Note 11 Pro|Batería · Original":89,"Redmi Note 11S|Pantalla · Original":169,"Redmi Note 12|Pantalla · Original":169,"Redmi Note 12 Pro|Pantalla · Original":179,"Redmi Note 12 Pro 4G|Pantalla · Original":189,"Redmi Note 12 Pro 5G|Pantalla · Compatible":109,"Redmi Note 12 Pro 5G|Conector de carga · Original":69,"Redmi Note 12 Pro Plus 5G|Conector de carga · Original":69,"Redmi Note 13|Pantalla · Original":159,"Redmi Note 13 4G|Pantalla · Original":169,"Redmi Note 13 5G|Pantalla · Original":119,"Redmi Note 13 Pro|Pantalla · Original":139,"Redmi Note 13 Pro|Batería · Original":79,"Redmi Note 13 Pro|Batería · Compatible":69,"Redmi Note 13 Pro 4G|Pantalla · Original":119,"Redmi Note 13 Pro 5G|Pantalla · Original":139,"Redmi Note 13 Pro Plus 5G|Pantalla · Compatible":109,"Redmi Note 13 Pro Plus 5G|Pantalla · Original":149,"Redmi Note 13 Pro Plus 5G|Batería · Compatible":69,"Redmi Note 14|Pantalla · Original":119,"Redmi Note 14 Pro 5G|Pantalla · Original":149,"Redmi Note 7|Pantalla · Original":109,"Redmi Note 8|Pantalla · Original":109,"Redmi Note 9|Pantalla · Original":79,"Redmi Note 9 Pro|Pantalla · Original":149,"Xiaomi 14T Pro|Pantalla · Original":259,"Doogee S Cyber Pro|Pantalla · Compatible":69,"Doogee S100|Pantalla · Compatible":79,"Google Pixel 7|Pantalla · Original":209,"Google Pixel 8A|Pantalla · Original":169,"Huawei|Pantalla · Compatible":109,"Huawei Mediapad T5 Ags2 W09|Pantalla · Compatible":79,"Huawei P Smart 2019|Pantalla · Compatible":65,"Huawei P30 Pro|Pantalla · Original":189,"One Plus Nord Ce 2|Batería · Compatible":69,"Oppo A58|Pantalla · Compatible":65,"Oppo A6 4G|Pantalla · Compatible":69,"Oppo A60|Pantalla · Compatible":65,"Oppo A60|Pantalla · Original":69,"Oppo A74|Batería · Original":79,"Oppo A94 5G|Pantalla · Original":169,"Oppo Find X2 Neo|Batería · Original":89,"Oppo Reno 13 Pro 5G|Pantalla · Compatible":119,"Oukitel C51|Pantalla · Compatible":69,"Realme 6|Pantalla · Compatible":65,"Realme 8I|Pantalla · Compatible":59,"Realme 9I|Batería · Original":89,"Realme C67|Pantalla · Compatible":65,"Realme Gt6|Tapa trasera · Chasis original grado B":49,"Tcl 20 Se|Pantalla · Compatible":65,"Vivo Y72 5G|Batería · Compatible":79,"Xiaomi 11 Lite 5G NE|Pantalla · Original":129,"Xiaomi 11 Lite 5G NE|Batería · Original":89,"Xiaomi 12T|Pantalla · Original":219,"Xiaomi 12T|Batería · Compatible":79,"Zte Blade V50 Smart|Pantalla · Compatible":79,"Ipad 7 A2197|Pantalla · Compatible":69,"Ipad A1954|Batería · Compatible":59,"Ipad A2270|Pantalla · Compatible":109,"Ipad A2602|Pantalla · Compatible":109,"Lenovo|Batería · Compatible":59,"Lenovo M10|Batería · Compatible":49,"Oukitel Rt3|Pantalla · Compatible":79,"Tab A 2019|Pantalla · Compatible":59,"Tab A T510|Pantalla · Compatible":59,"Tab A6 Sm T580|Pantalla · Compatible":59,"Acer Aspire 3|Pantalla · Compatible":129,"Acer Aspire 3|Cámara · Compatible":59,"Asus|Batería · Compatible":49,"Asus|Tapa trasera · Chasis original grado B":69,"Asus Rog|Batería · Compatible":59,"Dell E6330|Batería · Compatible":59,"Dell Latitud 3510|Batería · Compatible":69,"Dinaook Satellite Pro C50 G 109|Batería · Compatible":79,"Hp|Pantalla · Compatible":99,"Hp 15 Fq1135Ns|Pantalla · Compatible":59,"Hp 250 G8|Pantalla · Compatible":79,"Hp 3168Ngw|Batería · Compatible":59,"Hp Rtl8723Be|Pantalla · Compatible":79,"Hp Rtl8723Be|Batería · Compatible":69,"Macbook A1706|Pantalla · Compatible":269,"Macbook Air 2020 A2179|Batería · Compatible":59,"Macbook Air 2020 A2179|Batería · Original":129,"Macbook Pro 2017 A1706|Pantalla · Compatible":309,"Macbook Pro A1989|Pantalla · Compatible":269,"Portátil Lenovo|Pantalla · Compatible":119,"Toshiba Satellite L50|Batería · Compatible":59,"Imac 24 Pulgdas M1 2 Puertos|Pantalla · Original":839,"Bateria Mando Grúa|Batería · Compatible":69,"Nintendo 3Ds|Batería · Compatible":49,"Play 4|Cámara · Compatible":59,"Watch Se 40Mm|Pantalla · Compatible":129,"Watch 5 40Mm|Pantalla · Compatible":179,"Watch 7 41Mm|Batería · Compatible":59,"Watch S7 41Mm|Batería · Compatible":59,"Watch Se 44Mm|Pantalla · Original desmontaje":129,"Galaxy A03|Pantalla · Original":85,"Galaxy A04E|Pantalla · Original":119,"Galaxy A05S|Batería · Original":79,"Galaxy A06|Pantalla · Original":89,"Galaxy A12|Pantalla · Original":99,"Galaxy A13 4G|Pantalla · Original":109,"Galaxy A13 5G|Pantalla · Original":99,"Galaxy A13 5G|Batería · Original":79,"Galaxy A14 4G|Pantalla · Original":109,"Galaxy A14 5G|Pantalla · Original":85,"Galaxy A14 5G|Batería · Original":89,"Galaxy A15|Pantalla · Original":109,"Galaxy A15|Batería · Original":79,"Galaxy A16 4G|Batería · Original":79,"Galaxy A16 5G|Pantalla · Original":109,"Galaxy A17 5G|Pantalla · Original":109,"Galaxy A22 5G|Pantalla · Original":109,"Galaxy A23 4G|Pantalla · Original":109,"Galaxy A23 5G|Pantalla · Original":109,"Galaxy A25 5G|Pantalla · Original":109,"Galaxy A31|Pantalla · Original":129,"Galaxy A31|Batería · Original":79,"Galaxy A40|Batería · Original":89,"Galaxy A50|Pantalla · Original":119,"Galaxy A51|Batería · Original":79,"Galaxy A52|Batería · Original":89,"Galaxy A52 4G|Batería · Original":89,"Galaxy A53 5G|Batería · Original":79,"Galaxy A54 5G|Batería · Original":89,"Galaxy A70|Batería · Original":79,"Galaxy A71|Batería · Original":79,"Galaxy A9|Pantalla · Original":109,"Galaxy A9|Batería · Original":79,"Galaxy M11|Pantalla · Original":109,"Galaxy M11|Batería · Original":79,"Galaxy M12|Pantalla · Original":85,"Galaxy M13|Pantalla · Original":119,"Galaxy M13|Batería · Original":89,"Galaxy M13 4G|Batería · Original":89,"Galaxy Note 10 Lite|Batería · Original":79,"Galaxy S20 Plus|Batería · Original":79,"Galaxy S21 5G|Batería · Original":79,"Galaxy S21 FE|Pantalla · Original":179,"Galaxy S8 Plus|Batería · Original":69,"Galaxy S9|Batería · Original":79,"Mi 10T Lite 5G|Batería · Compatible":69,"Mi 11 Lite|Pantalla · Compatible":129,"Mi 11 Lite|Batería · Original":89,"Mi 11 Lite|Batería · Compatible":59,"Mi 9 Lite|Pantalla · Original":85,"Mi 9 Lite|Pantalla · Compatible":65,"Mi 9 Lite|Batería · Compatible":69,"Mi 9 Lite|Batería · Original":79,"Mi 9T Pro|Pantalla · Compatible":65,"Mi 9T Pro|Pantalla · Original":169,"Mi 9T Pro|Batería · Compatible":59,"Poco C65|Pantalla · Compatible":59,"Poco C65|Batería · Original":79,"Poco C65|Batería · Compatible":69,"Poco C75|Pantalla · Compatible":59,"Poco C75|Batería · Compatible":69,"Poco F2 Pro|Pantalla · Compatible":79,"Poco F2 Pro|Batería · Original":69,"Poco F2 Pro|Batería · Compatible":69,"Poco F3 5G|Pantalla · Compatible":75,"Poco F3 5G|Pantalla · Original":179,"Poco F3 5G|Batería · Original":79,"Poco F3 5G|Batería · Compatible":69,"Poco M3|Pantalla · Compatible":65,"Poco M3|Pantalla · Original":109,"Poco M3|Batería · Compatible":69,"Poco X3|Pantalla · Compatible":65,"Poco X3|Batería · Compatible":69,"Poco X3 Pro|Pantalla · Compatible":65,"Poco X5 Pro 5G|Pantalla · Original":119,"Poco X5 Pro 5G|Batería · Original":89,"Poco X5 Pro 5G|Batería · Compatible":69,"Redmi 10|Batería · Original":69,"Redmi 10|Batería · Compatible":69,"Redmi 10 5G|Pantalla · Compatible":65,"Redmi 10 5G|Batería · Compatible":69,"Redmi 10A|Pantalla · Compatible":59,"Redmi 10A|Batería · Original":69,"Redmi 10A|Batería · Compatible":69,"Redmi 10C|Pantalla · Compatible":65,"Redmi 10C|Batería · Original":69,"Redmi 10C|Batería · Compatible":69,"Redmi 12 4G|Pantalla · Original":79,"Redmi 12C|Pantalla · Compatible":59,"Redmi 12C|Pantalla · Original":75,"Redmi 12C|Batería · Original":69,"Redmi 12C|Batería · Compatible":59,"Redmi 13|Pantalla · Compatible":59,"Redmi 13|Pantalla · Original":79,"Redmi 13|Batería · Compatible":69,"Redmi 13C|Pantalla · Compatible":65,"Redmi 13C|Batería · Original":79,"Redmi 13C|Batería · Compatible":69,"Redmi 13C 4G|Pantalla · Compatible":59,"Redmi 13C 4G|Batería · Original":79,"Redmi 13C 4G|Batería · Compatible":69,"Redmi 14C|Pantalla · Compatible":65,"Redmi 14C|Batería · Compatible":69,"Redmi 15C|Batería · Original":129,"Redmi 15C|Batería · Compatible":79,"Redmi 7|Pantalla · Compatible":65,"Redmi 7|Batería · Original":79,"Redmi 7|Batería · Compatible":69,"Redmi 7A|Pantalla · Original":119,"Redmi 7A|Batería · Compatible":69,"Redmi 9|Pantalla · Compatible":59,"Redmi 9|Batería · Original":69,"Redmi 9|Batería · Compatible":69,"Redmi 9A|Pantalla · Original":75,"Redmi 9A|Batería · Original":79,"Redmi 9A|Batería · Compatible":69,"Redmi 9T|Pantalla · Compatible":65,"Redmi 9T|Pantalla · Original":109,"Redmi 9T|Batería · Original":79,"Redmi 9T|Batería · Compatible":69,"Redmi A1|Pantalla · Compatible":65,"Redmi A2|Pantalla · Compatible":65,"Redmi A2|Batería · Compatible":69,"Redmi A3|Pantalla · Compatible":59,"Redmi A3|Batería · Compatible":69,"Redmi A5|Batería · Compatible":69,"Redmi Note 10|Batería · Original":79,"Redmi Note 10|Batería · Compatible":69,"Redmi Note 10 5G|Pantalla · Compatible":65,"Redmi Note 10 5G|Batería · Original":69,"Redmi Note 10 5G|Batería · Compatible":69,"Redmi Note 10 Pro|Pantalla · Compatible":75,"Redmi Note 11|Pantalla · Compatible":79,"Redmi Note 11|Pantalla · Original":159,"Redmi Note 11|Batería · Original":79,"Redmi Note 11|Batería · Compatible":69,"Redmi Note 11 4G|Pantalla · Compatible":89,"Redmi Note 11 4G|Pantalla · Original":159,"Redmi Note 11 4G|Batería · Original":79,"Redmi Note 11 4G|Batería · Compatible":69,"Redmi Note 11 Pro 4G|Pantalla · Compatible":79,"Redmi Note 11 Pro 4G|Pantalla · Original":179,"Redmi Note 11 Pro 4G|Batería · Original":89,"Redmi Note 11 Pro 4G|Batería · Compatible":69,"Redmi Note 11 Pro 5G|Pantalla · Original":179,"Redmi Note 11 Pro 5G|Batería · Compatible":69,"Redmi Note 11S|Pantalla · Compatible":85,"Redmi Note 11S 5G|Pantalla · Compatible":65,"Redmi Note 11S 5G|Pantalla · Original":179,"Redmi Note 11S 5G|Batería · Original":79,"Redmi Note 11S 5G|Batería · Compatible":59,"Redmi Note 12 4G|Pantalla · Compatible":99,"Redmi Note 12 4G|Pantalla · Original":179,"Redmi Note 12 4G|Batería · Original":79,"Redmi Note 12 4G|Batería · Compatible":69,"Redmi Note 12 5G|Pantalla · Compatible":99,"Redmi Note 12 5G|Pantalla · Original":139,"Redmi Note 12 5G|Batería · Compatible":69,"Redmi Note 12 Pro 4G|Pantalla · Compatible":109,"Redmi Note 12 Pro 4G|Batería · Compatible":69,"Redmi Note 12 Pro 5G|Pantalla · Original":119,"Redmi Note 12 Pro 5G|Batería · Original":89,"Redmi Note 12 Pro 5G|Batería · Compatible":69,"Redmi Note 12 Pro Plus 5G|Pantalla · Compatible":119,"Redmi Note 12 Pro Plus 5G|Pantalla · Original":119,"Redmi Note 12 Pro Plus 5G|Batería · Compatible":79,"Redmi Note 12S|Pantalla · Compatible":99,"Redmi Note 12S|Pantalla · Original":129,"Redmi Note 12S|Batería · Compatible":69,"Redmi Note 13 4G|Pantalla · Compatible":89,"Redmi Note 13 4G|Batería · Original":79,"Redmi Note 13 5G|Pantalla · Compatible":109,"Redmi Note 13 Pro 5G|Pantalla · Compatible":109,"Redmi Note 13 Pro 5G|Batería · Original":89,"Redmi Note 13 Pro 5G|Batería · Compatible":69,"Redmi Note 14 4G|Batería · Compatible":69,"Redmi Note 14 5G|Pantalla · Compatible":79,"Redmi Note 14 5G|Pantalla · Original":129,"Redmi Note 14 5G|Batería · Compatible":69,"Redmi Note 14 Pro 5G|Pantalla · Compatible":109,"Redmi Note 14 Pro 5G|Batería · Original":79,"Redmi Note 14 Pro 5G|Batería · Compatible":69,"Redmi Note 4|Pantalla · Compatible":65,"Redmi Note 4|Batería · Compatible":69,"Redmi Note 7|Pantalla · Compatible":65,"Redmi Note 7|Batería · Compatible":69,"Redmi Note 8|Pantalla · Compatible":65,"Redmi Note 8|Batería · Original":79,"Redmi Note 8|Batería · Compatible":69,"Redmi Note 8 Pro|Pantalla · Compatible":65,"Redmi Note 8 Pro|Pantalla · Original":129,"Redmi Note 8 Pro|Batería · Compatible":69,"Redmi Note 8T|Pantalla · Compatible":65,"Redmi Note 8T|Pantalla · Original":99,"Redmi Note 8T|Batería · Original":79,"Redmi Note 8T|Batería · Compatible":69,"Redmi Note 9|Pantalla · Compatible":59,"Redmi Note 9|Batería · Compatible":69,"Redmi Note 9 Pro|Pantalla · Compatible":59,"Redmi Note 9S|Pantalla · Compatible":65,"Redmi Note 9S|Batería · Compatible":69,"Xiaomi 11T 5G|Pantalla · Original":139,"Xiaomi 11T 5G|Batería · Original":89,"Xiaomi 11T 5G|Batería · Compatible":69,"Alcatel 1Se 2020|Pantalla · Compatible":59,"Alcatel 1Se 2020|Batería · Compatible":59,"Alcatel 3X 2019|Pantalla · Compatible":65,"Alcatel 3X 2019|Batería · Compatible":59,"Bq Aquaris U|Pantalla · Compatible":59,"Google Pixel 7|Batería · Compatible":59,"Honor X8|Pantalla · Compatible":75,"Honor X8|Batería · Original":79,"Honor X8|Batería · Compatible":69,"Huawei P20 Pro|Pantalla · Compatible":115,"Huawei Mate 20 Pro|Batería · Compatible":69,"Huawei Mate 20 Pro|Batería · Original":69,"Huawei P Smart 2019|Batería · Compatible":59,"Huawei P30|Pantalla · Original":109,"Huawei P30|Pantalla · Compatible":65,"Huawei P30|Batería · Original":69,"Huawei P30|Batería · Compatible":59,"Huawei P30 Lite|Pantalla · Compatible":65,"Huawei P30 Lite|Batería · Compatible":59,"Huawei P30 Lite|Batería · Original":69,"Huawei P30 Pro|Pantalla · Compatible":75,"Huawei Y5P|Pantalla · Compatible":65,"Galaxy J4+|Pantalla · Original":109,"Meizu Pro 7|Pantalla · Compatible":79,"Moto G7 Power|Pantalla · Compatible":65,"Moto G7 Power|Batería · Original":69,"Moto G7 Power|Batería · Compatible":59,"Motorola Edge 60 5G|Pantalla · Compatible":109,"Motorola G41|Pantalla · Compatible":79,"Motorola Moto G85 5G|Pantalla · Compatible":109,"Motorola Moto G85 5G|Batería · Compatible":69,"Oppo A17|Pantalla · Compatible":65,"Oppo A17|Batería · Compatible":59,"Oppo A5 4G|Pantalla · Compatible":65,"Oppo A5 Pro|Pantalla · Compatible":65,"Oppo A52|Pantalla · Compatible":65,"Oppo A52|Batería · Original":79,"Oppo A52|Batería · Compatible":69,"Oppo A58|Batería · Compatible":69,"Oppo A60|Batería · Compatible":69,"Oppo A6K|Batería · Compatible":69,"Oppo A74|Pantalla · Compatible":75,"Oppo A74|Batería · Compatible":69,"Oppo A78 5G|Pantalla · Compatible":65,"Oppo A80 5G|Pantalla · Compatible":65,"Oppo A9 2020|Pantalla · Compatible":65,"Oppo A94 5G|Pantalla · Compatible":65,"Oppo A94 5G|Batería · Compatible":69,"Oppo A98 5G|Pantalla · Compatible":65,"Oppo A98 5G|Batería · Compatible":69,"Oppo Reno 12F 5G|Pantalla · Compatible":89,"Realme 12 Pro 5G|Pantalla · Compatible":129,"Realme 5|Pantalla · Compatible":65,"Realme 5|Batería · Compatible":59,"Realme 6|Batería · Compatible":69,"Realme 8I|Batería · Compatible":59,"Realme 9I|Pantalla · Compatible":65,"Realme C11|Pantalla · Compatible":59,"Realme C53|Pantalla · Compatible":59,"Realme C53|Batería · Compatible":69,"Realme C55|Pantalla · Compatible":65,"Realme C61|Pantalla · Compatible":65,"Realme C61|Batería · Compatible":69,"Realme C63|Batería · Original":109,"Realme C63|Batería · Compatible":59,"Realme C65|Pantalla · Compatible":65,"Realme C67|Batería · Compatible":69,"Tcl 10 Se|Pantalla · Compatible":65,"Tcl 10 Se|Batería · Compatible":59,"Tcl 305I|Pantalla · Compatible":65,"Tcl 40 Se|Pantalla · Compatible":65,"Tcl 40 Se|Batería · Compatible":69,"Tcl 50|Batería · Compatible":69,"Tcl 30 Se|Pantalla · Compatible":65,"Tcl 30 Se|Batería · Compatible":69,"Vivo Y19S|Pantalla · Compatible":65,"Vivo Y21|Pantalla · Compatible":65,"Vivo Y21|Batería · Compatible":59,"Vivo Y36|Pantalla · Compatible":69,"Vivo Y36|Batería · Compatible":69,"Vivo Y72 5G|Pantalla · Compatible":65,"Vivo Y76 5G|Pantalla · Compatible":65,"Vivo Y76 5G|Batería · Compatible":69,"Xiaomi 11 Lite 5G NE|Pantalla · Compatible":109,"Xiaomi 11 Lite 5G NE|Batería · Compatible":59,"Zte Blade V50|Pantalla · Compatible":75,"Zte Blade V50 Design|Pantalla · Compatible":75,"Galaxy A03|Batería · Original":79,"Galaxy A04E|Batería · Original":79,"Galaxy A10|Batería · Original":89,"Galaxy A12|Batería · Original":79,"Galaxy A13 4G|Batería · Original":79,"Galaxy A14 4G|Batería · Original":79,"Galaxy A15 5G|Pantalla · Original":109,"Galaxy A15 5G|Batería · Original":79,"Galaxy A17|Batería · Original":79,"Galaxy A17 5G|Batería · Original":79,"Galaxy A21S|Batería · Original":79,"Galaxy A23 5G|Batería · Original":79,"Galaxy A25 5G|Batería · Original":89,"Galaxy A26 5G|Batería · Original":79,"Galaxy A32 4G|Batería · Original":79,"Galaxy A50|Batería · Original":79,"Galaxy M12|Batería · Original":79,"Galaxy M21|Pantalla · Original":129,"Galaxy M21|Batería · Original":89,"Galaxy S20 5G|Pantalla · Original":269,"Galaxy S20 5G|Batería · Original":79,"Galaxy J4+|Batería · Compatible":59,"iPhone 14 Pro|Tapa trasera · Cristal trasero grado B":179,"iPhone 12 Pro Max|Tapa trasera · Chasis original grado B":149,"iPhone 13|Tapa trasera · Chasis original grado B":139,"iPhone 13 Pro|Tapa trasera · Chasis original grado B":149,"iPhone 15 Pro Max|Tapa trasera · Cristal trasero grado B":139,"iPhone 16 Pro Max|Tapa trasera · Cristal trasero grado B":139,"iPhone 6|Pantalla · Compatible":59,"Galaxy A03|Conector de carga · Original":49,"Galaxy A14|Conector de carga · Original":49,"Galaxy A34|Conector de carga · Original":59,"Galaxy A50|Conector de carga · Original":49,"Galaxy A52|Conector de carga · Original":59,"Galaxy A54|Conector de carga · Original":49,"Galaxy M21|Conector de carga · Original":49,"Poco X5 Pro 5G|Conector de carga · Original":49,"iPhone 11 Pro|Tapa trasera · Chasis original grado B":119,"iPhone 12 Pro|Tapa trasera · Chasis original grado B":139,"iPhone 12 mini|Tapa trasera · Chasis original grado B":119,"iPhone 13 Pro Max|Tapa trasera · Chasis original grado B":159,"iPhone 13 mini|Tapa trasera · Chasis original grado B":129,"iPhone 15 Pro|Tapa trasera · Cristal trasero grado B":129,"iPhone 16 Plus|Tapa trasera · Cristal trasero grado B":119,"iPhone 16 Pro|Tapa trasera · Cristal trasero grado B":129,"iPhone 17|Tapa trasera · Cristal trasero grado B":149,"iPhone 17 Pro|Tapa trasera · Cristal trasero grado B":309,"iPhone 17 Pro Max|Tapa trasera · Cristal trasero grado B":409,"iPhone 8|Tapa trasera · Chasis original grado B":79,"iPhone SE 2020|Tapa trasera · Chasis original grado B":79,"iPhone SE 2022|Tapa trasera · Chasis original grado B":89,"Galaxy A13|Pantalla · Original":109,"Galaxy A14|Pantalla · Original":109,"Galaxy A16|Pantalla · Original":119,"Galaxy M15|Pantalla · Original":109,"Galaxy M23|Pantalla · Original":109,"Galaxy M33|Pantalla · Original":109,"Mi 10 Lite|Pantalla · Compatible":75,"Mi 11T Pro|Pantalla · Compatible":65,"Mi 11T Pro 5G|Pantalla · Compatible":65,"Mi 12T|Pantalla · Compatible":129,"Poco X6 Pro|Pantalla · Compatible":119,"Poco X7 Pro|Pantalla · Compatible":109,"Poco X7 Pro|Pantalla · Original":139,"Redmi A5|Pantalla · Original":79,"Redmi Note 11 Pro|Pantalla · Compatible":75,"Redmi Note 12|Pantalla · Compatible":99,"Redmi Note 12 Pro|Pantalla · Compatible":109,"Redmi Note 12 Pro 5G|Tapa trasera · Chasis original grado B":59,"Redmi Note 13 Pro|Pantalla · Compatible":109,"Xiaomi 11T Pro|Pantalla · Compatible":65,"Xiaomi 12T|Pantalla · Compatible":129,"Oppo A98|Pantalla · Compatible":65,"Oppo Reno 4Z|Pantalla · Compatible":75,"Tcl 40R|Pantalla · Compatible":65,"Tcl 50|Pantalla · Compatible":75,"iPhone 16|Cámara · Compatible":79};
+DATA.modelos.forEach(m => m.items.forEach(it => { const v = MINIMOS[m.m + '|' + it.r]; if (v && (!it.p || it.p < v)) it.p = v; }));
+// ==== PRECIOS HOJA v1 ==== Precios de la hoja «Precios SAT Reparo Novo» de Miguel (revisada el 12/10/2026): mandan sobre el histórico y los mínimos.
+// iPhone: pantalla compatible (Esmovil), original de desmontaje (Spain Electro si hay stock; si no, MobileSentrix) y original nueva certificada (Apple Self Service Repair).
+const HOJA_IPHONE = [["iPhone 6","Pantalla · Compatible",50],["iPhone 6","Batería · Compatible",30],["iPhone 6 Plus","Pantalla · Compatible",59],["iPhone 6 Plus","Batería · Compatible",29],["iPhone 7","Pantalla · Compatible",59],["iPhone 7","Pantalla · Original",79],["iPhone 7","Batería · Compatible",30],["iPhone 7","Chip de audio · Reparación en placa",55],["iPhone 7 Plus","Pantalla · Compatible",65],["iPhone 7 Plus","Pantalla · Original",100],["iPhone 7 Plus","Batería · Compatible",35],["iPhone 7 Plus","Chip de audio · Reparación en placa",55],["iPhone 8","Pantalla · Compatible",65],["iPhone 8","Pantalla · Original",90],["iPhone 8","Batería · Compatible",35],["iPhone SE 2020","Pantalla · Compatible",65],["iPhone SE 2020","Pantalla · Original",90],["iPhone SE 2020","Batería · Compatible",55],["iPhone 8 Plus","Pantalla · Compatible",65],["iPhone 8 Plus","Pantalla · Original",110],["iPhone 8 Plus","Batería · Compatible",45],["iPhone XR","Pantalla · Compatible",89],["iPhone XR","Batería · Compatible",49],["iPhone X","Pantalla · Compatible",119],["iPhone X","Pantalla · Original",160],["iPhone X","Batería · Compatible",49],["iPhone XS","Pantalla · Compatible",119],["iPhone XS","Pantalla · Original",160],["iPhone XS","Batería · Compatible",49],["iPhone XS Max","Pantalla · Compatible",129],["iPhone XS Max","Batería · Compatible",55],["iPhone 11","Pantalla · Compatible",89],["iPhone 11","Pantalla · Original desmontaje",99],["iPhone 11","Pantalla · Original",165],["iPhone 11","Batería · Compatible",59],["iPhone 11 Pro","Pantalla · Compatible",119],["iPhone 11 Pro","Batería · Compatible",65],["iPhone 11 Pro Max","Pantalla · Compatible",129],["iPhone 11 Pro Max","Pantalla · Original",199],["iPhone 11 Pro Max","Batería · Compatible",65],["iPhone 12 mini","Pantalla · Compatible",149],["iPhone 12 mini","Pantalla · Original",199],["iPhone 12 mini","Batería · Compatible",65],["iPhone 12 mini","Batería · Original",119],["iPhone 12","Pantalla · Compatible",139],["iPhone 12","Pantalla · Original desmontaje",169],["iPhone 12","Pantalla · Original",399],["iPhone 12","Batería · Compatible",69],["iPhone 12","Batería · Original",119],["iPhone 12 Pro","Pantalla · Compatible",139],["iPhone 12 Pro","Pantalla · Original desmontaje",169],["iPhone 12 Pro","Pantalla · Original",399],["iPhone 12 Pro","Batería · Compatible",69],["iPhone 12 Pro","Batería · Original",119],["iPhone 12 Pro Max","Pantalla · Compatible",159],["iPhone 12 Pro Max","Pantalla · Original",469],["iPhone 12 Pro Max","Batería · Compatible",75],["iPhone 12 Pro Max","Batería · Original",139],["iPhone 13 mini","Pantalla · Compatible",179],["iPhone 13 mini","Pantalla · Original",329],["iPhone 13 mini","Batería · Compatible",69],["iPhone 13 mini","Batería · Original",129],["iPhone 13","Pantalla · Compatible",159],["iPhone 13","Pantalla · Original desmontaje",199],["iPhone 13","Pantalla · Original",369],["iPhone 13","Batería · Compatible",75],["iPhone 13","Batería · Original",129],["iPhone 13 Pro","Pantalla · Compatible",159],["iPhone 13 Pro","Pantalla · Original desmontaje",279],["iPhone 13 Pro","Pantalla · Original",399],["iPhone 13 Pro","Batería · Compatible",79],["iPhone 13 Pro","Batería · Original",139],["iPhone 13 Pro Max","Pantalla · Compatible",179],["iPhone 13 Pro Max","Pantalla · Original desmontaje",279],["iPhone 13 Pro Max","Pantalla · Original",399],["iPhone 13 Pro Max","Batería · Compatible",85],["iPhone 13 Pro Max","Batería · Original",139],["iPhone SE 2022","Pantalla · Compatible",65],["iPhone SE 2022","Pantalla · Original",90],["iPhone SE 2022","Batería · Compatible",55],["iPhone SE 2022","Batería · Original",90],["iPhone 14","Pantalla · Compatible",159],["iPhone 14","Pantalla · Original desmontaje",219],["iPhone 14","Pantalla · Original",399],["iPhone 14","Batería · Compatible",85],["iPhone 14","Batería · Original",139],["iPhone 14 Plus","Pantalla · Compatible",169],["iPhone 14 Plus","Pantalla · Original desmontaje",239],["iPhone 14 Plus","Pantalla · Original",469],["iPhone 14 Plus","Batería · Compatible",85],["iPhone 14 Plus","Batería · Original",139],["iPhone 14 Pro","Pantalla · Compatible",199],["iPhone 14 Pro","Pantalla · Original desmontaje",269],["iPhone 14 Pro","Pantalla · Original",469],["iPhone 14 Pro","Batería · Compatible",89],["iPhone 14 Pro","Batería · Original",139],["iPhone 14 Pro Max","Pantalla · Compatible",219],["iPhone 14 Pro Max","Pantalla · Original desmontaje",329],["iPhone 14 Pro Max","Pantalla · Original",539],["iPhone 14 Pro Max","Batería · Compatible",89],["iPhone 14 Pro Max","Batería · Original",139],["iPhone 15","Pantalla · Compatible",199],["iPhone 15","Pantalla · Original desmontaje",259],["iPhone 15","Pantalla · Original",399],["iPhone 15","Batería · Compatible",89],["iPhone 15","Batería · Original",145],["iPhone 15 Plus","Pantalla · Compatible",219],["iPhone 15 Plus","Pantalla · Original",469],["iPhone 15 Plus","Batería · Compatible",99],["iPhone 15 Plus","Batería · Original",145],["iPhone 15 Pro","Pantalla · Compatible",239],["iPhone 15 Pro","Pantalla · Original desmontaje",329],["iPhone 15 Pro","Pantalla · Original",469],["iPhone 15 Pro","Batería · Compatible",99],["iPhone 15 Pro","Batería · Original",159],["iPhone 15 Pro Max","Pantalla · Compatible",259],["iPhone 15 Pro Max","Pantalla · Original desmontaje",379],["iPhone 15 Pro Max","Pantalla · Original",549],["iPhone 15 Pro Max","Batería · Compatible",109],["iPhone 15 Pro Max","Batería · Original",159],["iPhone 16","Pantalla · Compatible",279],["iPhone 16","Pantalla · Original desmontaje",349],["iPhone 16","Pantalla · Original",429],["iPhone 16","Batería · Compatible",109],["iPhone 16","Batería · Original",159],["iPhone 16 Plus","Pantalla · Compatible",279],["iPhone 16 Plus","Pantalla · Original",459],["iPhone 16 Plus","Batería · Compatible",109],["iPhone 16 Plus","Batería · Original",159],["iPhone 16 Pro","Pantalla · Compatible",289],["iPhone 16 Pro","Pantalla · Original desmontaje",379],["iPhone 16 Pro","Pantalla · Original",479],["iPhone 16 Pro","Batería · Compatible",119],["iPhone 16 Pro","Batería · Original",169],["iPhone 16 Pro Max","Pantalla · Compatible",299],["iPhone 16 Pro Max","Pantalla · Original desmontaje",449],["iPhone 16 Pro Max","Pantalla · Original",559],["iPhone 16 Pro Max","Batería · Compatible",129],["iPhone 16 Pro Max","Batería · Original",189],["iPhone 16e","Pantalla · Compatible",179],["iPhone 16e","Pantalla · Original desmontaje",289],["iPhone 16e","Pantalla · Original",359],["iPhone 16e","Batería · Compatible",89],["iPhone 16e","Batería · Original",159],["iPhone 17","Pantalla · Compatible",299],["iPhone 17","Pantalla · Original",499],["iPhone 17 Pro","Pantalla · Original desmontaje",399],["iPhone 17 Pro","Pantalla · Original",529],["iPhone 17 Pro Max","Pantalla · Original desmontaje",449],["iPhone 17 Pro Max","Pantalla · Original",599],["iPhone 17e","Pantalla · Original",379]];
+// 12/10: Spain Electro solo donde tiene stock Y sale más barato que MobileSentrix (grado A, con IVA, recargo y portes 8,77 €). 13 Pro y 14 → MobileSentrix.
+const SE_STOCK = ['iPhone 13', 'iPhone 14 Pro', 'iPhone 15 Pro', 'iPhone 16'];
+(() => {
+  const by = n => DATA.modelos.find(m => m.m === n);
+  HOJA_IPHONE.forEach(([mod, r, v]) => { const m = by(mod); if (!m) return; let it = m.items.find(x => x.r === r);
+    if (!it) { it = {r, p: v, ts: /Pantalla|Bater/.test(r) ? '24 h' : '2–3 días', tw: /Pantalla|Bater/.test(r) ? '48 h' : null, wh: 17, prov: 'esm', nota: '', sat: 0, k: (mod + '-' + r).toLowerCase().replace(/[^a-z0-9]+/g, '-')}; m.items.push(it); }
+    it.p = v; });
+  // Apple Self Service Repair solo tiene piezas del iPhone 12 en adelante (batería también del SE 2022).
+  const SSR = m => /^iPhone (1[2-9]|Air)/.test(m.m);
+  const enHoja = (m, r) => HOJA_IPHONE.some(([a, b]) => a === m.m && b === r);
+  DATA.modelos.filter(m => m.b === 'iPhone').forEach(m => { m.items = m.items.filter(it => !(it.r === 'Batería · Original' && !SSR(m) && m.m !== 'iPhone SE 2022' && !enHoja(m, it.r))); });
+  DATA.modelos.filter(m => /^(iPhone|Samsung|Xiaomi|Otras Android)$/.test(m.b)).forEach(m => m.items.forEach(it => { if (it.r === 'Formateo') it.p = 25; }));
+  DATA.modelos.filter(m => m.b === 'iPhone').forEach(m => m.items.forEach(it => {
+    if (it.r === 'Pantalla · Original' && !SSR(m)) { it.prov = 'ms'; it.nota = 'Pantalla original (no hay pieza nueva de Apple para este modelo): se pide original de desmontaje a MobileSentrix o Spain Electro según stock.'; return; }
+    if (it.r === 'Pantalla · Original') { it.prov = 'ssr'; it.nota = 'Pantalla original nueva de Apple (Self Service Repair, original certificada). Viene de Alemania: tarda 1,5–2 semanas (no prometer antes).'; }
+    if (it.r === 'Pantalla · Original desmontaje' && it.prov === 'esm' && !SE_STOCK.includes(m.m)) { it.nota = 'Original de desmontaje de Esmovil (la más barata con stock hoy): llega mañana a primera hora.'; return; } // REGLA DE PROVEEDOR (Miguel 12/10)
+    if (it.r === 'Pantalla · Original desmontaje') { const se = SE_STOCK.includes(m.m); it.prov = se ? 'se' : 'ms'; it.nota = se ? 'Original de desmontaje de Spain Electro (hay stock a 13/10).' : 'Original de desmontaje (grado A) de MobileSentrix: en Spain Electro está agotada o sale más cara. Unos 2 días laborables.'; }
+    if (it.r.startsWith('Pantalla · Compatible') && !['se', 'ms'].includes(it.prov)) it.prov = 'esm'; // REGLA DE PROVEEDOR: la más barata con stock
+  }));
+  // iPhone 15 Plus (12/10): la hoja dice «no hay» desmontaje en Spain Electro; MobileSentrix tiene original usada grado A a 103,89 € + IVA (coste 131 €). Precio entre el 15 (259) y el 15 Pro (329).
+  { const m = by('iPhone 15 Plus'), it = m && m.items.find(x => x.r === 'Pantalla · Original desmontaje'); if (it) { it.p = 279; it.prov = 'ms'; it.nota = 'Original de desmontaje (grado A) de MobileSentrix: en Spain Electro no hay.'; } }
+  // Sellado de pantalla solo en Android: en iPhone no tiene sentido (Miguel, 12/10).
+  DATA.modelos.filter(m => m.b === 'iPhone').forEach(m => { m.items = m.items.filter(it => !/^Sellado de pantalla/.test(it.r)); });
+
+  // ==== BATERIAS GAMA v1 ==== (Miguel 12/10/2026) La batería original nunca al mismo precio que la compatible (mínimo +10 €),
+  // y en móviles de gama baja (Galaxy A0x/A1x/M1x, Redmi 9–15 y A, Poco C, Realme C, Oppo A…, TCL, Alcatel, ZTE, Vivo Y, Moto, Huawei Y, Honor X5–X7…)
+  // nos ajustamos más: compatible coste + 30 (mínimo 49) y original coste + 35 (mínimo 59). Costes de Esmovil con portes (12/10); la tarea de la mañana los actualiza.
+  const COSTE_BAT = {"Alcatel 1Se 2020|Batería · Compatible":18.59,"Alcatel 3X 2019|Batería · Compatible":18.65,"Galaxy A03|Batería · Original":28.83,"Galaxy A04E|Batería · Original":28.83,"Galaxy A05S|Batería · Original":26.59,"Galaxy A10|Batería · Original":43.69,"Galaxy A12|Batería · Original":28.3,"Galaxy A13 4G|Batería · Original":28.3,"Galaxy A13 5G|Batería · Original":28.25,"Galaxy A13|Batería · Original":28.25,"Galaxy A14 4G|Batería · Original":28.83,"Galaxy A14 5G|Batería · Original":36.46,"Galaxy A15 5G|Batería · Original":26.29,"Galaxy A15|Batería · Original":26.29,"Galaxy A16 4G|Batería · Original":28.51,"Galaxy A16 5G|Batería · Original":28.51,"Galaxy A16|Batería · Original":28.51,"Galaxy A17 5G|Batería · Original":28.51,"Galaxy A17|Batería · Original":28.51,"Galaxy A21S|Batería · Original":28.3,"Galaxy A22 5G|Batería · Original":30.54,"Galaxy A23 4G|Batería · Original":30.01,"Galaxy A23 5G|Batería · Original":30.01,"Galaxy A25 5G|Batería · Original":35.01,"Galaxy A25|Batería · Original":35.01,"Galaxy A26 5G|Batería · Original":28.51,"Galaxy A31|Batería · Original":31.03,"Galaxy A32 4G|Batería · Original":31.03,"Galaxy A34|Batería · Original":35.01,"Galaxy A40|Batería · Original":43.77,"Galaxy A50|Batería · Original":30.28,"Galaxy A51|Batería · Original":27.45,"Galaxy A52 4G|Batería · Original":34.91,"Galaxy A52S|Batería · Original":34.91,"Galaxy A52|Batería · Original":34.91,"Galaxy A53 5G|Batería · Original":31.83,"Galaxy A54 5G|Batería · Original":35.01,"Galaxy A54|Batería · Original":35.01,"Galaxy A55|Batería · Original":35.01,"Galaxy A56|Batería · Original":34.13,"Galaxy A70|Batería · Original":25.75,"Galaxy A71|Batería · Compatible":19.32,"Galaxy A71|Batería · Original":33.62,"Galaxy A9|Batería · Original":28.32,"Galaxy J4+|Batería · Compatible":15.93,"Galaxy M11|Batería · Original":32.17,"Galaxy M12|Batería · Original":28.3,"Galaxy M13 4G|Batería · Original":35.05,"Galaxy M13|Batería · Original":35.05,"Galaxy M21|Batería · Original":34.77,"Galaxy M23|Batería · Original":30.01,"Galaxy M33|Batería · Original":30.01,"Galaxy Note 10 Lite|Batería · Original":30.64,"Galaxy Note 10 Plus|Batería · Original":33.37,"Galaxy Note 20 5G|Batería · Original":32.33,"Galaxy Note 20 Ultra|Batería · Original":34.04,"Galaxy S10 Plus|Batería · Original":32.16,"Galaxy S10|Batería · Original":27.31,"Galaxy S20 5G|Batería · Original":33.75,"Galaxy S20 FE|Batería · Original":34.91,"Galaxy S20 Plus|Batería · Original":33.63,"Galaxy S21 5G|Batería · Original":29.27,"Galaxy S21 FE|Batería · Original":33.87,"Galaxy S21 Plus|Batería · Original":34.52,"Galaxy S22 5G|Batería · Original":30.98,"Galaxy S22 Plus|Batería · Original":36.34,"Galaxy S22|Batería · Original":30.98,"Galaxy S23 Plus|Batería · Original":30.93,"Galaxy S23 Ultra|Batería · Original":33.53,"Galaxy S23|Batería · Original":31.34,"Galaxy S24 Plus|Batería · Original":30.67,"Galaxy S25 Ultra|Batería · Original":40.07,"Galaxy S8 Plus|Batería · Original":23.78,"Galaxy S9|Batería · Original":28.3,"Google Pixel 6A|Batería · Compatible":20.09,"Google Pixel 7 Pro|Batería · Compatible":19.56,"Google Pixel 7A|Batería · Compatible":20.0,"Google Pixel 7|Batería · Compatible":18.25,"Google Pixel 8A|Batería · Compatible":20.99,"Google Pixel 8|Batería · Compatible":19.87,"Honor X8|Batería · Compatible":19.37,"Honor X8|Batería · Original":32.03,"Huawei Mate 20 Pro|Batería · Compatible":19.07,"Huawei Mate 20 Pro|Batería · Original":20.62,"Huawei P Smart 2019|Batería · Compatible":19.0,"Huawei P30 Lite|Batería · Compatible":18.53,"Huawei P30 Lite|Batería · Original":21.34,"Huawei P30|Batería · Compatible":16.17,"Huawei P30|Batería · Original":17.41,"Mi 10 Lite|Batería · Compatible":20.5,"Mi 10T Lite 5G|Batería · Compatible":19.87,"Mi 11 Lite|Batería · Compatible":18.41,"Mi 11 Lite|Batería · Original":43.09,"Mi 11T Pro 5G|Batería · Compatible":27.35,"Mi 11T Pro 5G|Batería · Original":33.0,"Mi 11T Pro|Batería · Compatible":27.35,"Mi 11T Pro|Batería · Original":33.0,"Mi 11|Batería · Compatible":23.66,"Mi 12T|Batería · Compatible":29.23,"Mi 14T Pro|Batería · Compatible":29.51,"Mi 9 Lite|Batería · Compatible":20.74,"Mi 9 Lite|Batería · Original":30.04,"Mi 9T Pro|Batería · Compatible":18.65,"Mi Note 10 Lite|Batería · Original":27.16,"Moto G7 Power|Batería · Compatible":17.97,"Moto G7 Power|Batería · Original":18.68,"Motorola Moto G85 5G|Batería · Compatible":20.23,"Oppo A17|Batería · Compatible":18.7,"Oppo A5 4G|Batería · Compatible":18.91,"Oppo A52|Batería · Compatible":19.46,"Oppo A52|Batería · Original":32.42,"Oppo A58|Batería · Compatible":20.12,"Oppo A60|Batería · Compatible":18.58,"Oppo A6K|Batería · Compatible":19.97,"Oppo A74|Batería · Compatible":19.68,"Oppo A74|Batería · Original":32.49,"Oppo A94 5G|Batería · Compatible":20.09,"Oppo A98 5G|Batería · Compatible":20.06,"Oppo A98|Batería · Compatible":20.06,"Oppo Find X2 Neo|Batería · Compatible":19.97,"Oppo Reno 4Z|Batería · Compatible":18.73,"Oppo Reno 4Z|Batería · Original":28.57,"Poco C65|Batería · Compatible":21.52,"Poco C65|Batería · Original":25.91,"Poco C75|Batería · Compatible":20.67,"Poco F2 Pro|Batería · Compatible":20.93,"Poco F2 Pro|Batería · Original":23.75,"Poco F3 5G|Batería · Compatible":20.3,"Poco F3 5G|Batería · Original":27.36,"Poco F6|Batería · Compatible":25.82,"Poco M3|Batería · Compatible":21.58,"Poco X3|Batería · Compatible":19.03,"Poco X3|Batería · Original":25.89,"Poco X4 Pro|Batería · Compatible":22.15,"Poco X4 Pro|Batería · Original":36.92,"Poco X5 Pro 5G|Batería · Compatible":22.93,"Poco X5 Pro 5G|Batería · Original":37.85,"Poco X6 Pro|Batería · Compatible":22.83,"Poco X7 Pro|Batería · Compatible":26.42,"Realme 5|Batería · Compatible":18.91,"Realme 6|Batería · Compatible":19.44,"Realme 8I|Batería · Compatible":18.54,"Realme C53|Batería · Compatible":20.28,"Realme C61|Batería · Compatible":20.47,"Realme C63|Batería · Compatible":18.12,"Realme C63|Batería · Original":57.78,"Realme C67|Batería · Compatible":19.51,"Redmi 10 5G|Batería · Compatible":19.71,"Redmi 10A|Batería · Compatible":19.27,"Redmi 10A|Batería · Original":20.13,"Redmi 10C|Batería · Compatible":19.27,"Redmi 10C|Batería · Original":20.13,"Redmi 10|Batería · Compatible":19.71,"Redmi 10|Batería · Original":20.98,"Redmi 12C|Batería · Compatible":18.44,"Redmi 12C|Batería · Original":22.02,"Redmi 13C 4G|Batería · Compatible":21.52,"Redmi 13C 4G|Batería · Original":25.91,"Redmi 13C|Batería · Compatible":21.52,"Redmi 13C|Batería · Original":25.91,"Redmi 13|Batería · Compatible":20.46,"Redmi 14C|Batería · Compatible":20.67,"Redmi 15C|Batería · Compatible":31.29,"Redmi 15C|Batería · Original":82.85,"Redmi 7A|Batería · Compatible":19.59,"Redmi 7|Batería · Compatible":19.47,"Redmi 7|Batería · Original":27.64,"Redmi 9A|Batería · Compatible":19.55,"Redmi 9A|Batería · Original":24.7,"Redmi 9T|Batería · Compatible":21.58,"Redmi 9T|Batería · Original":25.53,"Redmi 9|Batería · Compatible":20.12,"Redmi 9|Batería · Original":20.91,"Redmi A2|Batería · Compatible":19.47,"Redmi A3|Batería · Compatible":21.04,"Redmi A5|Batería · Compatible":21.09,"Redmi Note 10 5G|Batería · Compatible":19.71,"Redmi Note 10 5G|Batería · Original":20.98,"Redmi Note 10 Pro|Batería · Compatible":20.24,"Redmi Note 10|Batería · Compatible":19.71,"Redmi Note 10|Batería · Original":20.98,"Redmi Note 11 4G|Batería · Compatible":21.39,"Redmi Note 11 4G|Batería · Original":33.62,"Redmi Note 11 Pro 4G|Batería · Compatible":20.85,"Redmi Note 11 Pro 4G|Batería · Original":36.92,"Redmi Note 11 Pro 5G|Batería · Compatible":22.15,"Redmi Note 11 Pro|Batería · Compatible":20.85,"Redmi Note 11 Pro|Batería · Original":36.92,"Redmi Note 11S 5G|Batería · Compatible":18.5,"Redmi Note 11S 5G|Batería · Original":25.13,"Redmi Note 11S|Batería · Compatible":18.5,"Redmi Note 11S|Batería · Original":25.13,"Redmi Note 11|Batería · Compatible":21.39,"Redmi Note 11|Batería · Original":33.62,"Redmi Note 12 4G|Batería · Compatible":21.82,"Redmi Note 12 4G|Batería · Original":30.38,"Redmi Note 12 5G|Batería · Compatible":20.31,"Redmi Note 12 Pro 4G|Batería · Compatible":22.15,"Redmi Note 12 Pro 5G|Batería · Compatible":22.93,"Redmi Note 12 Pro 5G|Batería · Original":37.85,"Redmi Note 12 Pro Plus 5G|Batería · Compatible":29.66,"Redmi Note 12 Pro|Batería · Compatible":22.15,"Redmi Note 12S|Batería · Compatible":22.39,"Redmi Note 12|Batería · Compatible":20.31,"Redmi Note 12|Batería · Original":30.38,"Redmi Note 13 4G|Batería · Compatible":21.47,"Redmi Note 13 4G|Batería · Original":25.15,"Redmi Note 13 Pro 5G|Batería · Compatible":26.19,"Redmi Note 13 Pro 5G|Batería · Original":39.63,"Redmi Note 13 Pro Plus 5G|Batería · Compatible":27.29,"Redmi Note 13 Pro|Batería · Compatible":26.19,"Redmi Note 13|Batería · Compatible":21.47,"Redmi Note 13|Batería · Original":25.15,"Redmi Note 14 4G|Batería · Compatible":28.45,"Redmi Note 14 5G|Batería · Compatible":19.77,"Redmi Note 14 Pro 5G|Batería · Compatible":21.17,"Redmi Note 14 Pro 5G|Batería · Original":33.62,"Redmi Note 4|Batería · Compatible":19.27,"Redmi Note 7|Batería · Compatible":21.15,"Redmi Note 8 Pro|Batería · Compatible":19.64,"Redmi Note 8T|Batería · Compatible":19.47,"Redmi Note 8T|Batería · Original":27.64,"Redmi Note 8|Batería · Compatible":19.47,"Redmi Note 8|Batería · Original":27.64,"Redmi Note 9S|Batería · Compatible":21.23,"Redmi Note 9|Batería · Compatible":21.58,"Tcl 10 Se|Batería · Compatible":18.73,"Tcl 30 Se|Batería · Compatible":20.27,"Tcl 40 Se|Batería · Compatible":18.55,"Tcl 40R|Batería · Compatible":19.74,"Tcl 50|Batería · Compatible":19.05,"Vivo V40 Se|Batería · Compatible":21.91,"Vivo Y19S|Batería · Compatible":29.48,"Vivo Y21|Batería · Compatible":18.47,"Vivo Y36|Batería · Compatible":20.28,"Vivo Y72 5G|Batería · Compatible":32.4,"Vivo Y76 5G|Batería · Compatible":20.36,"Xiaomi 11 Lite 5G NE|Batería · Compatible":18.41,"Xiaomi 11 Lite 5G NE|Batería · Original":43.09,"Xiaomi 11T 5G|Batería · Compatible":22.71,"Xiaomi 11T 5G|Batería · Original":34.44,"Xiaomi 11T Pro|Batería · Compatible":27.35,"Xiaomi 11T Pro|Batería · Original":33.0,"Xiaomi 12T|Batería · Compatible":29.23,"Xiaomi 14T Pro|Batería · Compatible":29.51};
+  const GAMA_BAJA = /^(Galaxy (A0\d|A1\d|A22|M0\d|M1\d)\b|Redmi (\d+[ACT]?|A\d)( |$)|Redmi \d+ (4G|5G|2022)|Poco C|Realme C|Oppo A(1|5|6)\d?[A-Z]?( |$)|Oppo A6K|Tcl|Alcatel|Zte|Vivo Y|Moto(rola)? (E|G\d\d?)\b|Moto G7|Huawei Y|Honor X[5-7]|Doogee|Oukitel|Hammer|Cool|Bq|Lg |U25)/i;
+  const up9b = v => Math.ceil((v + 1) / 10) * 10 - 1;
+  DATA.modelos.filter(m => /^(Samsung|Xiaomi|Otras Android)$/.test(m.b)).forEach(m => {
+    const bc = m.items.find(i => i.r === 'Batería · Compatible'), bo = m.items.find(i => i.r === 'Batería · Original');
+    if (GAMA_BAJA.test(m.m) && !/T Pro/i.test(m.m)) {
+      if (bc) { const c = COSTE_BAT[m.m + '|' + bc.r]; bc.p = c ? Math.max(up9b(c + 30), 49) : 49; }
+      if (bo) { const c = COSTE_BAT[m.m + '|' + bo.r]; bo.p = c ? Math.max(up9b(c + 35), 59) : 59; }
+    }
+    if (bc && bo && bc.p && bo.p && bo.p < bc.p + 10) bo.p = up9b(bc.p + 10);
+  });
+  // 13/10: la tarea marcó la batería del TCL 40 SE como agotada, pero Esmovil tiene la TLP049B7 compatible (9,25 € + IVA, pocas unidades).
+  { const m = DATA.modelos.find(x => x.m === 'Tcl 40 Se'), b = m && m.items.find(i => i.r === 'Batería · Compatible'); if (b) { b.prov = 'esm'; b.nota = 'Batería compatible de Esmovil (TLP049B7), pocas unidades: pídela cuanto antes.'; } }
+  // ==== FIN BATERIAS GAMA ====
+  // Miguel 13/10: Redmi Note 14 4G solo pantalla ORIGINAL a 119 € (las compatibles no van bien): se quita la compatible.
+  { const m = by('Redmi Note 14 4G'); if (m) { m.items = m.items.filter(x => x.r !== 'Pantalla · Compatible'); const o = m.items.find(x => x.r === 'Pantalla · Original'); if (o) { o.p = 119; o.nota = 'Solo montamos pantalla original: con la compatible (Esmovil) NO funciona la huella. No ofrecer compatible.'; } } }
+  if (Array.isArray(DATA.piezas)) DATA.piezas = DATA.piezas.filter(x => !(x[0] === 'Redmi Note 14 4G' && x[2] === 'Pantalla · Compatible'));
+  // Orden fijo de las pantallas en todos los móviles: compatible → original desmontaje → original.
+  const RANGO = r => /^Pantalla · Compatible/.test(r) ? 0 : /^Pantalla · Original desmontaje/.test(r) ? 1 : /^Pantalla · Original/.test(r) ? 2 : -1;
+  DATA.modelos.forEach(m => { const pos = [], pant = []; m.items.forEach((it, i) => { if (RANGO(it.r) >= 0) { pos.push(i); pant.push(it); } });
+    pant.sort((a, b) => RANGO(a.r) - RANGO(b.r)); pos.forEach((i, k) => { m.items[i] = pant[k]; }); });
+  // Consolas y mandos (hoja «Consolas»).
+  const C = [
+    [/switch/i, /conector de carga/i, 59], [/switch/i, /^mantenimiento/i, 25], [/switch/i, /^pantalla/i, 79], [/switch oled/i, /^bater/i, 65], [/switch(?! oled)/i, /^bater/i, 59],
+    [/switch|joy/i, /drift/i, 39], [/^(play 4|playstation 4|ps4)/i, /^mantenimiento/i, 50], [/^(play 5|play station 5|playstation ps 5|ps5)/i, /^mantenimiento/i, 55],
+    [/mando (play 5|ps5)/i, /drift/i, 45], [/mando ps4/i, /drift/i, 39], [/mando xbox/i, /drift/i, 45]];
+  DATA.modelos.filter(m => /Consola|Mandos/.test(m.b)).forEach(m => m.items.forEach(it => { const c = C.find(([a, b]) => a.test(m.m) && b.test(it.r)); if (c) it.p = c[2]; }));
+  (DATA.servicios || []).forEach(x => { if (x.s === 'Conector micro USB') x.nota = 'Si el equipo vale menos de 50 €: 20 €'; if (x.s === 'Conector tipo C') x.nota = 'Si el equipo vale menos de 70 €: 30 €'; if (/^Sellado de pantalla/.test(x.s)) { x.s = 'Sellado de pantalla (pantalla despegada, solo Android)'; x.nota = 'En iPhone no se hace. ' + (x.nota || ''); } });
+  // ==== CONSOLAS HOJA v1 ==== (Miguel 13/10: «faltan cosas de las consolas», todo lo de la hoja «Consolas»)
+  // Se sustituyen los modelos sueltos y repetidos del histórico (Ps4, Play 4, Playstation 4, Ps5, Play 5…) por un modelo limpio por consola con TODOS los servicios de la hoja.
+  {
+    const L = (r, p, o = {}) => ({r, p, ts: o.ts || '2–3 días', tw: o.tw === undefined ? '4–5 días' : o.tw, wh: o.wh || 30, prov: o.prov || null, nota: o.nota || '', sat: 0, k: ''});
+    const MANT = {ts: '24–48 h', tw: null}, PLACA = {ts: null, tw: null, nota: 'Reparación en placa base: precio según avería, consulta con Miguel.'};
+    const DRIFT = {ts: '24–48 h', tw: '3–4 días', nota: 'Se cambian los 2 joysticks (magnéticos).'};
+    const sw = (drift, bat) => [L('Conector de carga', 59), L('Mantenimiento', 25, MANT), L('Pantalla · Compatible HQ', 79), L('Batería · Compatible HQ', bat), L('Magia', 99, {nota: 'Precio de la hoja de Miguel.'}), L('Drift joysticks (2 unidades)', drift, DRIFT), L('Placa base', null, PLACA)];
+    const NUEVOS = [
+      {m: 'Nintendo Switch (V1 / V2)', b: 'Consola', items: sw(39, 59)},
+      {m: 'Nintendo Switch Lite', b: 'Consola', items: sw(35, 59)},
+      {m: 'Nintendo Switch OLED', b: 'Consola', items: sw(39, 65)},
+      {m: 'PlayStation 4 (PS4 / Pro / Slim)', b: 'Consola', items: [L('Mantenimiento + limpieza interna', 50, MANT), L('Conector HDMI', 59), L('Conector USB', 49)]},
+      {m: 'PlayStation 5 (PS5 / Slim)', b: 'Consola', items: [L('Mantenimiento', 55, MANT), L('Mantenimiento + cambio de metal líquido', 119, MANT), L('Conector HDMI', 99), L('Conector USB', 65)]},
+      {m: 'Xbox', b: 'Consola', items: [L('Conector HDMI', 65)]},
+      {m: 'Mando PS4', b: 'Mandos', items: [L('Drift mando', 39, DRIFT), L('Conector de carga del mando', 25)]},
+      {m: 'Mando PS5', b: 'Mandos', items: [L('Drift mando', 45, DRIFT)]},
+      {m: 'Mando Xbox', b: 'Mandos', items: [L('Drift mando', 45, DRIFT)]}];
+    const FUERA = /^(nintendo|switch|nintendo switch|nintendo switch oled|ps4|play 4|play 4 pro|playstation 4|ps5|play 5|play 5 \+ mando|play station 5|playstation ps 5 ps5|ps5 slim|mando ps4|mando ps5|mando play 5|mando xbox|mando xbox one)$/i;
+    DATA.modelos = DATA.modelos.filter(m => !(/^(Consola|Mandos)$/.test(m.b) && FUERA.test(m.m.trim())));
+    NUEVOS.forEach(n => n.items.forEach(it => { it.k = (n.m + '-' + it.r).toLowerCase().replace(/[^a-z0-9]+/g, '-'); }));
+    const i0 = DATA.modelos.findIndex(m => /^(Consola|Mandos)$/.test(m.b)); DATA.modelos.splice(i0 < 0 ? DATA.modelos.length : i0, 0, ...NUEVOS);
+  }
+  // ==== FIN CONSOLAS HOJA ====
+  // (Miguel 13/10: las tapas traseras con láser de la hoja NO se meten en la app.)
+  // SSD 240 GB según la hoja «Ordenador» (85 €).
+  (DATA.servicios || []).forEach(x => { if (/^SSD 240/.test(x.s)) { x.p = 85; x.nota = 'Kingston A400 240GB · precio de la hoja de Miguel'; } });
+  // ==== FIN SSD HOJA ====
+  // Oppo Find X5 Lite (Miguel 13/10): pantalla compatible con marco 119 €.
+  if (!DATA.modelos.some(m => /^Oppo Find X5 Lite$/i.test(m.m))) {
+    const n = 'Oppo Find X5 Lite', K = r => (n + '-' + r).toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const it = (r, p, ts, tw, wh, prov, nota) => ({r, p, ts, tw, wh, prov, nota, sat: 0, k: K(r)});
+    const nuevo = {m: n, b: 'Otras Android', items: [
+      it('Pantalla · Compatible con marco', 119, '24 h', '48 h', 17.3, 'esm', 'Viene con marco: más rápida y sin esperar a que seque el pegamento. Precio fijado por Miguel.'),
+      it('Sellado de pantalla · Pantalla despegada', 35, 'En el día', null, 2, null, 'Precio orientativo: depende del valor del equipo y del tiempo. Si el móvil vale poco, consulta con Miguel.'),
+      it('Conector de carga · Tipo C soldado', 39, 'En el día', null, 2, null, 'Opción más rápida: se suelda un conector nuevo, sin esperar pieza.'),
+      it('Limpieza conector', 15, 'En el día', null, 1.3, null, '')]};
+    const i = DATA.modelos.findIndex(m => m.m === 'Oppo Find X2 Neo'); DATA.modelos.splice(i < 0 ? DATA.modelos.length : i + 1, 0, nuevo);
+  }
+})();
+// ==== FIN PRECIOS HOJA ====
+// Traspaso: gratis si el móvil es de aquí (precio real con descuento del 100 %); comprado fuera 25 €; con recuperación o creación de cuenta (ID de Apple, Google) 30 €.
+const TRASPASO = {normal: 25, cuenta: 30};
+DATA.modelos.forEach(m => m.items.forEach(it => { if (/^Traspaso de datos/i.test(it.r)) { it.p = TRASPASO.normal; it.nota = `Gratis si el móvil es de aquí (en la factura, precio real y descuento del 100 %). Si hay que recuperar o crear la cuenta (ID de Apple, Google): ${TRASPASO.cuenta} €.`; } }));
+(DATA.servicios || []).forEach(x => { if (/^Traspaso de información \+ recuperación/i.test(x.s)) x.p = TRASPASO.cuenta; else if (/^Traspaso de información$/i.test(x.s)) x.p = TRASPASO.normal; });
+// Mandos (Joy-Con, mandos de PS/Xbox y otros mandos a distancia) van en su propia categoría, no como consola.
+DATA.modelos.forEach(m => { if (/\bmandos?\b|joy/i.test(m.m) && !/\+ mando/i.test(m.m)) m.b = 'Mandos'; if (/^joy\s*(-con)?\s*izquierdo\s*switch$/i.test(m.m)) m.m = 'Joy-Con izquierdo (Switch)'; if (/^joy\s*(-con)?\s*derecho\s*switch$/i.test(m.m)) m.m = 'Joy-Con derecho (Switch)'; });
+// Tapas y chasis de iPhone: se nombran como "original de desmontaje" (no "grado B").
+DATA.modelos.forEach(m => m.items.forEach(it => { if (/^Tapa trasera/.test(it.r)) { it.r = it.r.replace(/Chasis (original )?grado B/, 'Chasis original de desmontaje').replace(/Cristal trasero grado B/, 'Cristal trasero original de desmontaje'); it.nota = (it.nota || '').replace(/(original )?grado B/g, 'original de desmontaje'); } }));
+// Modelos duplicados: si existen la versión 4G y la 5G, el modelo "sin nada" sobra (no se sabe cuál es) y se quita.
+// Si el móvil solo existe en 5G, el "sin nada" se junta con el 5G.
+(() => {
+  const SOLO5G = ['Galaxy A54', 'Galaxy S22', 'Mi 10T Lite', 'Mi 11T Pro', 'Oppo A98', 'Galaxy A25'];
+  const by = n => DATA.modelos.find(m => m.m === n);
+  const quitar = new Set();
+  DATA.modelos.forEach(m => {
+    if (/\b[45]G$/.test(m.m)) return;
+    const g4 = by(m.m + ' 4G'), g5 = by(m.m + ' 5G');
+    if (g4 && g5) quitar.add(m);
+    else if (g5 && SOLO5G.includes(m.m)) { m.items.forEach(it => { if (!g5.items.some(x => x.r === it.r)) g5.items.push(it); }); quitar.add(m); }
+  });
+  DATA.modelos = DATA.modelos.filter(m => !quitar.has(m));
+})();
+// ==== FIN PRECIOS FIJOS ====
+const BRANDS = ['Todas','iPhone','Samsung','Xiaomi','Otras Android','iPad','Tablet','Portátil','Ordenador','Consola','Mandos','Reloj / audio'];
+let brand = 'Todas', cur = null;
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const norm = s => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/galaxy|apple|xiaomi|samsung/g,'').replace(/\s+/g,' ').trim();
+$('#upd').textContent = 'Actualizado ' + DATA.meta.actualizado;
+
+const present = new Set(DATA.modelos.map(m => m.b));
+$('#chips').innerHTML = BRANDS.filter(b => b==='Todas' || present.has(b)).map(b => `<button class="chip" data-b="${esc(b)}" aria-pressed="${b===brand}">${esc(b)}</button>`).join('');
+$('#chips').addEventListener('click', e => { const b = e.target.closest('.chip'); if(!b) return; brand = b.dataset.b; document.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', c.dataset.b===brand)); renderList(); });
+
+function matches(){
+  const q = norm($('#q').value);
+  const terms = q.split(' ').filter(Boolean);
+  // Miguel 13/10: «tcl 40se» tiene que encontrar «Tcl 40 Se» (se compara también sin espacios).
+  const sinEsp = x => x.replace(/\s+/g, ''), qs = sinEsp(q);
+  return DATA.modelos.filter(m => (brand==='Todas' || m.b===brand) && (terms.every(t => norm(m.m + ' ' + m.b).includes(t)) || (qs.length > 2 && sinEsp(norm(m.m + ' ' + m.b)).includes(qs)) || terms.every(t => sinEsp(norm(m.m + ' ' + m.b)).includes(t))));
+}
+function renderList(){
+  const ms = matches();
+  $('#list').innerHTML = ms.length ? ms.map((m,i) => `<button class="mbtn" data-i="${DATA.modelos.indexOf(m)}" aria-current="${cur===m}"><span>${esc(m.m)}</span><small>${esc(m.b)}</small></button>`).join('')
+    : `<div class="empty">No hay ningún modelo con ese nombre. Prueba con menos palabras (p. ej. «note 12»). Si no está, calcula el precio abajo en «¿El modelo no está?».</div>`;
+  if (ms.length && (!cur || !ms.includes(cur))) show(ms[0]);
+  if (!ms.length) { cur = null; $('#card').innerHTML = `<div class="empty">Este modelo no está en la tarifa. Calcula el precio con el coste de la pieza en «¿El modelo no está?», más abajo, o pregúntaselo a Miguel.<br><a class="wa" href="${waLink('Hola Miguel, ¿qué precio le doy a este cliente?\nModelo: ' + $('#q').value.trim() + '\nAvería: ')}" target="_blank" rel="noopener">Preguntar precio a Miguel por WhatsApp</a></div>`; $('#calc').open = true; $('#a-modelo').value = $('#q').value.trim(); updAsk(); }
+}
+// ---------- plazos ----------
+const DIAS = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+const day0 = d => { const x = new Date(d); x.setHours(0,0,0,0); return x; };
+function addShopDays(d, n){ const x = new Date(d); while(n > 0){ x.setDate(x.getDate()+1); if (x.getDay() !== 0) n--; } return x; }
+function dayName(d){
+  const diff = Math.round((day0(d) - day0(new Date())) / 864e5);
+  const f = DIAS[d.getDay()] + ' ' + d.getDate() + '/' + (d.getMonth()+1);
+  if (diff === 0) return 'hoy (' + f + ')'; if (diff === 1) return 'mañana (' + f + ')';
+  return 'el ' + f;
+}
+// Esmovil: pedido de lunes a viernes antes de las 19:15 -> llega al día siguiente 9:30–10:00 (también sábado)
+function esmovilArrival(now = new Date()){
+  const wd = now.getDay(), h = now.getHours() + now.getMinutes() / 60; // corte a las 19:15
+  let add;
+  if (wd >= 1 && wd <= 5 && h < 19.25) add = 1;
+  else if (wd >= 1 && wd <= 4) add = 2;
+  else add = (9 - wd) % 7 || 7;   // viernes tarde, sábado o domingo -> martes
+  if (wd === 5 && h >= 19.25) add = 4;
+  const d = new Date(now); d.setDate(d.getDate() + add); d.setHours(10,0,0,0); return d;
+}
+// MobileSentrix: pedido de lunes a viernes hasta las 18:00 -> llega 2 días laborables después hacia las 13:00 (lunes 17:00 -> miércoles ~13:00)
+// Spain Electro: pedido de lunes a viernes antes de las 19:30 -> llega al día siguiente laborable por la mañana
+const ssrArrival = (now = new Date()) => { const d = new Date(now); let n = 10; // 1,5–2 semanas para no pillarnos los dedos
+ while (n > 0) { d.setDate(d.getDate() + 1); if (d.getDay() >= 1 && d.getDay() <= 5) n--; } d.setHours(12,0,0,0); return d; };
+function seArrival(now = new Date()){ const wd = d => d.getDay() >= 1 && d.getDay() <= 5; const d = new Date(now); if (!wd(d) || d.getHours() * 60 + d.getMinutes() >= 1170) { do d.setDate(d.getDate() + 1); while (!wd(d)); } do d.setDate(d.getDate() + 1); while (!wd(d)); d.setHours(10,30,0,0); return d; }
+function msArrival(now = new Date()){ const wd = d => d.getDay() >= 1 && d.getDay() <= 5; const d = new Date(now); if (!wd(d) || d.getHours() >= 18) { do d.setDate(d.getDate() + 1); while (!wd(d)); } let n = 2; while (n > 0) { d.setDate(d.getDate() + 1); if (wd(d)) n--; } d.setHours(13,0,0,0); return d; }
+// ==== PLANIFICADOR v1 ====
+// Calcula cuándo estará listo y qué cita dar según el horario de la tienda, quién está (Miguel solo o con Lourdes),
+// las citas y ausencias del Google Calendar de Reparo Novo y lo que tarda cada reparación en el banco.
+const AGENDA = (() => { try { return JSON.parse(document.getElementById('agenda').textContent); } catch (e) { return {dias: {}}; } })();
+const HM = s => { const [h, m] = s.split(':').map(Number); return h * 60 + m; };
+const ymd = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+// Horario de la tienda (Google): L–V 9:30–14:00 y 17:00–20:30; S 10:00–14:00.
+const TURNOS = d => d === 0 ? [] : d === 6 ? [['m', 600, 840]] : [['m', 570, 840], ['t', 1020, 1230]];
+// Lourdes (rotación de 4 semanas; la semana del lunes 12/10/2026 es la semana 3): mañanas L–V, tardes L, X y J, sábados solo semanas 1 y 3.
+const SEMANA1 = new Date(2026, 8, 28);
+function semanaRot(d){ const l = new Date(d); l.setHours(12,0,0,0); l.setDate(l.getDate() - ((l.getDay() + 6) % 7)); return ((Math.round((l - SEMANA1) / 6048e5) % 4) + 4) % 4 + 1; }
+function lourdesEsta(d, turno, dia){
+  const wd = d.getDay();
+  if (turno === 'm' && dia.lourdes_no_manana) return false;
+  if (turno === 't' && dia.lourdes_no_tarde) return false;
+  if (dia.lourdes_no) return false;
+  if (wd === 6) return [1, 3].includes(semanaRot(d));
+  if (turno === 'm') return wd >= 1 && wd <= 5;
+  return [1, 3, 4].includes(wd);
+}
+// Minutos de banco de Miguel por reparación (ajustables).
+const MIN_BANCO = [[/limpieza/i, 60], [/sellado/i, 45], [/placa base/i, 180], [/chasis/i, 120], [/tapa|cristal trasero/i, 60], [/soldado en placa/i, 75], [/soldado|conector|pcb|flex de carga/i, 45], [/lente/i, 25], [/c[aá]mara/i, 40], [/bater/i, 30], [/pantalla/i, 45], [/ssd|ram|formate|copia|traspaso/i, 60]];
+const minBanco = r => { for (const [re, m] of MIN_BANCO) if (re.test(r)) return m; return 60; };
+// Capacidad de banco por tramo de 15 min: 1 si Miguel está con Lourdes en el mostrador, 0,5 si está solo (atiende él).
+// Las tardes que viene Lourdes, Miguel termina hacia las 19:00.
+const CACHE = {};
+function tramos(date){
+  const k = ymd(date); if (CACHE[k]) return CACHE[k];
+  const dia = AGENDA.dias[k] || {}, out = [];
+  if (!dia.cerrado && !dia.miguel_fuera) for (const [t, a, b] of TURNOS(date.getDay())) {
+    const conL = lourdesEsta(date, t, dia);
+    const fin = (t === 't' && conL) ? Math.min(b, 1140) : b;
+    for (let s = a; s + 15 <= fin; s += 15) {
+      const ocupado = (dia.ocupado || []).some(([i, f]) => HM(i) < s + 15 && HM(f) > s);
+      out.push([s, ocupado ? 0 : (conL ? 1 : 0.5), conL]);
+    }
+  }
+  return CACHE[k] = out;
+}
+const at = (d, min) => { const x = new Date(d); x.setHours(0, min, 0, 0); return x; };
+// Primer tramo de banco libre a partir de 'desde'.
+function primerHueco(desde){
+  const d0 = new Date(desde); d0.setHours(0,0,0,0);
+  for (let i = 0; i < 30; i++) { const d = new Date(d0); d.setDate(d.getDate() + i);
+    for (const [s, cap] of tramos(d)) { const t = at(d, s); if (cap > 0 && t >= desde - 14 * 6e4) return t < desde ? new Date(desde) : t; } }
+  return null;
+}
+// Hora a la que estaría terminado empezando en 'desde' con 'min' minutos de banco.
+function terminado(desde, min){
+  const d0 = new Date(desde); d0.setHours(0,0,0,0); let falta = min;
+  for (let i = 0; i < 30; i++) { const d = new Date(d0); d.setDate(d.getDate() + i);
+    for (const [s, cap] of tramos(d)) { const t = at(d, s); if (t < desde - 14 * 6e4 || cap === 0) continue; falta -= cap * 15; if (falta <= 0) return at(d, s + 15); } }
+  return null;
+}
+const hhmm = d => d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0');
+const cuando = d => { if (!d) return 'consultar'; const n = Math.round((day0(d) - day0(new Date())) / 864e5);
+  const dia = n === 0 ? 'hoy' : n === 1 ? 'mañana' : DIAS[d.getDay()] + ' ' + d.getDate() + '/' + (d.getMonth() + 1);
+  return dia + ' a las ' + hhmm(d); };
+const redondea15 = d => { const x = new Date(d); x.setSeconds(0, 0); x.setMinutes(Math.ceil(x.getMinutes() / 15) * 15); return x; };
+// Momento en que entra el móvil (selector "Lo deja" de la ficha; por defecto, ahora).
+let dejaMan = null;
+const entrada = () => dejaMan ? new Date(dejaMan) : new Date();
+// "Lo deja" solo admite horas de apertura (L–V 9:30–14:00 y 17:00–20:30, S 10:00–14:00; no domingos ni días cerrados del calendario).
+const pad2 = n => String(n).padStart(2, '0');
+const hmTxt = s => Math.floor(s / 60) + ':' + pad2(s % 60);
+function slotsDia(d){ if ((AGENDA.dias[ymd(d)] || {}).cerrado) return []; const out = []; for (const [, a, b] of TURNOS(d.getDay())) for (let s = a; s <= b; s += 15) out.push(s); return out; }
+function slotDe(x){
+  const m0 = x.getHours() * 60 + x.getMinutes();
+  for (let i = 0; i < 30; i++) { const day = new Date(x); day.setHours(0,0,0,0); day.setDate(day.getDate() + i);
+    if ((AGENDA.dias[ymd(day)] || {}).cerrado) continue;
+    const m = i ? -1 : m0;
+    for (const [, a, b] of TURNOS(day.getDay())) if (m <= b) return {day, s: Math.max(a, Math.floor(m / 15) * 15)}; }
+  return {day: day0(x), s: 570};
+}
+function dejaCtl(){
+  const {day, s} = slotDe(entrada()), hoy = ymd(new Date());
+  return `<b class="dejadia">${DIAS[day.getDay()]}</b><input type="date" id="deja-d" min="${hoy}" value="${ymd(day)}" aria-label="Día que lo deja"><select id="deja-h" aria-label="Hora a la que lo deja">${slotsDia(day).map(x => `<option value="${x}" ${x === s ? 'selected' : ''}>${hmTxt(x)}</option>`).join('')}</select>`;
+}
+const ahoraLocal = () => { const d = new Date(); d.setSeconds(0, 0); return new Date(d - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16); };
+// Si Miguel está solo (Lourdes no viene ese turno) y lo dejan pasada la primera hora del turno,
+// es difícil tenerlo ese mismo día: se empieza el siguiente día con hueco.
+const PRIMERA_HORA = 60; // minutos desde que abre el turno
+function inicioTrabajo(e = entrada()){
+  const m = e.getHours() * 60 + e.getMinutes(), dia = AGENDA.dias[ymd(e)] || {};
+  for (const [t, a, b] of TURNOS(e.getDay())) {
+    if (m < a || m > b) continue;
+    if (!lourdesEsta(e, t, dia) && m >= a + PRIMERA_HORA) { const sig = new Date(e); sig.setDate(sig.getDate() + 1); sig.setHours(0, 0, 0, 0); return primerHueco(sig); }
+  }
+  return primerHueco(e);
+}
+// Estimación con pieza en tienda.
+const colaHoy = () => (AGENDA.cola_min && AGENDA.cola_fecha === ymd(entrada())) ? AGENDA.cola_min : 0;
+function planStock(it){
+  const min = minBanco(it.r), ini = inicioTrabajo(), fin = ini && terminado(ini, min + colaHoy());
+  return {min, fin, rapido: min <= 45};
+}
+// Pieza que hay que pedir: cita recomendada = primer hueco de Miguel después de que llegue la pieza.
+function planPedido(it, llegada){
+  // Miguel 13/10: las citas SIEMPRE a primera hora (apertura) del día en que llega la pieza, para asegurar que se hace en el día.
+  const min = minBanco(it.r), d0 = new Date(llegada); d0.setHours(0, 0, 0, 0);
+  for (let i = 0; i < 30; i++) { const d = new Date(d0); d.setDate(d.getDate() + i); const tr = TURNOS(d.getDay());
+    if (!tr.length || !tramos(d).some(([, cap]) => cap > 0)) continue;
+    const cita = at(d, tr[0][1]); const desde = llegada > cita ? llegada : cita;
+    return {min, cita, fin: terminado(desde, min)}; }
+  return {min, cita: null, fin: null};
+}
+// Avisos de los próximos 7 días (cerrado, Miguel fuera, Lourdes no viene).
+function avisosAgenda(){
+  const out = [], hoy = day0(new Date());
+  for (let i = 0; i < 8; i++) { const d = new Date(hoy); d.setDate(d.getDate() + i); const k = ymd(d), a = AGENDA.dias[k]; if (!a) continue;
+    const n = i === 0 ? 'Hoy' : i === 1 ? 'Mañana' : DIAS[d.getDay()][0].toUpperCase() + DIAS[d.getDay()].slice(1) + ' ' + d.getDate();
+    if (a.cerrado) out.push(n + ': cerrado' + (a.motivo ? ' (' + a.motivo + ')' : '') + '.');
+    else if (a.miguel_fuera) out.push(n + ': Miguel no está, no se reparan equipos ese día.');
+    else { if (a.lourdes_no_manana || a.lourdes_no) out.push(n + ': Lourdes no viene por la mañana.'); if (a.lourdes_no_tarde && [1,3,4].includes(d.getDay())) out.push(n + ': Lourdes no viene por la tarde.'); } }
+  return out;
+}
+function waAfinar(m, it, txt){ return waLink(`Hola Miguel, cliente con ${m.m} para ${it.r.replace(' · ', ' ')}. La tarifa dice ${it.p ? it.p + ' €, ' : ''}${txt}. ¿Me confirmas que está todo correcto (precio, pieza y tiempo) antes de decírselo al cliente?`); }
+// ==== FIN PLANIFICADOR ====
+function readyFrom(arr, wh){
+  wh = wh ?? 24;
+  if (wh <= 10){
+    if (arr.getDay() === 6) return wh <= 3 ? dayName(arr) + ' a mediodía' : dayName(addShopDays(arr, 1)) + ' por la tarde';
+    return dayName(arr) + ' por la tarde';
+  }
+  return dayName(addShopDays(arr, Math.max(1, Math.round(wh / 24)))) ;
+}
+// Franjas en vez de horas exactas: Lourdes revisa cada equipo antes de entregarlo y a veces está atendiendo.
+// Sin secado (p. ej. pantalla de iPhone 15): si se deja a primera hora, "esta mañana antes de las 14:00".
+// Con secado de pegamento (p. ej. pantalla de Redmi Note 14): "a última hora de la tarde"; si se termina tarde o en sábado, al día siguiente de apertura.
+function necesitaSecado(m, it){
+  const r = it.r;
+  if (/sellado/i.test(r)) return true;
+  if (/limpieza|traspaso|formateo|copia|diagn|software|ssd|ram/i.test(r)) return false;
+  if (m && m.b === 'iPhone') return /tapa|cristal trasero/i.test(r);
+  // Las pantallas originales de Redmi/Xiaomi/Poco vienen con marco: más rápidas y sin esperar al secado.
+  if (m && m.b === 'Xiaomi' && /^Pantalla · Original/i.test(r)) return false;
+  if (m && /Portátil|Ordenador|Consola|Mandos|Reloj/.test(m.b)) return false;
+  return /pantalla|bater|tapa|chasis|conector|c[aá]mara|altavoz|auricular|placa|flex|bot[oó]n/i.test(r);
+}
+const nombreDia = d => dayName(d); // siempre con día de la semana y fecha: «mañana (martes 13/10)», «el jueves 15/10»
+function sigApertura(d){ const x = new Date(d); for (let i = 0; i < 15; i++) { x.setDate(x.getDate() + 1); x.setHours(0,0,0,0); if (tramos(x).length || (TURNOS(x.getDay()).length && !(AGENDA.dias[ymd(x)] || {}).cerrado)) return x; } return x; }
+function franja(fin, secado){
+  if (!fin) return 'consultar';
+  const wd = fin.getDay(), min = fin.getHours() * 60 + fin.getMinutes();
+  const manana = min <= 840;
+  if (!secado) {
+    // Si lo dejan después de las 10:30, ese mismo día se promete por la tarde (mejor que esté antes que fallar al cliente).
+    const e = entrada(), tardeHoy = ymd(e) === ymd(fin) && e.getHours() * 60 + e.getMinutes() > 630;
+    if (manana && tardeHoy) { if (wd !== 6 && TURNOS(wd).length > 1) return nombreDia(fin) + ' a última hora de la tarde'; return nombreDia(sigApertura(fin)) + ' antes de las 14:00'; }
+    if (manana) return nombreDia(fin) + ' antes de las 14:00';
+    return nombreDia(fin) + ' a última hora de la tarde';
+  }
+  // Con secado: hace falta el resto del día para que seque.
+  if (wd !== 6 && min <= 1080) return nombreDia(fin) + ' a última hora de la tarde';
+  return nombreDia(sigApertura(fin)) + ' antes de las 14:00';
+}
+// Citas: siempre la primera hora libre después de que llegue la pieza (p. ej. "mañana (martes 13/10) a las 10:15").
+const franjaCita = d => { if (!d) return 'consultar'; return nombreDia(d) + ' a las ' + hhmm(d); };
+function orderCell(it, m){
+  if (!['esm', 'ms', 'se', 'ssr'].includes(it.prov)) return it.tw ? esc(it.tw) : '<span class="na">—</span>';
+  const a = it.prov === 'esm' ? esmovilArrival(entrada()) : it.prov === 'ms' ? msArrival(entrada()) : it.prov === 'se' ? seArrival(entrada()) : ssrArrival(entrada()), p = planPedido(it, a);
+  const pieza = {esm: `Pieza ${dayName(a)} a primera hora (Esmovil)`, ms: `Pieza ${dayName(a)} hacia mediodía (MobileSentrix, pedido antes de las 18:00)`, se: `Pieza ${dayName(a)} por la mañana (Spain Electro, pedido antes de las 19:30)`, ssr: `Pieza ${dayName(a)} aprox. (Apple Self Service, viene de Alemania)`}[it.prov];
+  if (!p.cita) return `<span class="q">${esc(pieza)}</span>`;
+  return `<b>Cita ${esc(franjaCita(p.cita))}</b><span class="q">Listo ${esc(franja(p.fin, necesitaSecado(m, it)))} · ${esc(pieza)}</span>`;
+}
+function stockCell(it, m){
+  const p = planStock(it), sec = necesitaSecado(m, it);
+  if (!p.fin) return it.ts ? esc(it.ts) : '<span class="na">—</span>';
+  const txt = 'listo ' + franja(p.fin, sec);
+  return `<b>Listo ${esc(franja(p.fin, sec))}</b>${sec ? '<span class="q">Hay que dejar secar el pegamento</span>' : ''}${p.rapido && !sec ? `<span class="rapido">Rápido</span><a class="afinar" href="${waAfinar(m, it, txt)}" target="_blank" rel="noopener">Confirmar con Miguel</a>` : ''}`;
+}
+
+function show(m){
+  if (cur !== m) urgente = false;
+  cur = m;
+  document.querySelectorAll('.mbtn').forEach(b => b.setAttribute('aria-current', DATA.modelos[b.dataset.i]===m));
+  const rows = m.items.map((it, ix) => {
+    const [rep, ...q] = it.r.split(' · ');
+    const desde = /^Placa base/.test(rep);
+    const price = it.p ? `${desde ? '<span class="q">desde</span>' : ''}${it.p} €` : 'Consultar';
+    const stock = it.sat > 0 ? `<span class="hay on">${it.sat} en stock SATTPV</span>` : '';
+    return `<tr><td><label class="selr"><input type="checkbox" class="sel" data-x="${ix}" ${it.p ? '' : 'disabled'} aria-label="Añadir ${esc(it.r)} al presupuesto"><span class="rep">${esc(rep)}</span></label>${q.length ? `<span class="q">${esc(q.join(' · '))}</span>` : ''}${stock}${it.nota ? `<span class="note">${esc(it.nota)}</span>` : ''}</td>
+      <td class="price ${it.p ? '' : 'na'}">${price}</td>
+      <td class="t ts">${stockCell(it, m)}</td>
+      <td class="t tw">${orderCell(it, m)}</td></tr>`;
+  }).join('');
+  const a = esmovilArrival(entrada());
+  $('#card').innerHTML = `<div class="brand">${esc(m.b)}</div><h2>${esc(m.m)}</h2>
+    ${(!/\b[45]G$/.test(m.m) && DATA.modelos.some(x => x !== m && x.m.startsWith(m.m + ' ') && /\b[45]G$/.test(x.m))) ? `<p class="cut"><span class="note">Comprueba si es 4G o 5G (Ajustes › Información del teléfono): los repuestos son distintos. Aquí están las reparaciones guardadas sin especificar.</span></p>` : ''}
+    <div class="deja"><label for="deja-d">Lo deja</label><span id="dejaw">${dejaCtl()}</span><button type="button" class="ahora" ${dejaMan ? '' : 'hidden'}>Ahora</button><span class="q">Tiempos aproximados: cuentan si Miguel está con Lourdes o solo, las citas y ausencias del calendario y el secado del pegamento. Lourdes revisa cada equipo antes de entregarlo.</span></div>
+    ${avisosAgenda().map(t => `<p class="cut"><span class="note">${esc(t)}</span></p>`).join('')}
+    <p class="cut">Si hay que pedir la pieza, se pide a Esmovil ese mismo día y llega <b>${esc(nombreDia(a))} a las 9:30–10:00</b>, o esa misma tarde con el servicio urgente si se pide antes de las 11:30. Pedidos hasta las 19:15 de lunes a viernes.</p>
+    ${ofrece(m)}
+    <div class="tablewrap"><table><thead><tr><th>Reparación <span class="q" style="display:inline;text-transform:none;letter-spacing:0">(márcalas y abajo sale el total y la entrega)</span></th><th style="text-align:right">Precio</th><th>Pieza en tienda</th><th>Si hay que pedirla</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <div class="combo" id="combo" hidden aria-live="polite"></div>`;
+}
+setInterval(() => { if (cur && !dejaMan && document.activeElement?.id !== 'deja') show(cur); }, 5 * 60 * 1000);
+setInterval(() => { const w = document.getElementById('dejaw'); if (w && !dejaMan && !w.contains(document.activeElement)) w.innerHTML = dejaCtl(); }, 60 * 1000);
+$('#card').addEventListener('change', e => { if (e.target.id === 'deja-d' || e.target.id === 'deja-h') {
+    const dv = $('#deja-d').value; if (!dv) { dejaMan = null; show(cur); return; }
+    const [y, mo, da] = dv.split('-').map(Number); let day = new Date(y, mo - 1, da);
+    let h = +$('#deja-h').value || 0, sl = slotsDia(day);
+    if (!sl.length) { const n = slotDe(day); day = n.day; sl = slotsDia(day); }
+    if (!sl.includes(h)) h = sl.find(x => x >= h) ?? sl[0];
+    dejaMan = ymd(day) + 'T' + pad2(Math.floor(h / 60)) + ':' + pad2(h % 60); show(cur); } if (e.target.classList.contains('sel')) combo(); });
+// ==== DESCUENTO COMBINADO v1 ====
+// Si el cliente repara varias cosas a la vez (p. ej. pantalla y tapa de iPhone 16), se le hace un pequeño descuento automático:
+// Miguel 12/10 («por lo menos el doble, nos ahorramos mucha mano de obra»): 20 % de cada reparación que se junta con la más cara
+// (mínimo 10 €, máximo 60 €), y el total se redondea HACIA ABAJO a un precio terminado en 9 (siempre: 308 → 299).
+// Limpiezas, traspasos y sellados suman pero no generan descuento.
+const DTO = {pct: 0.20, min: 10, max: 60}; // Cambiado por Miguel el 12/10/2026: no lo bajes.
+const sinDto = r => /limpieza|traspaso|formateo|sellado|diagn/i.test(r);
+// Precio "redondo" hacia abajo: termina en 9 (99, 129…) o en 0/5 si queda más cerca de un número redondo (p. ej. 150). Nunca sube.
+const bajo9 = x => Math.floor((x + 1) / 10) * 10 - 1; // siempre terminado en 9, hacia abajo (308 → 299; Miguel 12/10)
+// Dos calidades de la misma reparación (p. ej. conector soldado y PCB original) son alternativas: al marcar una se desmarca la otra.
+$('#card').addEventListener('change', e => {
+  if (!e.target.classList.contains('sel') || !e.target.checked || !cur) return;
+  const tipo = cur.items[+e.target.dataset.x].r.split(' · ')[0];
+  document.querySelectorAll('#card .sel:checked').forEach(c => { if (c !== e.target && cur.items[+c.dataset.x].r.split(' · ')[0] === tipo) c.checked = false; });
+}, true);
+// Entrega aproximada de todo lo marcado: suma los minutos de banco y, si hay que pedir piezas, espera a la que llegue más tarde.
+const ddmm = d => d.getDate() + '/' + (d.getMonth() + 1);
+function diaEntrega(fin, sec){ if (!fin) return null; const min = fin.getHours() * 60 + fin.getMinutes(); return (!sec || (fin.getDay() !== 6 && min <= 1080)) ? fin : sigApertura(fin); }
+function entregaTxt(fin, sec){
+  const d = diaEntrega(fin, sec); if (!d) return 'fecha a confirmar';
+  return franja(fin, sec);
+}
+function llegadaPieza(it){ const e = entrada(); return it.prov === 'esm' ? esmovilArrival(e) : it.prov === 'ms' ? msArrival(e) : it.prov === 'se' ? seArrival(e) : it.prov === 'ssr' ? ssrArrival(e) : null; }
+function entregaCombo(sel){
+  const min = sel.reduce((a, it) => a + minBanco(it.r), 0), sec = sel.some(it => necesitaSecado(cur, it));
+  const ini = inicioTrabajo(), finStock = ini && terminado(ini, min + colaHoy());
+  const pedir = sel.map(llegadaPieza).filter(Boolean);
+  let out = `<div class="centrega"><span class="lbl">Entrega aproximada</span>`;
+  out += `<div>Con la pieza en tienda: <b>${esc(entregaTxt(finStock, sec))}</b></div>`;
+  if (pedir.length) {
+    const ult = new Date(Math.max(...pedir.map(d => d.getTime())));
+    const cita = primerHueco(redondea15(new Date(ult.getTime() + 15 * 6e4))), fin = cita && terminado(cita, min);
+    out += `<div>Si hay que pedirla: <b>${esc(entregaTxt(fin, sec))}</b> <span class="q" style="display:inline">(pieza ${esc(dayName(ult))})</span></div>`;
+  }
+  if (sec) out += '<span class="q">Incluye sellado original.</span>';
+  return out + '</div>';
+}
+// Servicio urgente: Esmovil sirve en el mismo día lo pedido de lunes a viernes antes de las 11:30 (reparte por la tarde).
+// Miguel lo repara al abrir por la tarde, antes que la cola, y el cliente lo tiene ese mismo día.
+const URGENTE = {plus: 30, corte: 690, llega: 1020}; // Miguel 13/10: envío urgente de Esmovil +30 €
+let urgente = false, comboAbierto = false;
+function urgenteInfo(sel){
+  const e = entrada(), wd = e.getDay(), min = e.getHours() * 60 + e.getMinutes();
+  const conPieza = sel.filter(it => ['esm', 'ms', 'se', 'ssr'].includes(it.prov));
+  if (!conPieza.length) return {ok: false, motivo: ''};
+  if (conPieza.some(it => it.prov !== 'esm')) return {ok: false, motivo: 'Urgente solo con piezas de Esmovil.'};
+  if (wd < 1 || wd > 5) return {ok: false, motivo: 'Urgente solo de lunes a viernes (pedido antes de las 11:30).'};
+  if (min >= URGENTE.corte) return {ok: false, motivo: 'Urgente en el día ya no: el pedido a Esmovil tiene que hacerse antes de las 11:30.'};
+  // Miguel 13/10: siempre que la pieza sea de Esmovil y se pida antes de las 11:30 se ofrece (aunque la tarde esté llena: lo urgente pasa delante).
+  const a = AGENDA.dias[ymd(e)] || {}, tt = TURNOS(wd).find(t => t[0] === 't');
+  if (a.cerrado || a.miguel_fuera || !tt) return {ok: false, motivo: 'Urgente hoy no: ' + (a.cerrado ? 'la tienda está cerrada' : a.miguel_fuera ? 'Miguel no está' : 'no hay tarde') + '.'};
+  return {ok: true, fin: at(e, tt[2])};
+}
+function combo(){
+  const box = $('#combo'); if (!box || !cur) return;
+  const sel = [...document.querySelectorAll('#card .sel:checked')].map(c => cur.items[+c.dataset.x]).filter(it => it && it.p);
+  if (!sel.length) { box.hidden = true; return; }
+  const suma = sel.reduce((a, it) => a + it.p, 0);
+  const base = sel.filter(it => !sinDto(it.r));
+  let dto = 0, barata = null;
+  if (base.length >= 2) {
+    barata = base.reduce((a, b) => a.p <= b.p ? a : b);
+    const cara = base.reduce((a, b) => a.p >= b.p ? a : b);
+    const resto = base.filter(it => it !== cara).reduce((a, it) => a + it.p, 0);
+    const bruto = Math.min(DTO.max, Math.max(DTO.min, resto * DTO.pct));
+    dto = suma - bajo9(suma - bruto);
+  }
+  const urg = urgenteInfo(sel); if (!urg.ok) urgente = false;
+  const plus = urgente ? URGENTE.plus : 0;
+  const total = suma - dto + plus;
+  box.hidden = false;
+  box.innerHTML = `<div class="cdet"><div class="crow">${sel.map(it => `<span>${esc(it.r)} <b>${it.p} €</b></span>`).join('')}</div>
+    ${urgente ? `<div class="cdto">Servicio urgente: <b>+${URGENTE.plus} €</b></div>` : ''}
+    ${dto ? `<div class="cdto">Descuento por hacerlo junto: <b>−${dto} €</b></div>` : (sel.length > 1 ? '<div class="q">El descuento solo se aplica al juntar dos reparaciones (no limpiezas, traspasos ni sellados).</div>' : '')}
+    ${urgente ? `<div class="centrega urg"><span class="lbl">Entrega urgente</span><div><b>${esc(entregaTxt(urg.fin, false).replace(/ (antes de las 14:00|a última hora de la tarde)$/, ''))} por la tarde, antes del cierre</b></div><span class="q">Pide la pieza a Esmovil antes de las 11:30 de ese día: la reparten por la tarde y se repara al llegar, antes que lo demás.</span></div>` : entregaCombo(sel)}
+    ${urg.ok ? `<label class="selr urgsel"><input type="checkbox" id="urg" ${urgente ? 'checked' : ''}><span><b>Servicio urgente: listo en el día</b> <span class="q" style="display:inline">+${URGENTE.plus} €</span></span></label>` : (urg.motivo ? `<span class="q">${esc(urg.motivo)}</span>` : '')}
+    <div class="ctot"><span class="lbl">Total al cliente</span><span class="big">${total} €</span>${dto ? `<span class="q">antes ${suma + plus} €</span>` : ''}</div>
+    ${urgente ? `<p class="q">En SATTPV: añade la línea «Servicio urgente» de ${URGENTE.plus} € (sin descuento).</p>` : ''}
+    ${dto ? `<p class="q">En SATTPV: mete cada reparación a su precio y pon el descuento de ${dto} € en la línea de «${esc(barata.r)}», así en la factura se ve el precio real y lo que se le deja.</p>` : ''}
+    ${total >= 150 ? '<p class="q">Total de 150 € o más: si dudas, confírmalo con Miguel.</p>' : ''}</div>`;
+  const ent = box.querySelector('.centrega b'), entTxt = ent ? ent.textContent.replace(/\s+/g, ' ').trim() : '';
+  box.classList.toggle('abierto', comboAbierto);
+  box.insertAdjacentHTML('afterbegin', `<button type="button" class="chead" aria-expanded="${comboAbierto}"><span class="cn"><b>${sel.length} ${sel.length === 1 ? 'reparación' : 'reparaciones'}</b>${entTxt ? ' · ' + esc(entTxt) : ''}<br>${comboAbierto ? 'Toca para cerrar' : 'Toca para ver el detalle'}</span><span class="big">${total} €</span><span class="flecha" aria-hidden="true">▾</span></button>`);
+}
+// ==== FIN DESCUENTO COMBINADO ====
+// Aviso al abrir si la cuenta solo puede ver (no puede guardar fundas, tareas…).
+(async () => { try { const u = await claude.use('user'); if (!u) return; const ok = await u.can('data.write'); if (ok === false) {
+  const av = document.createElement('p'); av.className = 'sindb'; av.innerHTML = '<b>Esta cuenta solo puede ver la app.</b> Puedes consultar precios, pero no apuntar ni marcar fundas, tareas o notas. Miguel tiene que darte permiso para editar.';
+  const h = document.querySelector('header') || document.body.firstElementChild; h.after(av); } } catch (e) {} })();
+function toastErr(t){ let d = document.getElementById('toasterr'); if (!d) { d = document.createElement('div'); d.id = 'toasterr'; d.setAttribute('role', 'alert'); document.body.appendChild(d); }
+  d.textContent = t; d.hidden = false; clearTimeout(d._t); d._t = setTimeout(() => { d.hidden = true; }, 7000); }
+// Formularios plegados (Miguel 12/10): se abren con «+ Nueva…» y se cierran solos al guardar, para dejar a la vista lo apuntado.
+document.addEventListener('click', e => { const b = e.target.closest('button[data-abre]'); if (!b) return; const f = document.getElementById(b.dataset.abre); if (!f) return;
+  const abrir = f.classList.contains('plegado'); f.classList.toggle('plegado', !abrir); b.setAttribute('aria-expanded', abrir);
+  b.textContent = abrir ? '✕ Cerrar' : b.dataset.txt; if (abrir) { const i = f.querySelector('input:not([type=checkbox]),textarea'); if (i) i.focus(); } });
+document.querySelectorAll('button[data-abre]').forEach(b => { b.dataset.txt = b.textContent; });
+document.addEventListener('reset', e => { const f = e.target; if (!f.classList || !f.classList.contains('fform')) return; setTimeout(() => { f.classList.add('plegado'); const b = document.querySelector(`button[data-abre="${f.id}"]`); if (b) { b.setAttribute('aria-expanded', 'false'); b.textContent = b.dataset.txt; } }, 0); }, true);
+setInterval(() => document.querySelectorAll('button[data-abre]').forEach(b => { const f = document.getElementById(b.dataset.abre); b.hidden = !!(f && f.hidden); }), 2000);
+
+$('#card').addEventListener('click', e => { if (e.target.classList.contains('ahora')) { dejaMan = null; show(cur); } });
+$('#card').addEventListener('click', e => { if (e.target.closest('.chead')) { comboAbierto = !comboAbierto; combo(); } });
+$('#card').addEventListener('change', e => { if (e.target.id === 'urg') { urgente = e.target.checked; combo(); } });
+$('#list').addEventListener('click', e => { const b = e.target.closest('.mbtn'); if(b) show(DATA.modelos[+b.dataset.i]); });
+$('#q').addEventListener('input', () => { cur = null; renderList(); });
+$('#q').addEventListener('keydown', e => { if(e.key==='Enter'){ const f = document.querySelector('.mbtn'); if(f) f.click(); } });
+
+let g = '';
+$('#servt').innerHTML = '<tbody>' + DATA.servicios.map(s => {
+  const head = s.g !== g ? `<tr><td colspan="2" class="sg">${esc(s.g)}</td></tr>` : ''; g = s.g;
+  return head + `<tr><td>${esc(s.s)}${s.nota ? `<span class="q">${esc(s.nota)}</span>` : ''}</td><td class="price">${String(s.p).replace('.',',')} €</td></tr>`;
+}).join('') + '</tbody>';
+
+// ---------- calculadora para modelos que no están ----------
+const r9 = x => { let best = null; for (let b = 0; b <= x + 20; b += 10) for (const c of [b + 5, b + 9]) { if (c < 5) continue; if (best === null || Math.abs(c - x) < Math.abs(best - x) || (Math.abs(c - x) === Math.abs(best - x) && c % 10 === 9)) best = c; } return best; };
+const ANDROID_RANGOS = [[19,59,65],[25,65,75],[35,75,85],[45,79,85]];
+const pantallaAndroid = (c, samsung) => { for (const [hi, sin, con] of ANDROID_RANGOS) if (c <= hi) return samsung ? con : sin; return c + Math.min(c * 0.25 + 40, 55); }; // Miguel 13/10: en pantallas caras no más de ~55 € sobre el coste (Pixel: pieza 188 € + IVA → 299 €)
+const REPS = {
+  iphone: [['pant','Pantalla compatible', c => c*1.4+59, 'Pantalla'], ['pantd','Pantalla original desmontaje (Spain Electro / MobileSentrix)', c => c*1.16+70, 'Pantalla'], ['panto','Pantalla original nueva (Apple Self Service, iPhone 12 en adelante)', c => c*1.1+90, 'Pantalla'], ['bat','Batería compatible', c => Math.max(69, c+45), 'Batería'], ['bato','Batería original', c => c+75, 'Batería'], ['con','Conector / flex de carga', c => Math.max(49, c+45), 'Conector de carga'], ['cam','Cámara', c => c*1.3+35, 'Cámara'], ['tapa','Tapa trasera (original de desmontaje, MobileSentrix)', c => Math.ceil((c*1.25+40+1)/10)*10-1, 'Tapa trasera'], ['otra','Otra pieza', c => c*1.3+40, 'Otra']],
+  samsung: [['pant','Pantalla original (service pack)', c => pantallaAndroid(c, true), 'Pantalla'], ['bat','Batería original', c => Math.max(69, c+45), 'Batería'], ['micro','Conector micro USB', c => 29, 'Conector de carga'], ['tipoc','Conector tipo C', c => 39, 'Conector de carga'], ['pcb','PCB de carga original', c => Math.max(45, c+33), 'Conector de carga'], ['tapa','Tapa trasera', c => Math.max(35, c+25), 'Tapa trasera'], ['otra','Otra pieza', c => c*1.3+40, 'Otra']],
+  android: [['pant','Pantalla compatible', c => pantallaAndroid(c, false), 'Pantalla'], ['panto','Pantalla original (con marco / Service Pack)', c => pantallaAndroid(c, false), 'Pantalla'], ['bat','Batería compatible', c => Math.max(59, c+40), 'Batería'], ['bato','Batería original', c => Math.max(69, c+45), 'Batería'], ['micro','Conector micro USB', c => 29, 'Conector de carga'], ['tipoc','Conector tipo C', c => 39, 'Conector de carga'], ['pcb','PCB de carga original', c => Math.max(45, c+33), 'Conector de carga'], ['tapa','Tapa trasera', c => Math.max(35, c+25), 'Tapa trasera'], ['otra','Otra pieza', c => c*1.3+40, 'Otra']],
+};
+REPS.otras = REPS.android;
+REPS.raros = REPS.android;
+REPS.pc = [['ssd','SSD (precio de Depau + canon)', c => Math.ceil((Math.max(c*1.15, c+15)+1)/10)*10-1, 'SSD'], ['ram','Memoria RAM (precio de Depau + canon)', c => Math.ceil((Math.max(c*1.15, c+15)+1)/10)*10-1, 'SSD'], ['bat','Batería de portátil', c => c*1.3+40, 'Batería'], ['pant','Pantalla de portátil', c => c*1.3+40, 'Pantalla'], ['otra','Otra pieza', c => c*1.3+40, 'Otra']];
+REPS.tablet = [['pant','Pantalla compatible', c => c*1.24+36, 'Pantalla'], ['panto','Pantalla original', c => c*1.24+36, 'Pantalla'], ['bat','Batería', c => Math.max(59, c+38), 'Batería'], ['tipoc','Conector tipo C', c => 39, 'Conector de carga'], ['micro','Conector micro USB', c => 29, 'Conector de carga'], ['otra','Otra pieza', c => c*1.3+40, 'Otra']];
+const TIEMPO_TRABAJO = {SSD: 24, Pantalla: 17, 'Batería': 8, 'Conector de carga': 23, 'Cámara': 10, 'Tapa trasera': 22, Otra: 24};
+function fillReps(){ $('#c-rep').innerHTML = REPS[$('#c-marca').value].map(([k, l]) => `<option value="${k}">${esc(l)}</option>`).join(''); calc(); }
+function provArrival(prov){
+  if (prov === 'ms') return msArrival();
+  if (prov === 'se') return seArrival();
+  if (prov === 'ssr') return ssrArrival();
+  if (prov === 'depau') { const d = addShopDays(new Date(), 1); d.setHours(12,0,0,0); return d; }
+  if (prov === 'es') { const d = addShopDays(new Date(), 2); d.setHours(12,0,0,0); return d; }
+  if (prov === 'ali') { const d = new Date(); d.setDate(d.getDate() + 9); while (d.getDay() === 0) d.setDate(d.getDate() + 1); d.setHours(12,0,0,0); return d; }
+  return esmovilArrival();
+}
+function calc(){
+  const marca = $('#c-marca').value, rep = REPS[marca].find(r => r[0] === $('#c-rep').value);
+  const prov = $('#c-prov').value;
+  const fixed = ['micro','tipoc'].includes(rep[0]);
+  $('#c-coste-lbl').textContent = prov === 'ssr' ? 'Precio de la pieza en Self Service MENOS el abono por devolver la vieja (p. ej. pantalla iPhone 15: 405 − 64,80 = 340,20; batería iPhone 13: 99 − 47,52 = 51,48)' : prov === 'ali' ? 'Precio total de la pieza con envío, tal como lo pagas en AliExpress' : 'Precio de la pieza (sin IVA, como sale en la web del proveedor)';
+  const neto = parseFloat(String($('#c-coste').value).replace(',', '.'));
+  $('#c-coste').disabled = fixed;
+  if (!fixed && !(neto > 0)) { lastCalc = null; updAsk(); $('#c-out').innerHTML = '<span class="q">Escribe el precio de la pieza para ver el precio al cliente.</span>'; return; }
+  // Proveedores de España: precio sin IVA -> + 21 % IVA + 5,2 % recargo de equivalencia. AliExpress: ya se paga con IVA y envío.
+  // Portes (Miguel 12/10): 5,45 € + IVA = 6,88 € por pieza en Esmovil, MobileSentrix y Spain Electro. Spain Electro ya trae el IVA (× 1,043 por el recargo).
+  const PORTES = 6.88;
+  const coste = fixed ? 0 : (['ali', 'ssr'].includes(prov) ? neto : prov === 'se' ? neto * 1.043 + PORTES : prov === 'ms' ? neto * 1.262 + 8.77 : prov === 'esm' ? neto * 1.262 + PORTES : neto * 1.262); // MobileSentrix: FedEx/DHL 6,95 € + IVA (gratis desde 300 €)
+  const precio = r9(rep[2](coste));
+  const a = provArrival(prov);
+  const pp = planPedido({r: rep[1]}, a); const sec = !['pc'].includes($('#c-marca').value) && !(($('#c-marca').value === 'iphone') && !/tapa/i.test(rep[1])) && !/ssd|ram/i.test(rep[1]) && !(rep[0] === 'panto' && ['android', 'otras', 'raros'].includes($('#c-marca').value)); const listo = pp.cita ? franja(pp.fin, sec) + ' (cita ' + franjaCita(pp.cita) + ')' : readyFrom(a, TIEMPO_TRABAJO[rep[3]]);
+  const piezaTxt = {se: `Pieza ${dayName(a)} por la mañana (Spain Electro)`, ssr: `Pieza ${dayName(a)} aprox. (Apple Self Service, Alemania)`, esm: `Pieza ${dayName(a)} 9:30–10:00 (Esmovil)`, ms: `Pieza ${dayName(a)} aprox. (MobileSentrix)`, es: `Pieza en 2–3 días laborables, aprox. ${dayName(a)}`, depau: `Pieza ${dayName(a)} aprox. (Depau)`, ali: `Pieza en 7–12 días (AliExpress), aprox. ${dayName(a)}`}[prov];
+  const avisos = [];
+  lastCalc = {rep: rep[1], prov: $('#c-prov').selectedOptions[0].textContent.split(' (')[0].split(':')[0], neto: fixed ? null : neto, precio, listo: prov === 'ali' ? 'en unos 10–14 días' : listo};
+  updAsk();
+  if (precio >= 150) avisos.push('Precio alto: confírmalo con Miguel antes de darlo.');
+  if (prov === 'ali') avisos.push('Pieza de AliExpress: avisa al cliente de que tarda 1–2 semanas y de que la calidad de la pieza puede variar.');
+  $('#c-out').innerHTML = `<div><span class="lbl">Precio al cliente</span><span class="big">${precio} €</span></div>
+    <div><span class="lbl">Si se pide ahora</span><b>Listo ${esc(prov === 'ali' ? 'en unos 10–14 días' : listo)}</b><span class="q">${esc(piezaTxt)}</span></div>
+    ${avisos.map(t => `<div><span class="note">${esc(t)}</span></div>`).join('')}`;
+}
+$('#c-marca').addEventListener('change', () => { if ($('#c-marca').value === 'pc') $('#c-prov').value = 'depau'; fillReps(); });
+// Piezas de proveedores del día (Esmovil, MobileSentrix, Spain Electro, Self Service): rellenan la calculadora sin buscar en la web.
+// El precio de la pieza no se enseña: solo sale el precio al cliente.
+const PIEZAS = DATA.piezas || [];
+const PROVN = {esm: 'Esmovil', ms: 'MobileSentrix', se: 'Spain Electro', ssr: 'Apple Self Service'};
+$('#c-pieza').innerHTML += PIEZAS.map((p, i) => `<option value="${i}">${esc(p[0])} · ${esc(p[2].replace(/grado B/, 'original de desmontaje'))} (${PROVN[p[3]] || p[3]}${p[5] ? '' : ', agotada'})</option>`).join('');
+function repKey(marca, rep){
+  const r = rep.toLowerCase();
+  if (/tapa trasera/.test(r)) return 'tapa';
+  if (marca === 'iphone') return /pantalla/.test(r) ? (/desmontaje/.test(r) ? 'pantd' : /original/.test(r) ? 'panto' : 'pant') : /bater/.test(r) ? (/original/.test(r) ? 'bato' : 'bat') : 'otra';
+  if (/pantalla/.test(r)) return (marca !== 'samsung' && /original/.test(r)) ? 'panto' : 'pant';
+  if (/bater/.test(r)) return (marca !== 'samsung' && /original/.test(r)) ? 'bato' : 'bat';
+  return 'otra';
+}
+$('#c-pieza').addEventListener('change', () => {
+  const v = $('#c-pieza').value, lbl = $('#c-coste').closest('label');
+  if (v === '') { lbl.hidden = false; $('#c-coste').value = ''; calc(); return; }
+  const p = PIEZAS[+v];
+  const marca = {iPhone: 'iphone', Samsung: 'samsung', Xiaomi: 'android', 'Otras Android': 'otras'}[p[1]] || 'android';
+  $('#c-marca').value = marca; fillReps();
+  $('#c-rep').value = repKey(marca, p[2]); $('#c-prov').value = p[3];
+  $('#c-coste').value = p[4]; lbl.hidden = true;
+  $('#a-modelo').value = p[0]; calc();
+});
+['#c-marca', '#c-rep', '#c-prov'].forEach(s => $(s).addEventListener('input', e => { if (e.isTrusted && $('#c-pieza').value !== '') { $('#c-pieza').value = ''; $('#c-coste').closest('label').hidden = false; } }));
+$('#c-rep').addEventListener('change', e => { if (e.isTrusted && $('#c-marca').value === 'iphone') { const k = $('#c-rep').value; if (k === 'panto' || k === 'bato') $('#c-prov').value = 'ssr'; else if (k === 'pantd') $('#c-prov').value = 'se'; else if (k === 'pant' || k === 'bat') $('#c-prov').value = 'esm'; } calc(); });
+$('#c-coste').addEventListener('input', calc);
+$('#c-prov').addEventListener('change', calc);
+// ---------- WhatsApp a Miguel ----------
+let lastCalc = null;
+// wa.me sin número falla en WhatsApp Web y escritorio; api.whatsapp.com/send abre el selector de chat en móvil, web y app.
+const MIGUEL_TEL = '34623441743'; // p. ej. '34600111222' para abrir directamente el chat de Miguel
+const waLink = txt => 'https://api.whatsapp.com/send?' + (MIGUEL_TEL ? 'phone=' + MIGUEL_TEL + '&' : '') + 'text=' + encodeURIComponent(txt);
+const waText = href => { try { return new URL(href).searchParams.get('text') || ''; } catch (e) { return ''; } };
+async function copyTxt(t){
+  try { await navigator.clipboard.writeText(t); return true; } catch (e) {}
+  try { const ta = document.createElement('textarea'); ta.value = t; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); const ok = document.execCommand('copy'); ta.remove(); return ok; } catch (e) { return false; }
+}
+function waClick(ev){
+  ev.preventDefault();
+  const a = ev.currentTarget, href = a.href, txt = waText(href);
+  copyTxt(txt).then(copied => {
+    let w = null;
+    try { w = window.open(href, '_blank', 'noopener'); } catch (e) {}
+    try { if (!w && window.top !== window) window.top.location.href = href; } catch (e) {}
+    let box = a.nextElementSibling;
+    if (!box || !box.classList.contains('wabox')) { box = document.createElement('div'); box.className = 'wabox'; a.after(box); }
+    box.innerHTML = (copied ? '<b>Mensaje copiado.</b> ' : '') + 'Si WhatsApp no se ha abierto, <a href="' + esc(href) + '" target="_top">pulsa aquí</a> o abre WhatsApp, elige a Miguel y pega el mensaje:<pre>' + esc(txt) + '</pre>';
+  });
+}
+function updAsk(){
+  const lines = ['Hola Miguel, ¿qué precio le doy a este cliente?', 'Modelo: ' + ($('#a-modelo').value.trim() || '(sin poner)'), 'Avería: ' + ($('#a-averia').value.trim() || '(sin poner)')];
+  if (lastCalc) {
+    lines.push('Reparación: ' + lastCalc.rep);
+    if (lastCalc.neto) lines.push('Pieza: ' + String(lastCalc.neto).replace('.', ',') + ' € sin IVA en ' + lastCalc.prov);
+    lines.push('La tarifa calcula ' + lastCalc.precio + ' €, listo ' + lastCalc.listo);
+  }
+  $('#a-wa').href = waLink(lines.join('\n'));
+}
+$('#a-modelo').addEventListener('input', updAsk);
+$('#a-averia').addEventListener('input', updAsk);
+
+// ---------- Accesorios para ofrecer al dar precio ----------
+const ACC = DATA.acc || [];
+const nrmA = s => ' ' + s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/galaxy|samsung|apple/g, ' ').replace(/xiaomi/g, ' ').replace(/[^a-z0-9+]+/g, ' ').replace(/\s+/g, ' ').trim() + ' ';
+const SUF = ['pro','max','plus','mini','ultra','lite','fe','e','s','t','c','neo','prime','edge','x'];
+const OTRAS = /\b(oppo|realme|honor|vivo|motorola|moto|huawei|tcl|zte|nokia|oneplus|pixel|alcatel|wiko)\b/i;
+function accBrand(n){
+  if (/iphone/i.test(n)) return 'iPhone';
+  if (/samsung|galaxy/i.test(n)) return 'Samsung';
+  if (/redmi|xiaomi|poco|\bmi \d/i.test(n)) return 'Xiaomi';
+  if (OTRAS.test(n)) return 'Otras';
+  return '';
+}
+function hitA(p, m){ let i = p.indexOf(' ' + m + ' '); while (i >= 0){ const rest = p.slice(i + m.length + 2).split(' ')[0]; if (!SUF.includes(rest) && !/^\d/.test(rest)) return true; i = p.indexOf(' ' + m + ' ', i + 1); } return false; }
+function accFor(mod){
+  const want = mod.b === 'iPhone' ? 'iPhone' : mod.b === 'Samsung' ? 'Samsung' : mod.b === 'Xiaomi' ? 'Xiaomi' : 'Otras';
+  const m = nrmA(mod.m.replace(/\s[45]G$/i, '')).trim(); const w = m.split(' '); const head = w.slice(0, -1).join(' ');
+  return ACC.filter(([n]) => {
+    const b = accBrand(n); if (b && b !== want) return false;
+    const full = nrmA(n);
+    return n.split('/').some((p, k) => { const q = nrmA(p); return hitA(q, m) || (k > 0 && head && full.includes(' ' + head + ' ') && hitA(' ' + head + q, m)); });
+  });
+}
+const eur = x => (Number.isInteger(x) ? x : x.toFixed(2).replace('.', ',')) + ' €';
+function ofrece(m){
+  if (!['iPhone','Samsung','Xiaomi','Otras Android'].includes(m.b)) return '';
+  if (!ACC.length) return `<div class="ofrece"><h3>Al dar precio de pantalla o batería, ofrece también</h3><ul><li>Cristal templado: <span class="p">10 €</span></li><li>Funda: <span class="p">desde 7,90 €</span></li><li>Protector de cámara: <span class="p">7,90 €</span></li><li>Si no hay cristal de su modelo: hidrogel 9H <span class="p">15 €</span></li></ul><span class="q">Mira en SATTPV qué hay de su modelo.</span></div>`;
+  const a = accFor(m);
+  const cristal = a.filter(x => /templado|cristal/i.test(x[0]) && !/c[aá]mara|lente/i.test(x[0]));
+  const funda = a.filter(x => /funda/i.test(x[0]));
+  const cam = a.filter(x => /c[aá]mara|lente/i.test(x[0]));
+  const li = [];
+  const rango = xs => { const ps = xs.map(x => x[1]).filter(p => p > 0); const lo = Math.min(...ps), hi = Math.max(...ps); return lo === hi ? eur(lo) : 'de ' + eur(lo) + ' a ' + eur(hi); };
+  li.push(cristal.length ? `Cristal templado: <span class="p">${rango(cristal)}</span> <span class="q">${cristal.reduce((s, x) => s + x[2], 0)} en tienda</span>` : `Protector de hidrogel 9H cortado al momento: <span class="p">15 €</span> <span class="q">no hay cristal templado de este modelo en stock</span>`);
+  if (funda.length) li.push(`Funda: <span class="p">${rango(funda)}</span> <span class="q">${funda.length} ${funda.length === 1 ? 'modelo' : 'modelos'} en tienda</span>`);
+  else li.push(`Funda: <span class="q">no hay de este modelo en stock; se puede pedir</span>`);
+  if (cam.length) li.push(`Protector de cámara: <span class="p">${rango(cam)}</span>`);
+  if (m.items.some(it => /^Batería/.test(it.r))) li.push(`Si cambia batería y carga mal: limpieza de conector <span class="p">15 €</span>`);
+  return `<div class="ofrece"><h3>Al dar precio de pantalla o batería, ofrece también</h3><ul>${li.map(x => `<li>${x}</li>`).join('')}</ul></div>`;
+}
+
+// ---------- Tasador de iPhone ----------
+const TAS = DATA.tas;
+if (TAS) {
+  $('#t-modelo').innerHTML = TAS.modelos.map((t, i) => `<option value="${i}">${esc(t.m)} · ${esc(t.cap)}${t.est ? ' (orientativo)' : ''}</option>`).join('');
+  const tas = () => {
+    const t = TAS.modelos[+$('#t-modelo').value];
+    const bat = $('#t-bat').checked, pant = $('#t-pant').checked, golpes = $('#t-golpes').checked;
+    let vale = t.vale; const desc = [];
+    if (bat) { vale -= TAS.bateria; desc.push('batería −' + TAS.bateria + ' €'); }
+    const sucio = $('#t-sucio').checked, carga = $('#t-carga').checked;
+    if (sucio) { vale -= 25; desc.push('muy sucio −25 €'); }
+    if (carga) { vale -= 50; desc.push('problemas de carga −50 €'); }
+    vale = Math.max(0, vale);
+    let consultar = golpes || !!t.est;
+    if (pant) { if (t.pant) { vale -= t.pant; desc.push('pantalla −' + t.pant + ' €'); } else consultar = true; }
+    const efe = Math.floor(vale * TAS.efectivo / 5) * 5;
+    $('#t-out').innerHTML = `<div><span class="lbl">En vale para gastar aquí</span><span class="big">${vale} €</span></div>
+      <div><span class="lbl">En efectivo</span><span class="mid">${efe} €</span></div>
+      ${desc.length ? `<div><span class="q">Ya descontado: ${esc(desc.join(' · '))}</span></div>` : ''}
+      ${consultar ? `<div><span class="note">${t.est ? 'Precio orientativo (este modelo o capacidad aún no tiene cifra de Miguel)' : pant && !t.pant ? 'Pantalla rota en este modelo' : 'Golpes o tapa rota'}: Miguel ajusta la cifra. No la des cerrada.</span></div>` : ''}`;
+    const est = [bat ? 'batería baja' : 'batería bien', pant ? 'pantalla rota' : 'pantalla bien', golpes ? 'con golpes/tapa rota' : 'sin golpes'].concat(sucio ? ['muy sucio'] : [], carga ? ['problemas de carga'] : []).join(', ');
+    $('#t-wa').href = waLink(`Hola Miguel, tasación para confirmar:\n${t.m} ${t.cap}, ${est}.\nLa tarifa da ${vale} € en vale o ${efe} € en efectivo.\n¿Se lo ofrezco?`);
+  };
+  ['#t-modelo', '#t-bat', '#t-pant', '#t-golpes', '#t-sucio', '#t-carga'].forEach(s => $(s).addEventListener('change', tas));
+  tas();
+} else {
+  $('#t-out').innerHTML = '<span class="q">Tasador sin datos: pregunta a Miguel.</span>';
+  $('#t-wa').href = waLink('Hola Miguel, un cliente quiere vendernos su móvil:\nModelo y capacidad: \nEstado: \n¿Cuánto le ofrezco?');
+}
+
+// ---------- Respuestas rápidas ----------
+const FAQ = [
+  ['¿Qué garantía tiene la reparación?', '6 meses en la pieza cambiada y en el trabajo. No cubre golpes, humedad, una pantalla que se vuelva a romper ni que lo abra otro taller. Guarda siempre el resguardo o la factura.'],
+  ['¿Original o compatible?', 'Compatible: más barata y de buena calidad. Original desmontaje: pieza original de Apple recuperada de otro iPhone, mejores colores y brillo que la compatible. Original nueva: la más cara. En Samsung solo montamos pieza original.'],
+  ['¿Me va a salir algún aviso en el iPhone?', 'Ya no sale el aviso de «pieza desconocida»: con el iPhone actualizado, la pieza aparece en Ajustes como «reutilizada», y si le pasamos el chip de la pieza original (EEPROM) no sale nada. La salud de la batería se ve siempre (al 100 % con batería nueva) siempre que el iPhone esté actualizado. El móvil funciona igual de bien.'],
+  ['¿Sigue siendo resistente al agua?', 'No lo podemos garantizar una vez abierto, pero en la mayoría de marcas lo cerramos con sellador IP67 original, así que queda bien protegido. Aun así, mejor no mojarlo.'],
+  ['¿Voy a perder mis fotos y datos?', 'Cambiando pantalla, batería, conector o cámara no se borra nada. Si hay que tocar la placa o formatear, sí se puede perder: recomienda hacer copia antes (copia + formateo + recuperación de correo: 30 €).'],
+  ['¿Cuánto cuesta mirarlo?', 'Si no se repara, el diagnóstico son 10 €. Si se repara, no se cobra aparte.'],
+  ['¿Me dejáis un móvil mientras?', 'Sí, móvil de sustitución a precio fijo, no por días: básico gratis, Android 9,90 € e iPhone 9,90 €. Se registra en SATTPV para saber quién lo tiene.'],
+  ['¿Me pasáis los datos al móvil nuevo?', 'Si el móvil es de aquí, el traspaso es gratis (en la factura sale el precio real y el descuento). Si lo compró fuera: 25 €. Si además hay que recuperar o crear la cuenta (ID de Apple, Google): 30 €.'],
+  ['Se me ha despegado la pantalla', 'Se puede sellar de nuevo: unos 35 €, orientativo, según el móvil y el trabajo. Si se ha despegado por la batería hinchada, hay que cambiar la batería.'],
+  ['¿Cuándo estará?', 'Mira la columna de tiempo de la tarifa. Si hay que pedir la pieza: Esmovil la trae al día siguiente a las 9:30–10:00 si se pide antes de las 19:15 (de lunes a viernes). Las tapas y chasis de iPhone (MobileSentrix) llegan 2 días laborables después hacia las 13:00 si se piden antes de las 18:00.'],
+  ['¿Los reacondicionados son buenos?', 'Revisados en tienda y con el 100 % de sus componentes originales. Garantía de 1 año como mínimo (los nuevos, 3 años). Y si traes tu móvil, te lo tasamos como parte del pago (ver tasador).'],
+  ['¿Cómo puedo pagar?', 'Efectivo, tarjeta o transferencia (Bizum no). Los teléfonos nuevos también se pueden financiar; los reacondicionados no.'],
+  ['¿Qué horario tenéis?', 'De lunes a viernes de 9:30 a 14:00 y de 17:00 a 20:30. Sábados de 10:00 a 14:00. Domingos cerrado.'],
+];
+$('#faql').innerHTML = FAQ.map(([q, a]) => `<div><dt>${esc(q)}</dt><dd>${esc(a)}</dd></div>`).join('');
+
+// Atajos: abrir el desplegable al saltar
+document.querySelectorAll('.jump a').forEach(a => a.addEventListener('click', () => { const d = document.querySelector(a.getAttribute('href')); if (d) d.open = true; }));
+
+['#a-wa', '#t-wa'].forEach(id => $(id).addEventListener('click', waClick));
+updAsk();
+// ==== FUNDAS v1 ====
+// Peticiones de funda en la base de datos compartida de la página (colecciones "fundas" y "colocar").
+// La tarea de Claude detecta cuándo entran en stock en SATTPV, avisa al cliente por WhatsApp y rellena "colocar".
+(async () => {
+  const fmt = ms => ms ? new Date(ms).toLocaleString('es-ES', {weekday: 'short', day: 'numeric', month: 'numeric', hour: '2-digit', minute: '2-digit'}) : '';
+  const msg = t => { $('#f-msg').textContent = t; };
+  let db = null;
+  try { db = await claude.use('db'); } catch (e) {}
+  if (!db) { $('#f-form').hidden = true; msg('Las peticiones solo se pueden apuntar abriendo esta página en Claude con tu cuenta.'); return; }
+  let fundas = [], colocar = [], editId = null;
+  const pagTxt = f => f.pagada ? '<span class="fpag">✓ Pagada</span>' : '';
+  const obsTxt = f => f.obs ? `<span class="fobsv">${esc(f.obs)}</span>` : '';
+  const editForm = f => `<form class="fedit" data-edit="${esc(f._id)}" autocomplete="off"><label>Cliente<input name="cliente" required value="${esc(f.cliente)}"></label><label>Móvil<input name="telefono" required inputmode="tel" value="${esc(f.telefono)}"></label><label>Modelo<input name="modelo" required value="${esc(f.modelo)}"></label><label>Qué funda<input name="detalle" value="${esc(f.detalle || '')}"></label><label class="fobs">Observaciones<textarea name="obs" rows="2">${esc(f.obs || '')}</textarea></label><label class="fchk"><input type="checkbox" name="pagada" ${f.pagada ? 'checked' : ''}> Ya pagada o con señal</label><span class="fbtns"><button type="submit" class="wa fbtn">Guardar cambios</button><button type="button" data-noedit="1">Cancelar</button></span></form>`;
+  const render = () => {
+    // Miguel 12/10: funda pedida hace más de 7 días → en rojo, URGENTE y la primera.
+    const diasF = f => Math.floor((Date.now() - (f.creado || Date.now())) / 864e5), urgF = f => diasF(f) > 7;
+    const pend = fundas.filter(f => f.estado === 'pendiente').sort((a, b) => (urgF(b) - urgF(a)) || (a.creado || 0) - (b.creado || 0));
+    const res = fundas.filter(f => ['llegada', 'avisado'].includes(f.estado));
+    const tareasF = res.filter(f => !f.colocada);
+    const tareasC = colocar.filter(c => !c.hecho);
+    $('#f-count').textContent = pend.length || ''; // solo las que faltan por llegar
+    // Miguel 13/10: «Por colocar» eliminado.
+    $('#f-tareas').innerHTML = false ? `<h3 class="fh">Por colocar</h3>` +
+      tareasF.map(f => `<div class="ftarea fitem"><span>Deja la funda de <b>${esc(f.cliente)}</b> (${esc(f.producto || f.modelo)}) en la <b>${esc(f.ubicacion || 'estantería de reservas')}</b>, con su nombre.
+        <span class="q">${f.estado === 'avisado' ? `<span class="fok">Cliente avisado por WhatsApp ${esc(fmt(f.avisado_at))}</span>` : `<span class="fwarn">Aviso al cliente pendiente${f.aviso_error ? ': ' + esc(f.aviso_error) : ''}</span>`}</span></span>
+        <button data-col="${esc(f._id)}">Hecho</button></div>`).join('') +
+      tareasC.map(c => `<div class="ftarea fitem"><span>Coloca <b>${esc(c.unidades)} × ${esc(c.producto)}</b> en <b>${esc(c.ubicacion || 'su sitio')}</b>.<span class="q">Entró ${esc(fmt(c.fecha))}</span></span><button data-hecho="${esc(c._id)}">Hecho</button></div>`).join('') : '';
+    if (document.querySelector('#fundas form.fedit') && document.querySelector('#fundas form.fedit').contains(document.activeElement)) return; // no pisar lo que se está escribiendo
+    $('#f-pend').innerHTML = pend.length ? pend.map(f => f._id === editId ? editForm(f) : `<div class="fitem${urgF(f) ? ' urg' : ''}"><span>${urgF(f) ? `<span class="urgtag">🔴 Urgente · ${diasF(f)} días</span>` : ''}${pagTxt(f)}<b>${esc(f.modelo)}</b>${f.detalle ? ' · ' + esc(f.detalle) : ''}<span class="q">${esc(f.cliente)} · ${esc(f.telefono)} · pedida ${esc(fmt(f.creado))}</span>${obsTxt(f)}</span><span class="acc"><button class="fok" data-aviso="${esc(f._id)}">✓ Ha llegado y está avisado</button><button data-editar="${esc(f._id)}">Editar</button><button class="fanular" data-cancel="${esc(f._id)}">Anular</button></span></div>`).join('') : '<p class="q">No hay ninguna funda pendiente.</p>';
+    $('#f-res').innerHTML = res.length ? res.map(f => f._id === editId ? editForm(f) : `<div class="fitem"><span>${pagTxt(f)}<b>${esc(f.cliente)}</b> · ${esc(f.producto || f.modelo)}<span class="q">${f.estado === 'avisado' ? 'Avisado ' + esc(fmt(f.avisado_at)) : 'Llegó ' + esc(fmt(f.llegada_at)) + ', aviso pendiente'} · ${esc(f.ubicacion || 'estantería de reservas')}</span>${obsTxt(f)}</span><span class="acc"><button data-editar="${esc(f._id)}">Editar</button><button class="fok" data-recog="${esc(f._id)}">✓ Recogida</button></span></div>`).join('') : '<p class="q">No hay fundas reservadas.</p>';
+  };
+  db.collection('fundas').onSnapshot(s => { fundas = s.docs.map(d => ({...d.data(), _id: d.id})).sort((a, b) => (a.creado || 0) - (b.creado || 0)); render(); }, () => msg('No se pudieron cargar las peticiones.'));
+  db.collection('colocar').onSnapshot(s => { colocar = s.docs.map(d => ({...d.data(), _id: d.id})); render(); }, () => {});
+  $('#f-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const f = new FormData(e.target), tel = String(f.get('telefono')).replace(/\D/g, '').replace(/^34(?=\d{9}$)/, '');
+    if (!/^[6-9]\d{8}$/.test(tel)) { msg('El móvil debe tener 9 cifras.'); return; }
+    try {
+      await db.collection('fundas').add({cliente: String(f.get('cliente')).trim(), telefono: tel, modelo: String(f.get('modelo')).trim(), detalle: String(f.get('detalle') || '').trim(), obs: String(f.get('obs') || '').trim(), pagada: !!f.get('pagada'), estado: 'pendiente', creado: Date.now()});
+      e.target.reset(); msg('Apuntada. Te aviso aquí cuando llegue y dónde dejarla.');
+    } catch (err) { msg('No se pudo guardar: ' + (err && err.message || 'error')); }
+  });
+  $('#fundas').addEventListener('submit', async e => {
+    const fe = e.target.closest('form.fedit'); if (!fe) return;
+    e.preventDefault();
+    const f = new FormData(fe), tel = String(f.get('telefono')).replace(/\D/g, '').replace(/^34(?=\d{9}$)/, '');
+    if (!/^[6-9]\d{8}$/.test(tel)) { msg('El móvil debe tener 9 cifras.'); return; }
+    try {
+      await db.collection('fundas').doc(fe.dataset.edit).update({cliente: String(f.get('cliente')).trim(), telefono: tel, modelo: String(f.get('modelo')).trim(), detalle: String(f.get('detalle') || '').trim(), obs: String(f.get('obs') || '').trim(), pagada: !!f.get('pagada'), editada_at: Date.now()});
+      editId = null; document.activeElement.blur(); render(); msg('Cambios guardados.');
+    } catch (err) { msg('No se pudo guardar: ' + (err && err.message || 'error')); }
+  });
+  $('#fundas').addEventListener('click', async e => {
+    const b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.editar) { editId = b.dataset.editar; render(); const i = document.querySelector('#fundas form.fedit input'); if (i) i.focus(); return; }
+    if (b.dataset.noedit) { editId = null; document.activeElement.blur(); render(); return; }
+    try {
+      if (b.dataset.col) await db.collection('fundas').doc(b.dataset.col).update({colocada: true, colocada_at: Date.now()});
+      if (b.dataset.hecho) await db.collection('colocar').doc(b.dataset.hecho).update({hecho: true, hecho_at: Date.now()});
+      if (b.dataset.recog) await db.collection('fundas').doc(b.dataset.recog).update({estado: 'recogida', recogida_at: Date.now()});
+      // Miguel 12/10: botón de completado; al avisar pasa a «Reservadas (esperando al cliente)».
+      if (b.dataset.aviso) { const t = Date.now(); await db.collection('fundas').doc(b.dataset.aviso).update({estado: 'avisado', llegada_at: t, avisado_at: t}); }
+      // Anular con doble toque (en esta página no salen ventanas de confirmar).
+      if (b.dataset.cancel) { if (b.dataset.seguro) await db.collection('fundas').doc(b.dataset.cancel).update({estado: 'anulada', anulada_at: Date.now()}); else { b.dataset.seguro = 1; b.textContent = '¿Seguro? Toca otra vez'; setTimeout(() => { if (b.isConnected) { delete b.dataset.seguro; b.textContent = 'Anular'; } }, 4000); } }
+    } catch (err) { const t = 'No se pudo guardar: ' + (err && (err.code || err.message) || 'error') + '. Si sigue fallando, abre la app con la cuenta de la tienda.'; msg(t); toastErr(t); }
+  });
+})();
+// ==== FIN FUNDAS ====
+
+// ==== RESERVAS v1 ====
+// Reservas y pedidos de equipos (colección "reservas" de la base de datos de la página).
+(async () => {
+  const EST = [
+    {n: 'Por pedir', c: '#b45309'},
+    {n: 'Pedido, esperando que llegue', c: '#0b6e8a'},
+    {n: 'En tienda, esperando que recojan', c: '#1f8a4c'},
+    {n: 'Entregado', c: '#5b6b73', fin: true},
+    {n: 'Anulado', c: '#9b1c1c', fin: true}];
+  const est = n => EST.find(e => e.n === n) || EST[0];
+  const eur = x => (Math.round((+x || 0) * 100) / 100).toLocaleString('es-ES', {minimumFractionDigits: 0, maximumFractionDigits: 2}) + ' €';
+  const fmtR = ms => ms ? new Date(ms).toLocaleDateString('es-ES', {day: 'numeric', month: 'numeric'}) : '';
+  const msg = t => { $('#r-msg').textContent = t; };
+  const opts = sel => EST.map(e => `<option ${e.n === sel ? 'selected' : ''}>${e.n}</option>`).join('');
+  $('#r-form [name=estado]').innerHTML = opts(EST[0].n);
+  let db = null;
+  try { db = await claude.use('db'); } catch (e) {}
+  if (!db) { $('#r-form').hidden = true; msg('Las reservas solo se pueden apuntar abriendo esta página en Claude con tu cuenta.'); return; }
+  let res = [], editId = null;
+  const waCli = (r, txt) => 'https://api.whatsapp.com/send?phone=34' + r.telefono + '&text=' + encodeURIComponent(txt);
+  const leer = f => { const tel = String(f.get('telefono')).replace(/\D/g, '').replace(/^34(?=\d{9}$)/, '');
+    return {tel, d: {cliente: String(f.get('cliente')).trim(), telefono: tel, tipo: f.get('tipo'), equipo: String(f.get('equipo')).trim(), precio: +f.get('precio') || 0, cuenta: +f.get('cuenta') || 0, proveedor: String(f.get('proveedor') || '').trim(), obs: String(f.get('obs') || '').trim()}}; };
+  const editForm = r => `<form class="fedit" data-redit="${esc(r._id)}" autocomplete="off"><label>Cliente<input name="cliente" required value="${esc(r.cliente)}"></label><label>Móvil<input name="telefono" required inputmode="tel" value="${esc(r.telefono)}"></label><label>Tipo<select name="tipo">${['Teléfono','Tablet','Portátil','Reloj','Otro'].map(t => `<option ${t === r.tipo ? 'selected' : ''}>${t}</option>`).join('')}</select></label><label class="fobs requipo">Equipo y características<textarea name="equipo" required rows="3">${esc(r.equipo)}</textarea></label><label>Precio total (€)<input name="precio" type="number" min="0" step="0.01" value="${r.precio || ''}"></label><label>Dado a cuenta (€)<input name="cuenta" type="number" min="0" step="0.01" value="${r.cuenta || ''}"></label><label>Proveedor<input name="proveedor" value="${esc(r.proveedor || '')}"></label><label class="fobs">Observaciones<textarea name="obs" rows="2">${esc(r.obs || '')}</textarea></label><span class="fbtns"><button type="submit" class="wa fbtn">Guardar cambios</button><button type="button" data-rnoedit="1">Cancelar</button></span></form>`;
+  const item = r => { const e = est(r.estado), debe = Math.max(0, (r.precio || 0) - (r.cuenta || 0));
+    const aviso = r.estado === EST[2].n ? `Hola ${(r.cliente || '').split(' ')[0]}! soy Miguel de Reparo Novo 😊. Ya tenemos aquí tu ${r.equipo}. Pásate cuando quieras a recogerlo${debe ? ` (quedan ${eur(debe)} por pagar)` : ''}. Estamos de lunes a viernes de 9:30 a 14:00 y de 17:00 a 20:30, y los sábados de 10:00 a 14:00. ¡Un saludo!` : `Hola ${(r.cliente || '').split(' ')[0]}! soy Miguel de Reparo Novo. Te escribo por tu ${r.equipo}: `;
+    const dR = Math.floor((Date.now() - (r.creado || Date.now())) / 864e5), uR = dR > 15;
+    return `<div class="fitem${uR ? ' urg' : ''}" style="--rc:${uR ? '#c62828' : e.c}"><span>${uR ? `<span class="urgtag">🔴 Urgente · ${dR} días</span>` : ''}<span class="rest">${esc(e.n)}</span><span class="tag">${esc(r.tipo || 'Equipo')}</span><b class="requip">${esc(r.equipo)}</b>
+      <span class="q">${esc(r.cliente)} · ${esc(r.telefono)} · apuntada ${esc(fmtR(r.creado))}${r.proveedor ? ' · ' + esc(r.proveedor) : ''}${r.estado_at ? ' · estado desde ' + esc(fmtR(r.estado_at)) : ''}</span>
+      <span class="rmoney">${r.precio ? `<span>Total <b>${eur(r.precio)}</b></span>` : ''}<span>A cuenta <b>${eur(r.cuenta)}</b></span>${r.precio ? (debe ? `<span class="rdebe">Falta ${eur(debe)}</span>` : '<span class="fpag">✓ Pagado</span>') : ''}</span>
+      ${r.obs ? `<span class="fobsv">${esc(r.obs)}</span>` : ''}</span>
+      <span class="acc"><select data-rest="${esc(r._id)}" aria-label="Estado">${opts(r.estado)}</select><button data-reditar="${esc(r._id)}">Editar</button><a class="afinar" target="_blank" rel="noopener" href="${waCli(r, aviso)}">WhatsApp cliente</a></span></div>`; };
+  const render = () => {
+    if (document.querySelector('#reservas form.fedit') && document.querySelector('#reservas form.fedit').contains(document.activeElement)) return;
+    const urgR = r => (Date.now() - (r.creado || Date.now())) / 864e5 > 15; // Miguel 12/10: equipos a los 15 días → rojo y arriba
+    const abiertas = res.filter(r => !est(r.estado).fin).sort((a, b) => (urgR(b) - urgR(a)) || EST.indexOf(est(a.estado)) - EST.indexOf(est(b.estado)) || (a.creado || 0) - (b.creado || 0));
+    $('#r-count').textContent = abiertas.length || '';
+    const cuenta = abiertas.reduce((a, r) => a + (+r.cuenta || 0), 0);
+    $('#r-sum').innerHTML = EST.filter(e => !e.fin).map(e => `<span><b>${abiertas.filter(r => r.estado === e.n).length}</b> ${e.n.split(',')[0].toLowerCase()}</span>`).join('') + `<span><b>${eur(cuenta)}</b> a cuenta en total</span>`;
+    $('#r-list').innerHTML = abiertas.length ? abiertas.map(r => r._id === editId ? editForm(r) : item(r)).join('') : '<p class="q">No hay reservas abiertas.</p>';
+    $('#r-done').innerHTML = res.filter(r => est(r.estado).fin && Date.now() - (r.estado_at || 0) < 30 * 864e5).map(r => `<div class="fitem"><span><span class="tag">${esc(r.estado)}</span>${esc(r.equipo)} · ${esc(r.cliente)}<span class="q">${esc(fmtR(r.estado_at))} · a cuenta ${eur(r.cuenta)}</span></span></div>`).join('') || '<p class="q">Nada en el último mes.</p>';
+  };
+  db.collection('reservas').onSnapshot(s => { res = s.docs.map(d => ({...d.data(), _id: d.id})); render(); }, () => msg('No se pudieron cargar las reservas.'));
+  $('#reservas').addEventListener('submit', async e => {
+    const f0 = e.target; if (f0.id !== 'r-form' && !f0.classList.contains('fedit')) return;
+    e.preventDefault();
+    const {tel, d} = leer(new FormData(f0));
+    if (!/^[6-9]\d{8}$/.test(tel)) { msg('El móvil debe tener 9 cifras.'); return; }
+    if (d.precio && d.cuenta > d.precio) { msg('Lo dado a cuenta no puede ser más que el precio total.'); return; }
+    try {
+      if (f0.id === 'r-form') { const st = new FormData(f0).get('estado'); await db.collection('reservas').add({...d, estado: st, estado_at: Date.now(), creado: Date.now()}); f0.reset(); $('#r-form [name=estado]').innerHTML = opts(EST[0].n); msg('Reserva apuntada.'); }
+      else { await db.collection('reservas').doc(f0.dataset.redit).update({...d, editada_at: Date.now()}); editId = null; document.activeElement.blur(); render(); msg('Cambios guardados.'); }
+    } catch (err) { msg('No se pudo guardar: ' + (err && err.message || 'error')); }
+  });
+  $('#reservas').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.reditar) { editId = b.dataset.reditar; render(); const i = document.querySelector('#reservas form.fedit input'); if (i) i.focus(); }
+    if (b.dataset.rnoedit) { editId = null; document.activeElement.blur(); render(); } });
+  $('#reservas').addEventListener('change', async e => { const s = e.target.closest('select[data-rest]'); if (!s) return;
+    try { await db.collection('reservas').doc(s.dataset.rest).update({estado: s.value, estado_at: Date.now()}); msg('Estado cambiado a «' + s.value + '».'); } catch (err) { msg('No se pudo guardar: ' + (err && err.message || 'error')); } });
+})();
+// Las cajas de texto crecen solas al escribir (y al abrir Editar) para ver todo lo escrito.
+const autoAlto = t => { t.style.height = 'auto'; t.style.height = (t.scrollHeight + 2) + 'px'; };
+document.addEventListener('input', e => { if (e.target.matches && e.target.matches('#reservas textarea, #fundas textarea')) autoAlto(e.target); });
+new MutationObserver(() => document.querySelectorAll('#reservas form.fedit textarea, #fundas form.fedit textarea').forEach(t => { if (!t.dataset.alto) { t.dataset.alto = 1; autoAlto(t); } })).observe(document.body, {childList: true, subtree: true});
+// ==== FIN RESERVAS ====
+// ==== VISTAS v1 ====
+// Una sección cada vez (barra abajo en el móvil, arriba en el ordenador) para no tener que hacer scroll.
+(() => {
+  const V = {tarifa: ['.search', '#n-banner', '.grid', '#calc'], fundas: ['#fundas'], reservas: ['#reservas'], tareas: ['#notas', '#tareas'], garantias: ['#garantias'], mas: ['#tasador', '#faq', '#serv', '.wrap > p.foot']};
+  const todos = [...new Set(Object.values(V).flat())];
+  const mostrar = (v, scroll = true) => {
+    if (!V[v]) v = 'tarifa';
+    todos.forEach(sel => document.querySelectorAll(sel).forEach(el => { if (V[v].includes(sel)) el.removeAttribute('data-oculto'); else el.setAttribute('data-oculto', ''); }));
+    if (v !== 'tarifa') V[v].forEach(sel => { const el = document.querySelector(sel); if (el && el.tagName === 'DETAILS' && v !== 'mas') el.open = true; });
+    document.querySelectorAll('#vnav button').forEach(b => b.setAttribute('aria-current', b.dataset.v === v));
+    try { localStorage.setItem('vista', v); } catch (e) {}
+    if (scroll) window.scrollTo({top: 0});
+  };
+  $('#vnav').addEventListener('click', e => { const b = e.target.closest('button[data-v]'); if (b) mostrar(b.dataset.v); });
+  // Enlaces internos (#fundas, #calc…) cambian de sección.
+  document.addEventListener('click', e => { const a = e.target.closest('a[href^="#"]'); if (!a) return; const id = a.getAttribute('href');
+    const v = Object.keys(V).find(k => V[k].includes(id)); if (!v) return; e.preventDefault(); mostrar(v, false); const d = document.querySelector(id); if (d) { if (d.tagName === 'DETAILS') d.open = true; d.scrollIntoView({block: 'start'}); } });
+  // Contadores en la barra.
+  const sync = () => document.querySelectorAll('#vnav .vc').forEach(c => { const o = document.getElementById(c.dataset.of), t = o ? o.textContent : ''; if (c.textContent !== t) c.textContent = t; });
+  const mo = new MutationObserver(sync); document.querySelectorAll('#vnav .vc').forEach(c => { const o = document.getElementById(c.dataset.of); if (o) mo.observe(o, {childList: true, characterData: true, subtree: true}); }); sync();
+  // En el móvil, al elegir un modelo se baja directamente a su ficha.
+  $('#list').addEventListener('click', e => { if (e.target.closest('.mbtn') && matchMedia('(max-width:720px)').matches) setTimeout(() => $('#card').scrollIntoView({block: 'start', behavior: 'smooth'}), 30); });
+  // Siempre se abre en la Tarifa (antes recordaba la última sección y, si era «Más», parecía vacía). Con #tareas, #fundas… en el enlace abre esa sección.
+  let v0 = 'tarifa'; const h0 = (location.hash || '').slice(1); if (V[h0]) v0 = h0;
+  mostrar(v0, false);
+})();
+// ==== FIN VISTAS ====
+// ==== TAREAS Y GARANTIAS v1 ====
+(async () => {
+  const fmtD = ms => ms ? new Date(ms).toLocaleDateString('es-ES', {weekday: 'short', day: 'numeric', month: 'numeric'}) : '';
+  const dias = ms => Math.floor((Date.now() - ms) / 864e5);
+  let db = null;
+  try { db = await claude.use('db'); } catch (e) {}
+  if (!db) { ['#t-form', '#g-form', '#n-form'].forEach(s => { const el = $(s); if (el) el.hidden = true; }); $('#t-msg').textContent = $('#g-msg').textContent = $('#n-msg').textContent = 'Solo se puede usar abriendo esta página en Claude con tu cuenta.';
+    // Aviso claro arriba: sin base de datos (copia del escritorio, otra cuenta o sin iniciar sesión) fundas, reservas, tareas, notas y garantías salen vacías.
+    const av = document.createElement('p'); av.className = 'sindb'; av.innerHTML = '<b>Estás en una copia sin conexión</b> (o sin iniciar sesión en Claude con la cuenta de la tienda): los precios valen, pero fundas, reservas, tareas, notas y garantías salen vacías. Ábrela desde el enlace de Claude con la cuenta de la tienda.';
+    const h = document.querySelector('header') || document.body.firstElementChild; h.after(av); return; }
+  // Error bien visible (aviso rojo arriba) y con la causa más habitual explicada.
+  const err = (el, e) => { const c = (e && (e.code || e.message)) || 'error';
+    const t = /invalid_argument|not_granted|permission|denied|forbidden|not_writer|read.?only/i.test(c) ? 'No se pudo guardar: esta cuenta solo tiene permiso para VER la app. Miguel tiene que darle permiso para editar (Compartir › persona › «Puede editar»).' : /network|offline|fetch/i.test(c) ? 'No se pudo guardar: sin conexión. Inténtalo otra vez.' : 'No se pudo guardar (' + c + '). Inténtalo otra vez.';
+    $(el).textContent = t; toastErr(t); };
+  // --- Tareas ---
+  let tareas = [];
+  // Importancia (Miguel 12/10): las más importantes arriba; dentro de la misma importancia se pueden subir y bajar a mano.
+  const PRIOS = ['🔴 Para hoy', '🟠 Esta semana', 'Sin prioridad']; // Miguel 12/10
+  const tPrio = t => (t.prio === undefined || t.prio === '' || isNaN(+t.prio)) ? 2 : Math.min(2, +t.prio);
+  const tPos = t => typeof t.orden === 'number' ? t.orden : (t.creado || 0);
+  const tOrden = () => tareas.filter(t => !t.hecha).sort((a, b) => tPrio(a) - tPrio(b) || tPos(a) - tPos(b));
+  const rT = () => {
+    const hoy = new Date(); hoy.setHours(0,0,0,0);
+    const abiertas = tOrden();
+    $('#t-count').textContent = abiertas.length || '';
+    $('#t-list').innerHTML = abiertas.length ? abiertas.map(t => { const venc = t.limite && new Date(t.limite + 'T00:00') < hoy;
+      const pr = tPrio(t), i = abiertas.indexOf(t);
+      return `<div class="fitem tprio${pr}"><span><span class="tag">${esc(t.para || 'Todos')}</span>${pr < 2 ? `<span class="tag ptag">${PRIOS[pr]}</span>` : ''}${esc(t.texto)}<span class="q">${t.limite ? `<span class="${venc ? 'late' : ''}">Antes del ${esc(fmtD(new Date(t.limite + 'T12:00').getTime()))}</span> · ` : ''}apuntada ${esc(fmtD(t.creado))}</span></span><span class="tacc"><select data-tp="${esc(t._id)}" aria-label="Para cuándo">${PRIOS.map((n, k) => `<option value="${k}" ${k === pr ? 'selected' : ''}>${n}</option>`).join('')}</select><span class="tmov"><button type="button" data-tup="${esc(t._id)}" ${i === 0 ? 'disabled' : ''} aria-label="Subir">▲</button><button type="button" data-tdown="${esc(t._id)}" ${i === abiertas.length - 1 ? 'disabled' : ''} aria-label="Bajar">▼</button></span><button data-th="${esc(t._id)}">Hecha</button></span></div>`; }).join('') : '<p class="q">No hay tareas pendientes.</p>';
+    $('#t-done').innerHTML = tareas.filter(t => t.hecha && dias(t.hecha_at || 0) <= 14).map(t => `<div class="fitem"><span>${esc(t.texto)}<span class="q">Hecha ${esc(fmtD(t.hecha_at))}</span></span><button data-tr="${esc(t._id)}">Reabrir</button></div>`).join('') || '<p class="q">Nada en las últimas dos semanas.</p>';
+  };
+  db.collection('tareas').onSnapshot(s => { tareas = s.docs.map(d => ({...d.data(), _id: d.id})); rT(); }, () => {});
+  $('#t-form').addEventListener('submit', async e => { e.preventDefault(); const f = new FormData(e.target);
+    try { await db.collection('tareas').add({texto: String(f.get('texto')).trim(), para: f.get('para'), limite: f.get('limite') || '', prio: +(f.get('prio') || 2), hecha: false, creado: Date.now()}); e.target.reset(); $('#t-msg').textContent = 'Tarea añadida.'; } catch (x) { err('#t-msg', x); } });
+  $('#tareas').addEventListener('click', async e => { const b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.th) { const it = b.closest('.fitem'); if (it) it.style.opacity = .35; b.disabled = true; }
+    try { if (b.dataset.th) await db.collection('tareas').doc(b.dataset.th).update({hecha: true, hecha_at: Date.now()});
+      if (b.dataset.tr) await db.collection('tareas').doc(b.dataset.tr).update({hecha: false});
+      const id = b.dataset.tup || b.dataset.tdown;
+      if (id) { const l = tOrden(), i = l.findIndex(t => t._id === id), j = b.dataset.tup ? i - 1 : i + 1;
+        if (i >= 0 && j >= 0 && j < l.length) { const a = l[i], o = l[j];
+          // Se intercambian el sitio y la importancia del vecino, así queda justo donde se quería.
+          const pa = tPos(a), po = tPos(o) === pa ? pa + (b.dataset.tup ? -1 : 1) : tPos(o);
+          await Promise.all([db.collection('tareas').doc(a._id).update({orden: po, prio: tPrio(o)}), db.collection('tareas').doc(o._id).update({orden: pa, prio: tPrio(a)})]); } }
+    } catch (x) { err('#t-msg', x); rT(); } });
+  $('#tareas').addEventListener('change', async e => { const sel = e.target.closest('select[data-tp]'); if (!sel) return;
+    try { await db.collection('tareas').doc(sel.dataset.tp).update({prio: +sel.value}); } catch (x) { err('#t-msg', x); } });
+  // --- Notas informativas (Miguel 12/10): avisos para todos, sin nada que hacer; se ven también arriba de la tarifa. ---
+  let notas = [], nEdit = null;
+  const hoyYmd = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+  const nActivas = () => notas.filter(n => !n.quitada && (!n.hasta || n.hasta >= hoyYmd())).sort((a, b) => (b.creado || 0) - (a.creado || 0));
+  const rN = () => { if (document.querySelector('#notas form.nedit') && document.querySelector('#notas form.nedit').contains(document.activeElement)) return; const l = nActivas();
+    $('#n-count').textContent = l.length || '';
+    // Miguel 13/10: las notas se pueden editar; sin «quién la pone».
+    const item = n => n._id === nEdit ? `<form class="fedit nedit" data-nedit="${esc(n._id)}" autocomplete="off"><label class="fobs">Nota<textarea name="texto" required rows="2">${esc(n.texto)}</textarea></label><label>Hasta el día (opcional)<input type="date" name="hasta" value="${esc(n.hasta || '')}"></label><span class="fbtns"><button type="submit" class="wa fbtn">Guardar</button><button type="button" data-ncancel>Cancelar</button></span></form>`
+      : `<div class="fitem nota"><span>${esc(n.texto)}<span class="q">${esc(fmtD(n.creado))}${n.hasta ? ' · hasta el ' + esc(fmtD(new Date(n.hasta + 'T12:00').getTime())) : ''}</span></span><span class="acc"><button data-neditar="${esc(n._id)}">Editar</button><button data-nq="${esc(n._id)}">Hecho</button></span></div>`;
+    $('#n-list').innerHTML = l.length ? l.map(item).join('') : '<p class="q">No hay notas.</p>';
+    const bn = $('#n-banner'); bn.hidden = !l.length;
+    bn.innerHTML = l.length ? `<b>📌 Notas</b><ul>${l.map(n => `<li>${esc(n.texto)}</li>`).join('')}</ul>` : ''; };
+  db.collection('notas').onSnapshot(s => { notas = s.docs.map(d => ({...d.data(), _id: d.id})); rN(); }, () => {});
+  $('#n-form').addEventListener('submit', async e => { e.preventDefault(); const f = new FormData(e.target);
+    try { await db.collection('notas').add({texto: String(f.get('texto')).trim(), hasta: f.get('hasta') || '', quitada: false, creado: Date.now()}); e.target.reset(); $('#n-msg').textContent = 'Nota añadida.'; } catch (x) { err('#n-msg', x); } });
+  $('#notas').addEventListener('click', e => { const b = e.target.closest('button[data-neditar]'); if (b) { nEdit = b.dataset.neditar; rN(); const t = document.querySelector('#notas form.nedit textarea'); if (t) t.focus(); return; }
+    if (e.target.closest('button[data-ncancel]')) { nEdit = null; document.activeElement && document.activeElement.blur(); rN(); } });
+  $('#notas').addEventListener('submit', async e => { const fe = e.target.closest('form.nedit'); if (!fe) return; e.preventDefault(); const f = new FormData(fe);
+    try { await db.collection('notas').doc(fe.dataset.nedit).update({texto: String(f.get('texto')).trim(), hasta: f.get('hasta') || '', editada_at: Date.now()}); nEdit = null; document.activeElement && document.activeElement.blur(); rN(); } catch (x) { err('#n-msg', x); } });
+  $('#notas').addEventListener('click', async e => { const b = e.target.closest('button[data-nq]'); if (!b) return;
+    try { await db.collection('notas').doc(b.dataset.nq).update({quitada: true, quitada_at: Date.now()}); } catch (x) { err('#n-msg', x); } });
+  $('#n-banner').addEventListener('click', () => { const nb = document.querySelector('#vnav button[data-v="tareas"]'); if (nb) nb.click(); });
+  // --- Garantías ---
+  const ESTADOS = ['Por enviar', 'Enviada, esperando respuesta', 'Aceptada, esperando pieza o abono', 'Rechazada', 'Resuelta y entregada al cliente'];
+  const CERRADO = s => s === ESTADOS[3] || s === ESTADOS[4];
+  let gar = [], gEdit = null;
+  const gForm = g => `<form class="fedit" data-gedit="${esc(g._id)}" autocomplete="off">
+      <label>Proveedor<select name="proveedor">${['COOL', 'Apokin', 'Esmovil', 'Otro'].map(p => `<option ${p === g.proveedor ? 'selected' : ''}>${p}</option>`).join('')}</select></label>
+      <label>Qué es<input name="equipo" required value="${esc(g.equipo || '')}"></label>
+      <label>Problema<input name="problema" value="${esc(g.problema || '')}"></label>
+      <label>Fecha de factura<input type="date" name="fecha_factura" value="${esc(g.fecha_factura || '')}"></label>
+      <label>Nº RMA o pedido<input name="ref" value="${esc(g.ref || '')}"></label>
+      <label>Cliente (si espera)<input name="cliente" value="${esc(g.cliente || '')}"></label>
+      <label>Móvil del cliente<input name="telefono" inputmode="tel" value="${esc(g.telefono || '')}"></label>
+      <label>Estado<select name="estado">${ESTADOS.map(s => `<option ${s === g.estado ? 'selected' : ''}>${s}</option>`).join('')}</select></label>
+      <label class="fobs">Notas<textarea name="notas" rows="2" placeholder="Opcional: qué ha dicho el proveedor, abono, etc.">${esc(g.notas || '')}</textarea></label>
+      <label class="fchk"><input type="checkbox" name="esperando" ${g.esperando ? 'checked' : ''}> El cliente está esperando</label>
+      <span class="fbtns"><button type="submit" class="wa fbtn">Guardar cambios</button><button type="button" data-gcancel>Cancelar</button></span>
+    </form>`;
+  const rG = () => {
+    if (document.querySelector('#garantias form.fedit') && document.querySelector('#garantias form.fedit').contains(document.activeElement)) return; // no pisar lo que se está escribiendo
+    const ab = gar.filter(g => !CERRADO(g.estado)).sort((a, b) => (b.esperando - a.esperando) || ((a.enviada_at || a.creado) - (b.enviada_at || b.creado)));
+    const tarde = g => g.estado === ESTADOS[1] && dias(g.enviada_at || g.creado) > 14;
+    $('#g-count').textContent = ab.length || '';
+    const por = p => ab.filter(g => g.proveedor === p).length;
+    $('#g-sum').innerHTML = ['COOL', 'Apokin', 'Esmovil', 'Otro'].map(p => `<span><b>${por(p)}</b> ${p}</span>`).join('') + `<span><b>${ab.filter(g => g.esperando).length}</b> clientes esperando</span><span class="late"><b>${ab.filter(tarde).length}</b> sin respuesta +14 días</span>`;
+    $('#g-list').innerHTML = ab.length ? ab.map(g => {
+      if (g._id === gEdit) return gForm(g);
+      const d = dias(g.enviada_at || g.creado);
+      return `<div class="fitem"><span><span class="tag">${esc(g.proveedor)}</span><b>${esc(g.equipo)}</b>${g.problema ? ' · ' + esc(g.problema) : ''}${g.notas ? `<span class="fobsv">${esc(g.notas)}</span>` : ''}
+        <span class="q">${g.cliente ? `Cliente: ${esc(g.cliente)}${g.telefono ? ' · ' + esc(g.telefono) : ''}${g.esperando ? ' · <b>esperando</b>' : ''} · ` : 'Pieza de stock · '}${g.fecha_factura ? 'Factura ' + esc(g.fecha_factura.split('-').reverse().join('/')) + ' · ' : ''}${g.ref ? 'Ref. ' + esc(g.ref) + ' · ' : ''}${g.enviada_at ? 'enviada ' + esc(fmtD(g.enviada_at)) : 'registrada ' + esc(fmtD(g.creado))} · <span class="${tarde(g) ? 'late' : ''}">${d} días${tarde(g) ? ': reclamar al proveedor y avisar al cliente' : ''}</span></span></span>
+        <span class="acc"><button type="button" data-geditar="${esc(g._id)}">Editar</button><select data-ge="${esc(g._id)}" aria-label="Estado">${ESTADOS.map(s => `<option ${s === g.estado ? 'selected' : ''}>${s}</option>`).join('')}</select>${g.telefono ? `<a class="afinar" target="_blank" rel="noopener" href="${'https://api.whatsapp.com/send?phone=34' + g.telefono + '&text=' + encodeURIComponent('Hola ' + (g.cliente || '').split(' ')[0] + ', soy de Reparo Novo. Te escribo para contarte cómo va la garantía de tu ' + g.equipo + ': ')}">WhatsApp cliente</a>` : ''}</span></div>`; }).join('') : '<p class="q">No hay garantías abiertas.</p>';
+    $('#g-done').innerHTML = gar.filter(g => CERRADO(g.estado) && dias(g.cerrada_at || 0) <= 30).map(g => g._id === gEdit ? gForm(g) : `<div class="fitem"><span><span class="tag">${esc(g.proveedor)}</span>${esc(g.equipo)}<span class="q">${esc(g.estado)} · ${esc(fmtD(g.cerrada_at))}</span></span><span class="acc"><button type="button" data-geditar="${esc(g._id)}">Editar</button></span></div>`).join('') || '<p class="q">Nada en el último mes.</p>';
+  };
+  db.collection('garantias').onSnapshot(s => { gar = s.docs.map(d => ({...d.data(), _id: d.id})); rG(); }, () => {});
+  $('#g-form').addEventListener('submit', async e => { e.preventDefault(); const f = new FormData(e.target);
+    try { await db.collection('garantias').add({proveedor: f.get('proveedor'), equipo: String(f.get('equipo')).trim(), problema: String(f.get('problema') || '').trim(), ref: String(f.get('ref') || '').trim(), fecha_factura: String(f.get('fecha_factura') || ''), cliente: String(f.get('cliente') || '').trim(), telefono: String(f.get('telefono') || '').replace(/\D/g, ''), esperando: !!f.get('esperando') && !!String(f.get('cliente') || '').trim(), estado: ESTADOS[0], creado: Date.now()});
+      e.target.reset(); $('#g-msg').textContent = 'Garantía registrada. Cambia el estado a «Enviada» cuando salga hacia el proveedor.'; } catch (x) { err('#g-msg', x); } });
+  $('#garantias').addEventListener('click', e => {
+    const b = e.target.closest('button[data-geditar]'); if (b) { gEdit = b.dataset.geditar; rG(); const i = document.querySelector('#garantias form.fedit input[name=equipo]'); if (i) i.focus(); return; }
+    if (e.target.closest('button[data-gcancel]')) { gEdit = null; document.activeElement && document.activeElement.blur(); rG(); } });
+  $('#garantias').addEventListener('submit', async e => { const fe = e.target.closest('form.fedit[data-gedit]'); if (!fe) return; e.preventDefault();
+    const f = new FormData(fe), g = gar.find(x => x._id === fe.dataset.gedit) || {};
+    const cliente = String(f.get('cliente') || '').trim(), estado = f.get('estado');
+    const upd = {proveedor: f.get('proveedor'), equipo: String(f.get('equipo')).trim(), problema: String(f.get('problema') || '').trim(), ref: String(f.get('ref') || '').trim(), fecha_factura: String(f.get('fecha_factura') || ''), cliente, telefono: String(f.get('telefono') || '').replace(/\D/g, ''), notas: String(f.get('notas') || '').trim(), esperando: !!f.get('esperando') && !!cliente, estado, editado_at: Date.now()};
+    if (estado === ESTADOS[1] && !g.enviada_at) upd.enviada_at = Date.now();
+    if (CERRADO(estado) && !CERRADO(g.estado)) upd.cerrada_at = Date.now();
+    try { await db.collection('garantias').doc(fe.dataset.gedit).update(upd); gEdit = null; document.activeElement && document.activeElement.blur(); $('#g-msg').textContent = 'Garantía actualizada.'; rG(); } catch (x) { err('#g-msg', x); } });
+  $('#garantias').addEventListener('change', async e => { if (e.target.closest('form.fedit')) return; const s = e.target.closest('select[data-ge]'); if (!s) return;
+    const upd = {estado: s.value}; if (s.value === ESTADOS[1]) upd.enviada_at = Date.now(); if (CERRADO(s.value)) upd.cerrada_at = Date.now();
+    try { await db.collection('garantias').doc(s.dataset.ge).update(upd); } catch (x) { err('#g-msg', x); } });
+})();
+// ==== FIN TAREAS Y GARANTIAS ====
+
+fillReps();
+
+renderList();
+</script>
+
+
+
+
+
+<script src="boot.js?v=202610171221"></script>
+</body></html>
