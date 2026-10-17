@@ -24,6 +24,12 @@ App interna (PWA) de la tienda Reparo Novo (Priego de Córdoba): tarifa de repar
 - **Login, sincronización, PWA, iconos** → archivos de este repo (`boot.js`, `shim.js`, `sw.js`…).
 - **Base de datos, permisos, buzón** → Supabase (migraciones con el conector).
 
+## Conector SATTPV (nube, solo lectura)
+- Edge Function `sattpv`: inicia sesión con los secretos `SATTPV_USUARIO`/`SATTPV_PASS` (cuenta común de la tienda) y manda el PIN del nivel de acceso "Claude" (`SATTPV_PIN`, solo permisos de ver) en la cabecera `X-Access-Level`. Solo GET y rutas de consulta. Token en `public.claves_srv` id `sattpv_token`.
+- Desde SQL (tareas programadas con el conector Supabase): `select public.sattpv('/repairs?show=10&page=1');` → JSON {status, code, data}. Filtrar en SQL para no traer datos de más.
+- Documentación de la API: https://app.sattpv.net/docs/ (base https://api-v3.sattpv.net).
+- Cola de WhatsApp: colección `envios` (por_autorizar → cola → enviando → enviado/error), `public.envio_coger(equipo)` reparte entre ordenadores; panel en `envios.js`.
+
 ## Reglas
 - Nunca subir la clave de cifrado ni la tarifa sin cifrar (`data` lleva costes de piezas de proveedores).
 - Nunca subir datos de clientes al repo (es público).
