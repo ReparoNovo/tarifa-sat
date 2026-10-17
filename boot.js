@@ -170,5 +170,22 @@
   if (/type=recovery/.test(location.hash)) { /* lo gestiona onAuthStateChange */ }
   else comprobar();
 
-  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+  // Actualización automática: al volver a la app (el iPhone la "reanuda" sin recargar) se busca versión nueva;
+  // si la hay, el service worker nuevo toma el control y la página se recarga sola (salvo si se está escribiendo).
+  if ('serviceWorker' in navigator) {
+    const habia = !!navigator.serviceWorker.controller;
+    navigator.serviceWorker.register('sw.js').then(reg => {
+      const mira = () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); };
+      document.addEventListener('visibilitychange', mira);
+      window.addEventListener('focus', mira);
+      setInterval(mira, 15 * 60 * 1000);
+    }).catch(() => {});
+    let recargando = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!habia || recargando) return;
+      const recarga = () => { if (recargando) return; const a = document.activeElement; if (a && /INPUT|TEXTAREA|SELECT/.test(a.tagName)) return; recargando = true; location.reload(); };
+      recarga();
+      if (!recargando) document.addEventListener('focusout', () => setTimeout(recarga, 300));
+    });
+  }
 })();
