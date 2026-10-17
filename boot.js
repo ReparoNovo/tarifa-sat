@@ -16,19 +16,20 @@
 
   function formLogin(modo) {
     const crear = modo === 'crear';
-    pinta(`<p class="rn-sub">${crear ? 'Crea tu cuenta con tu correo. Después Miguel la activa.' : 'Inicia sesión para ver la tarifa y lo apuntado.'}</p>
+    pinta(`<p class="rn-sub">${crear ? 'Solo para la cuenta de la tienda (info@reparonovo.com), la primera vez.' : 'Inicia sesión para ver la tarifa y lo apuntado.'}</p>
       <form id="rn-f" autocomplete="on">
         <label>Correo<input name="email" type="email" required autocomplete="username" inputmode="email"></label>
         <label>Contraseña<input name="pass" type="password" required minlength="8" autocomplete="${crear ? 'new-password' : 'current-password'}"></label>
         <button type="submit" class="rn-btn">${crear ? 'Crear cuenta' : 'Entrar'}</button>
       </form>
       <p class="rn-msg" aria-live="polite"></p>
-      <p class="rn-links">${crear ? '<a href="#" data-m="entrar">Ya tengo cuenta</a>' : '<a href="#" data-m="crear">Primera vez: crear cuenta</a> · <a href="#" data-m="olvido">He olvidado la contraseña</a>'}</p>`);
+      <p class="rn-links">${crear ? '<a href="#" data-m="entrar">Ya tengo cuenta</a>' : '<a href="#" data-m="olvido">He olvidado la contraseña</a> · <a href="#" data-m="crear">Activar la cuenta de la tienda</a>'}</p>`);
     caja.querySelector('#rn-f').onsubmit = async e => {
       e.preventDefault();
       const f = new FormData(e.target); const email = String(f.get('email')).trim().toLowerCase(); const password = String(f.get('pass'));
       msg(crear ? 'Creando cuenta…' : 'Entrando…');
       if (crear) {
+        if (email !== 'info@reparonovo.com') return msg('Solo se puede crear la cuenta de la tienda (info@reparonovo.com).', true);
         const { data, error } = await sb.auth.signUp({ email, password, options: { emailRedirectTo: location.origin + location.pathname } });
         if (error) return msg(traduce(error), true);
         if (!data.session) return msg('Te hemos mandado un correo para confirmar la cuenta. Ábrelo, pulsa el enlace y vuelve aquí para entrar.');
@@ -74,6 +75,7 @@
     const m = (e && e.message || '').toLowerCase();
     if (m.includes('invalid login')) return 'Correo o contraseña incorrectos.';
     if (m.includes('email not confirmed')) return 'Falta confirmar la cuenta: abre el correo que te llegó y pulsa el enlace.';
+    if (m.includes('database error') || m.includes('registro no permitido')) return 'Solo se puede crear la cuenta de la tienda (info@reparonovo.com).';
     if (m.includes('already registered')) return 'Ese correo ya tiene cuenta. Pulsa «Ya tengo cuenta».';
     if (m.includes('password')) return 'La contraseña debe tener al menos 8 caracteres.';
     if (m.includes('rate')) return 'Demasiados intentos. Espera unos minutos.';
