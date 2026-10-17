@@ -11,7 +11,7 @@
   document.body.appendChild(caja);
   document.body.classList.add('rn-bloq');
 
-  function pinta(html) { caja.innerHTML = '<div class="rn-panel"><h1>Tarifa SAT · Reparo Novo</h1>' + html + '</div>'; caja.hidden = false; }
+  function pinta(html) { caja.innerHTML = '<div class="rn-panel"><h1>Reparo Novo</h1>' + html + '</div>'; caja.hidden = false; }
   function msg(t, err) { const p = caja.querySelector('.rn-msg'); if (p) { p.textContent = t; p.classList.toggle('rn-err', !!err); } }
 
   function formLogin(modo) {

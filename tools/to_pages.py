@@ -49,7 +49,7 @@ def main(src, clave_b64):
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Tarifa SAT">
+<meta name="apple-mobile-web-app-title" content="Reparo Novo">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="stylesheet" href="boot.css?v={ver}">
@@ -57,6 +57,9 @@ def main(src, clave_b64):
 <script src="config.js?v={ver}"></script>
 <script src="shim.js?v={ver}"></script>
 '''
+    # Nombre de la app: «Reparo Novo» (título de la pestaña y cabecera), aunque la plantilla diga otra cosa
+    h = re.sub(r'<title>.*?</title>', '<title>Reparo Novo</title>', h, count=1, flags=re.S)
+    h = h.replace('<h1>Tarifa SAT · Reparo Novo</h1>', '<h1>Reparo Novo</h1>', 1)
     h = h.replace('</head>', cab + '</head>', 1)
     h = h.replace('</body>', f'<script src="boot.js?v={ver}"></script>\n</body>', 1) if '</body>' in h \
         else h + f'\n<script src="boot.js?v={ver}"></script>\n'

@@ -1,6 +1,6 @@
 {
-  "name": "Tarifa SAT · Reparo Novo",
-  "short_name": "Tarifa SAT",
+  "name": "Reparo Novo",
+  "short_name": "Reparo Novo",
   "description": "Tarifa de reparaciones, fundas, reservas, tareas y garantías de Reparo Novo",
   "lang": "es",
   "start_url": "./",
