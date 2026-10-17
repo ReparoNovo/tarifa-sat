@@ -150,6 +150,7 @@
     document.querySelectorAll('script[type="text/x-diferido"]').forEach(s => {
       const n = document.createElement('script'); n.textContent = s.textContent; s.replaceWith(n);
     });
+    const ev = document.createElement('script'); ev.src = 'envios.js?v=' + (document.querySelector('script[src^="boot.js"]')?.src.split('v=')[1] || '1'); document.body.appendChild(ev);
     caja.hidden = true; caja.innerHTML = '';
     document.body.classList.remove('rn-bloq');
     pie();
