@@ -13,3 +13,4 @@ body.rn-bloq .wrap{display:none}
 .rn-msg.rn-err,.rn-err{color:#c62828}
 .rn-links{margin:0;font-size:.9rem}
 .rn-links a,.rn-pie a{color:var(--accent,#0b6e8a);font-weight:600}
+#rn-aviso-app{display:none!important}

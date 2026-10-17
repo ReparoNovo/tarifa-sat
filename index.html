@@ -6,10 +6,10 @@
 <meta name="apple-mobile-web-app-title" content="Tarifa SAT">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" href="icons/icon-192.png">
-<link rel="stylesheet" href="boot.css?v=202610171235">
+<link rel="stylesheet" href="boot.css?v=202610171246">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=202610171235"></script>
-<script src="shim.js?v=202610171235"></script>
+<script src="config.js?v=202610171246"></script>
+<script src="shim.js?v=202610171246"></script>
 </head><body>
 
 
@@ -300,6 +300,10 @@ details.hechas summary{cursor:pointer}
 </style>
 
 <div class="wrap">
+  <!-- ==== AVISO APP v1: solo se ve en la página de Claude; en la app (GitHub Pages) lo oculta boot.css ==== -->
+  <div id="rn-aviso-app" style="background:#1E73BE;color:#fff;border-radius:12px;padding:14px 16px;font-size:1rem;line-height:1.4"><b>Esta página ya no se usa para apuntar.</b> Fundas, reservas, tareas, notas y garantías van en la app de la tienda: <a href="https://reparonovo.github.io/tarifa-sat/" target="_blank" rel="noopener" style="color:#fff;font-weight:700;text-decoration:underline">abrir la app</a>. Aquí solo se puede consultar la tarifa.</div>
+  <script type="text/x-diferido">(function(){if(window.RN_CONFIG)return;document.addEventListener('DOMContentLoaded',function(){['fundas','reservas','notas','tareas','garantias'].forEach(function(id){var s=document.getElementById(id);if(!s)return;s.inert=true;s.style.opacity='.45';});});})();</script>
+  <!-- ==== FIN AVISO APP ==== -->
   <header>
     <h1>Tarifa SAT · Reparo Novo</h1>
     <span class="upd" id="upd"></span>
@@ -1467,5 +1471,5 @@ renderList();
 
 
 
-<script src="boot.js?v=202610171235"></script>
+<script src="boot.js?v=202610171246"></script>
 </body></html>
