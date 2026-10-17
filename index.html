@@ -6,10 +6,10 @@
 <meta name="apple-mobile-web-app-title" content="Tarifa SAT">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" href="icons/icon-192.png">
-<link rel="stylesheet" href="boot.css?v=202610171257">
+<link rel="stylesheet" href="boot.css?v=202610171439">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=202610171257"></script>
-<script src="shim.js?v=202610171257"></script>
+<script src="config.js?v=202610171439"></script>
+<script src="shim.js?v=202610171439"></script>
 </head><body>
 
 
@@ -297,6 +297,27 @@ details.hechas summary{cursor:pointer}
 #t-list>.fitem>span:first-of-type,#g-list>.fitem>span:first-of-type,#f-tareas>.fitem>span:first-of-type{flex:1;min-width:0}
 @media (max-width:520px){#t-list>.fitem,#g-list>.fitem,#f-tareas>.fitem{flex-wrap:wrap}#g-list>.fitem .acc{width:100%;padding-left:40px}}
 /* ==== FIN TAREAS Y GARANTIAS ==== */
+/* ==== ESCRITORIO v1: en pantallas grandes se usa todo el ancho y menos scroll (el móvil no cambia) ==== */
+@media (min-width:1100px){
+  .wrap{max-width:min(1720px,100%);padding-inline:28px;gap:14px}
+  .grid{grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:18px}
+  .list{position:sticky;top:118px;max-height:calc(100vh - 136px)}
+  .card{padding:18px 22px}
+  .card h2{font-size:1.9rem}
+  #f-pend,#f-res,#f-tareas,#r-list,#r-done,#t-list,#t-done,#g-list,#g-done,#n-list{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(400px,1fr));gap:10px;align-items:start}
+  #f-pend>.fitem,#f-res>.fitem,#r-list>.fitem,#t-list>.fitem,#g-list>.fitem,#n-list>.fitem,#f-tareas>.fitem{height:100%;flex-wrap:wrap}
+  #t-list>.fitem .tacc,#g-list>.fitem .acc,#r-list>.fitem .acc,#f-pend>.fitem .acc,#f-res>.fitem .acc{width:100%;padding-left:40px;justify-content:flex-start;flex-direction:row}
+  .nuevo{display:inline-block;width:auto;padding:10px 22px}
+  .fform{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+  .faq{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:0 28px}
+  .foot{max-width:120ch}
+  details.serv{padding:16px 22px}
+}
+@media (min-width:1500px){
+  .grid{grid-template-columns:minmax(0,340px) minmax(0,1fr)}
+  #card .tablewrap table{font-size:1.02rem}
+}
+/* ==== FIN ESCRITORIO ==== */
 </style>
 
 <div class="wrap">
@@ -1471,5 +1492,5 @@ renderList();
 
 
 
-<script src="boot.js?v=202610171257"></script>
+<script src="boot.js?v=202610171439"></script>
 </body></html>

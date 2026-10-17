@@ -17,6 +17,7 @@
 #wa-banner[hidden]{display:none}
 #wa-fab{position:fixed;right:14px;bottom:calc(96px + env(safe-area-inset-bottom,0px));z-index:40;border:0;border-radius:999px;background:#1f8a4c;color:#fff;font:700 .9rem var(--body,system-ui);padding:10px 14px;box-shadow:0 6px 18px rgba(0,0,0,.25);cursor:pointer}
 @media (min-width:721px){#wa-fab{bottom:18px}}
+@media (min-width:1100px){header #wa-fab{position:static;box-shadow:none;order:3;margin-left:12px}}
 #wa-fab .n{background:#fff;color:#1f8a4c;border-radius:999px;padding:0 7px;margin-left:6px}
 #wa-fab .n:empty{display:none}
 #wa-pan{position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;justify-content:center}
@@ -42,7 +43,7 @@
   const nb = document.getElementById('n-banner') || document.querySelector('.search');
   nb && nb.parentNode.insertBefore(banner, nb.nextSibling);
   const fab = document.createElement('button'); fab.id = 'wa-fab'; fab.type = 'button'; fab.innerHTML = '📲 WhatsApp<span class="n"></span>';
-  document.body.appendChild(fab);
+  (document.querySelector('header') || document.body).appendChild(fab);
   const pan = document.createElement('div'); pan.id = 'wa-pan'; pan.hidden = true; pan.innerHTML = '<div class="box" role="dialog" aria-label="Mensajes de WhatsApp"></div>';
   document.body.appendChild(pan);
   const box = pan.querySelector('.box');
