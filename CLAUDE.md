@@ -27,6 +27,7 @@ App interna (PWA) de la tienda Reparo Novo (Priego de Córdoba): tarifa de repar
 ## Conector SATTPV (nube, solo lectura)
 - Edge Function `sattpv`: inicia sesión con los secretos `SATTPV_USUARIO`/`SATTPV_PASS` (cuenta común de la tienda) y manda el PIN del nivel de acceso "Claude" (`SATTPV_PIN`, solo permisos de ver) en la cabecera `X-Access-Level`. Solo GET y rutas de consulta. Token en `public.claves_srv` id `sattpv_token`.
 - Desde SQL (tareas programadas con el conector Supabase): `select public.sattpv('/repairs?show=10&page=1');` → JSON {status, code, data}. Filtrar en SQL para no traer datos de más.
+- Desde Chrome (tareas del iMac sin conector Supabase): pestaña en `https://reparonovo.github.io/…` y `fetch('https://yxvwvyddyajjfcfxdjrb.supabase.co/functions/v1/sattpv?p=' + encodeURIComponent(ruta), {headers: {'x-clave': …}})` (CORS abierto solo a reparonovo.github.io; la clave va en el prompt de la tarea, nunca en el repo). NO usar la web de SATTPV: su sesión se cierra y las tareas fallan.
 - Documentación de la API: https://app.sattpv.net/docs/ (base https://api-v3.sattpv.net).
 - Cola de WhatsApp: colección `envios` (por_autorizar → cola → enviando → enviado/error), `public.envio_coger(equipo)` reparte entre ordenadores; panel en `envios.js`.
 
