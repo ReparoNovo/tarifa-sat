@@ -6,10 +6,10 @@
 <meta name="apple-mobile-web-app-title" content="Reparo Novo">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" href="icons/icon-192.png">
-<link rel="stylesheet" href="boot.css?v=202610192307">
+<link rel="stylesheet" href="boot.css?v=202610192323">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=202610192307"></script>
-<script src="shim.js?v=202610192307"></script>
+<script src="config.js?v=202610192323"></script>
+<script src="shim.js?v=202610192323"></script>
 </head><body>
 
 
@@ -482,11 +482,11 @@ details.hechas summary{cursor:pointer}
 
   <details class="serv" id="garantias">
     <summary>Garantías con proveedores <span class="fcount" id="g-count"></span></summary>
-    <p class="foot">Piezas o equipos en garantía con COOL, Apokin, Esmovil o Anovo. Si el cliente está esperando, aparece arriba y en rojo cuando lleva más de 14 días sin respuesta: reclama al proveedor y avisa al cliente de cómo va. Estados: Por enviar → Enviada, esperando respuesta → Recibido y pendiente de entrega → Entregada. Las entregadas se borran solas a las 24 horas.</p>
+    <p class="foot">Piezas o equipos en garantía con COOL, Apokin o Anovo. Si el cliente está esperando, aparece arriba y en rojo cuando lleva más de 14 días sin respuesta: reclama al proveedor y avisa al cliente de cómo va. Estados: Por enviar → Enviada, esperando respuesta → Recibido y pendiente de entrega → Entregada. Las entregadas se borran solas a las 24 horas.</p>
     <div class="gsum" id="g-sum"></div>
     <button type="button" class="nuevo" data-abre="g-form" aria-expanded="false">+ Nueva garantía</button>
     <form class="fform plegado" id="g-form" autocomplete="off">
-      <label>Proveedor<select name="proveedor"><option>COOL</option><option>Apokin</option><option>Esmovil</option><option>Anovo</option><option>Otro</option></select></label>
+      <label>Proveedor<select name="proveedor"><option>COOL</option><option>Apokin</option><option>Anovo</option><option>Otro</option></select></label>
       <label>Qué es<input name="equipo" required placeholder="p. ej. Pantalla iPhone 13 / Redmi Note 13"></label>
       <label>Problema<input name="problema" placeholder="p. ej. táctil falla, no carga"></label>
       <label>Estado<select name="estado"><option selected>Por enviar</option><option>Enviada, esperando respuesta</option><option>Recibido y pendiente de entrega</option><option>Entregada</option></select></label>
@@ -1454,7 +1454,7 @@ new MutationObserver(() => document.querySelectorAll('#reservas form.fedit texta
   const G_BORRA = 24 * 3600e3; // las entregadas se borran a las 24 h (también lo hace Supabase cada hora)
   let gar = [], gEdit = null;
   const gForm = g => `<form class="fedit" data-gedit="${esc(g._id)}" autocomplete="off">
-      <label>Proveedor<select name="proveedor">${['COOL', 'Apokin', 'Esmovil', 'Anovo', 'Otro'].map(p => `<option ${p === g.proveedor ? 'selected' : ''}>${p}</option>`).join('')}</select></label>
+      <label>Proveedor<select name="proveedor">${['COOL', 'Apokin', 'Anovo', 'Otro'].concat(['COOL', 'Apokin', 'Anovo', 'Otro'].includes(g.proveedor) ? [] : [g.proveedor]).map(p => `<option ${p === g.proveedor ? 'selected' : ''}>${p}</option>`).join('')}</select></label>
       <label>Qué es<input name="equipo" required value="${esc(g.equipo || '')}"></label>
       <label>Problema<input name="problema" value="${esc(g.problema || '')}"></label>
       <label>Fecha de tramitación<input type="date" name="fecha_tramite" value="${esc(g.fecha_tramite || hoyISO(g.creado))}"></label>
@@ -1472,7 +1472,7 @@ new MutationObserver(() => document.querySelectorAll('#reservas form.fedit texta
     const tarde = g => g.estado === ESTADOS[1] && dias(g.enviada_at || g.creado) > 14;
     $('#g-count').textContent = ab.length || '';
     const por = p => ab.filter(g => g.proveedor === p).length;
-    $('#g-sum').innerHTML = ['COOL', 'Apokin', 'Esmovil', 'Anovo', 'Otro'].map(p => `<span><b>${por(p)}</b> ${p}</span>`).join('') + `<span><b>${ab.filter(g => g.esperando).length}</b> clientes esperando</span><span class="late"><b>${ab.filter(tarde).length}</b> sin respuesta +14 días</span><span><b>${ab.filter(g => g.estado === ESTADOS[2]).length}</b> para entregar</span>`;
+    $('#g-sum').innerHTML = ['COOL', 'Apokin', 'Anovo', 'Otro'].map(p => `<span><b>${por(p)}</b> ${p}</span>`).join('') + `<span><b>${ab.filter(g => g.esperando).length}</b> clientes esperando</span><span class="late"><b>${ab.filter(tarde).length}</b> sin respuesta +14 días</span><span><b>${ab.filter(g => g.estado === ESTADOS[2]).length}</b> para entregar</span>`;
     $('#g-list').innerHTML = ab.length ? ab.map(g => {
       if (g._id === gEdit) return gForm(g);
       const d = dias(g.enviada_at || g.creado);
@@ -1512,5 +1512,5 @@ renderList();
 
 
 
-<script src="boot.js?v=202610192307"></script>
+<script src="boot.js?v=202610192323"></script>
 </body></html>
