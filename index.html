@@ -6,10 +6,10 @@
 <meta name="apple-mobile-web-app-title" content="Reparo Novo">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" href="icons/icon-192.png">
-<link rel="stylesheet" href="boot.css?v=202610192305">
+<link rel="stylesheet" href="boot.css?v=202610192307">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=202610192305"></script>
-<script src="shim.js?v=202610192305"></script>
+<script src="config.js?v=202610192307"></script>
+<script src="shim.js?v=202610192307"></script>
 </head><body>
 
 
@@ -1370,8 +1370,8 @@ new MutationObserver(() => document.querySelectorAll('#reservas form.fedit texta
   const mo = new MutationObserver(sync); document.querySelectorAll('#vnav .vc').forEach(c => { const o = document.getElementById(c.dataset.of); if (o) mo.observe(o, {childList: true, characterData: true, subtree: true}); }); sync();
   // En el móvil, al elegir un modelo se baja directamente a su ficha.
   $('#list').addEventListener('click', e => { if (e.target.closest('.mbtn') && matchMedia('(max-width:720px)').matches) setTimeout(() => $('#card').scrollIntoView({block: 'start', behavior: 'smooth'}), 30); });
-  // Siempre se abre en la Tarifa (antes recordaba la última sección y, si era «Más», parecía vacía). Con #tareas, #fundas… en el enlace abre esa sección.
-  let v0 = 'tarifa'; const h0 = (location.hash || '').slice(1); if (V[h0]) v0 = h0;
+  // Siempre se abre en Tareas (Miguel 19/10; antes en la Tarifa). Con #tarifa, #fundas… en el enlace abre esa sección.
+  let v0 = 'tareas'; const h0 = (location.hash || '').slice(1); if (V[h0]) v0 = h0;
   mostrar(v0, false);
 })();
 // ==== FIN VISTAS ====
@@ -1512,5 +1512,5 @@ renderList();
 
 
 
-<script src="boot.js?v=202610192305"></script>
+<script src="boot.js?v=202610192307"></script>
 </body></html>

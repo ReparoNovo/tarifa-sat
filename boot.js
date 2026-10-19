@@ -196,11 +196,11 @@
   // si la hay, el service worker nuevo toma el control y la página se recarga sola (salvo si se está escribiendo).
   if ('serviceWorker' in navigator) {
     const habia = !!navigator.serviceWorker.controller;
-    navigator.serviceWorker.register('sw.js').then(reg => {
+    navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(reg => {
       const mira = () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); };
       document.addEventListener('visibilitychange', mira);
       window.addEventListener('focus', mira);
-      setInterval(mira, 15 * 60 * 1000);
+      setInterval(mira, 5 * 60 * 1000);
     }).catch(() => {});
     let recargando = false;
     navigator.serviceWorker.addEventListener('controllerchange', () => {
