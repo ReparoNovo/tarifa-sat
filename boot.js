@@ -133,6 +133,25 @@
     return JSON.parse(txt);
   }
 
+  // Stock de piezas, accesorios con stock y costes de proveedores "en vivo": los calcula cada 30 min la
+  // Edge Function tarifa_vivo (nube, sin iMac) y se aplican encima de la tarifa cifrada.
+  async function enVivo(d) {
+    let v = null;
+    try {
+      const { data } = await sb.from('docs').select('data').eq('coleccion', 'sistema').eq('id', 'tarifa_vivo').maybeSingle();
+      v = data && data.data;
+      if (v) LS.set('rn_vivo', JSON.stringify(v));
+    } catch (e) { try { v = JSON.parse(LS.get('rn_vivo') || 'null'); } catch (_) {} }
+    if (!v || !v.fecha || Date.now() - v.fecha > 4 * 864e5) return;
+    const D = d.data;
+    try {
+      (D.modelos || []).forEach(m => (m.items || []).forEach(it => { it.sat = (v.sat && v.sat[m.m + '|' + it.r]) || 0; }));
+      if (v.piezas && Array.isArray(D.piezas)) D.piezas.forEach(x => { const p = v.piezas[x[3] + '|' + x[0] + '|' + x[2]]; if (p) { x[4] = p[0]; x[5] = p[1]; } });
+      if (Array.isArray(v.acc) && v.acc.length > 50) D.acc = v.acc;
+      D.meta = Object.assign({}, D.meta, { vivo: v.fecha });
+    } catch (e) {}
+  }
+
   async function arrancar() {
     if (arrancado) return;
     pinta('<p class="rn-sub">Cargando la tarifa…</p>');
@@ -145,12 +164,15 @@
       return;
     }
     arrancado = true;
+    await enVivo(d);
     document.getElementById('data').textContent = JSON.stringify(d.data);
     document.getElementById('agenda').textContent = JSON.stringify(d.agenda);
     document.querySelectorAll('script[type="text/x-diferido"]').forEach(s => {
       const n = document.createElement('script'); n.textContent = s.textContent; s.replaceWith(n);
     });
-    const ev = document.createElement('script'); ev.src = 'envios.js?v=' + (document.querySelector('script[src^="boot.js"]')?.src.split('v=')[1] || '1'); document.body.appendChild(ev);
+    const ver = (document.querySelector('script[src^="boot.js"]')?.src.split('v=')[1] || '1');
+    const ev = document.createElement('script'); ev.src = 'envios.js?v=' + ver; document.body.appendChild(ev);
+    const es = document.createElement('script'); es.src = 'estado.js?v=' + ver; document.body.appendChild(es);
     caja.hidden = true; caja.innerHTML = '';
     document.body.classList.remove('rn-bloq');
     pie();
