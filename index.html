@@ -297,6 +297,9 @@ details.hechas summary{cursor:pointer}
 #f-tareas>.fitem{border-left-color:var(--warn)}#f-tareas>.fitem::before{background:var(--warn);color:#fff}
 #t-list>.fitem>span:first-of-type,#g-list>.fitem>span:first-of-type,#f-tareas>.fitem>span:first-of-type{flex:1;min-width:0}
 @media (max-width:520px){#t-list>.fitem,#g-list>.fitem,#f-tareas>.fitem{flex-wrap:wrap}#g-list>.fitem .acc{width:100%;padding-left:40px}}
+#g-list>.fitem{border-left-color:var(--gc,var(--accent))}#g-list>.fitem::before{background:var(--gc,var(--accent));color:#fff}
+#g-done>.fitem{border-left:4px solid var(--gc,var(--ok));padding-left:10px}
+.fitem select[data-ge]{border:2px solid var(--gc,var(--line));font-weight:600}
 /* ==== FIN TAREAS Y GARANTIAS ==== */
 /* ==== ESCRITORIO v1: en pantallas grandes se usa todo el ancho y menos scroll (el móvil no cambia) ==== */
 @media (min-width:1100px){
@@ -471,14 +474,14 @@ details.hechas summary{cursor:pointer}
 
   <details class="serv" id="garantias">
     <summary>Garantías con proveedores <span class="fcount" id="g-count"></span></summary>
-    <p class="foot">Piezas o equipos en garantía con COOL, Apokin, Esmovil o Anovo. Si el cliente está esperando, aparece arriba y en rojo cuando lleva más de 14 días sin respuesta: reclama al proveedor y avisa al cliente de cómo va. Estados: Por enviar → Enviada, esperando respuesta → Reparado y pendiente de entrega → Entregada. Las entregadas se borran solas a las 24 horas.</p>
+    <p class="foot">Piezas o equipos en garantía con COOL, Apokin, Esmovil o Anovo. Si el cliente está esperando, aparece arriba y en rojo cuando lleva más de 14 días sin respuesta: reclama al proveedor y avisa al cliente de cómo va. Estados: Por enviar → Enviada, esperando respuesta → Recibido y pendiente de entrega → Entregada. Las entregadas se borran solas a las 24 horas.</p>
     <div class="gsum" id="g-sum"></div>
     <button type="button" class="nuevo" data-abre="g-form" aria-expanded="false">+ Nueva garantía</button>
     <form class="fform plegado" id="g-form" autocomplete="off">
       <label>Proveedor<select name="proveedor"><option>COOL</option><option>Apokin</option><option>Esmovil</option><option>Anovo</option><option>Otro</option></select></label>
       <label>Qué es<input name="equipo" required placeholder="p. ej. Pantalla iPhone 13 / Redmi Note 13"></label>
       <label>Problema<input name="problema" placeholder="p. ej. táctil falla, no carga"></label>
-      <label>Estado<select name="estado"><option selected>Por enviar</option><option>Enviada, esperando respuesta</option><option>Reparado y pendiente de entrega</option><option>Entregada</option></select></label>
+      <label>Estado<select name="estado"><option selected>Por enviar</option><option>Enviada, esperando respuesta</option><option>Recibido y pendiente de entrega</option><option>Entregada</option></select></label>
       <label>Nº RMA o pedido<input name="ref" placeholder="Opcional"></label>
       <label>Cliente (si espera)<input name="cliente" placeholder="Vacío si es pieza de stock"></label>
       <label>Móvil del cliente<input name="telefono" inputmode="tel" placeholder="Opcional"></label>
@@ -1434,9 +1437,11 @@ new MutationObserver(() => document.querySelectorAll('#reservas form.fedit texta
     try { await db.collection('notas').doc(b.dataset.nq).update({quitada: true, quitada_at: Date.now()}); } catch (x) { err('#n-msg', x); } });
   $('#n-banner').addEventListener('click', () => { const nb = document.querySelector('#vnav button[data-v="tareas"]'); if (nb) nb.click(); });
   // --- Garantías ---
-  const ESTADOS = ['Por enviar', 'Enviada, esperando respuesta', 'Reparado y pendiente de entrega', 'Entregada'];
+  const ESTADOS = ['Por enviar', 'Enviada, esperando respuesta', 'Recibido y pendiente de entrega', 'Entregada'];
+  const GCOL = {'Por enviar': '#e053ea', 'Enviada, esperando respuesta': '#d85c53', 'Recibido y pendiente de entrega': '#4e9edd', 'Entregada': '#5cc460'};
+  const gBadge = g => `<span class="rest" style="--rc:${GCOL[g.estado]}">${esc(g.estado)}</span>`;
   const CERRADO = s => s === ESTADOS[3];
-  const G_VIEJO = {'Por tramitar': 0, 'Tramitada, esperando respuesta': 1, 'Aceptada, esperando pieza o abono': 1, 'Rechazada': 3, 'Resuelta y entregada al cliente': 3};
+  const G_VIEJO = {'Por tramitar': 0, 'Tramitada, esperando respuesta': 1, 'Aceptada, esperando pieza o abono': 1, 'Rechazada': 3, 'Resuelta y entregada al cliente': 3, 'Reparado y pendiente de entrega': 2};
   const gEst = s => ESTADOS.includes(s) ? s : ESTADOS[G_VIEJO[s] ?? 1];
   const G_BORRA = 24 * 3600e3; // las entregadas se borran a las 24 h (también lo hace Supabase cada hora)
   let gar = [], gEdit = null;
@@ -1463,10 +1468,10 @@ new MutationObserver(() => document.querySelectorAll('#reservas form.fedit texta
     $('#g-list').innerHTML = ab.length ? ab.map(g => {
       if (g._id === gEdit) return gForm(g);
       const d = dias(g.enviada_at || g.creado);
-      return `<div class="fitem"><span><span class="tag">${esc(g.proveedor)}</span><b>${esc(g.equipo)}</b>${g.problema ? ' · ' + esc(g.problema) : ''}${g.notas ? `<span class="fobsv">${esc(g.notas)}</span>` : ''}
+      return `<div class="fitem" style="--gc:${GCOL[g.estado]}"><span>${gBadge(g)}<span class="tag">${esc(g.proveedor)}</span><b>${esc(g.equipo)}</b>${g.problema ? ' · ' + esc(g.problema) : ''}${g.notas ? `<span class="fobsv">${esc(g.notas)}</span>` : ''}
         <span class="q">${g.cliente ? `Cliente: ${esc(g.cliente)}${g.telefono ? ' · ' + esc(g.telefono) : ''}${g.esperando ? ' · <b>esperando</b>' : ''} · ` : 'Pieza de stock · '}${(g.fecha_tramite || g.creado) ? 'Tramitada ' + esc((g.fecha_tramite || hoyISO(g.creado)).split('-').reverse().join('/')) + ' · ' : ''}${g.fecha_factura ? 'Factura ' + esc(g.fecha_factura.split('-').reverse().join('/')) + ' · ' : ''}${g.ref ? 'Ref. ' + esc(g.ref) + ' · ' : ''}${g.enviada_at ? 'en trámite desde el ' + esc(fmtD(g.enviada_at)) : 'registrada ' + esc(fmtD(g.creado))} · <span class="${tarde(g) ? 'late' : ''}">${d} días${tarde(g) ? ': reclamar al proveedor y avisar al cliente' : ''}</span></span></span>
-        <span class="acc"><button type="button" data-geditar="${esc(g._id)}">Editar</button><select data-ge="${esc(g._id)}" aria-label="Estado">${ESTADOS.map(s => `<option ${s === g.estado ? 'selected' : ''}>${s}</option>`).join('')}</select>${g.telefono ? `<a class="afinar" target="_blank" rel="noopener" href="${'https://api.whatsapp.com/send?phone=34' + g.telefono + '&text=' + encodeURIComponent(g.estado === ESTADOS[2] ? 'Hola ' + (g.cliente || '').split(' ')[0] + ', soy de Reparo Novo. Ya tenemos tu ' + g.equipo + ' reparado de la garantía, puedes pasar a recogerlo cuando quieras.' : 'Hola ' + (g.cliente || '').split(' ')[0] + ', soy de Reparo Novo. Te escribo para contarte cómo va la garantía de tu ' + g.equipo + ': ')}">WhatsApp cliente</a>` : ''}</span></div>`; }).join('') : '<p class="q">No hay garantías abiertas.</p>';
-    $('#g-done').innerHTML = gar.filter(g => CERRADO(g.estado)).map(g => g._id === gEdit ? gForm(g) : `<div class="fitem"><span><span class="tag">${esc(g.proveedor)}</span>${esc(g.equipo)}${g.cliente ? ' · ' + esc(g.cliente) : ''}<span class="q">Entregada ${esc(fmtD(g.cerrada_at))} · se borra en ${Math.max(1, Math.ceil((G_BORRA - (Date.now() - (g.cerrada_at || 0))) / 3600e3))} h</span></span><span class="acc"><button type="button" data-geditar="${esc(g._id)}">Editar</button><select data-ge="${esc(g._id)}" aria-label="Estado">${ESTADOS.map(s => `<option ${s === g.estado ? 'selected' : ''}>${s}</option>`).join('')}</select></span></div>`).join('') || '<p class="q">Ninguna entregada en las últimas 24 horas.</p>';
+        <span class="acc"><button type="button" data-geditar="${esc(g._id)}">Editar</button><select data-ge="${esc(g._id)}" aria-label="Estado">${ESTADOS.map(s => `<option ${s === g.estado ? 'selected' : ''}>${s}</option>`).join('')}</select>${g.telefono ? `<a class="afinar" target="_blank" rel="noopener" href="${'https://api.whatsapp.com/send?phone=34' + g.telefono + '&text=' + encodeURIComponent(g.estado === ESTADOS[2] ? 'Hola ' + (g.cliente || '').split(' ')[0] + ', soy de Reparo Novo. Ya nos ha llegado tu ' + g.equipo + ' de la garantía, puedes pasar a recogerlo cuando quieras.' : 'Hola ' + (g.cliente || '').split(' ')[0] + ', soy de Reparo Novo. Te escribo para contarte cómo va la garantía de tu ' + g.equipo + ': ')}">WhatsApp cliente</a>` : ''}</span></div>`; }).join('') : '<p class="q">No hay garantías abiertas.</p>';
+    $('#g-done').innerHTML = gar.filter(g => CERRADO(g.estado)).map(g => g._id === gEdit ? gForm(g) : `<div class="fitem" style="--gc:${GCOL[g.estado]}"><span>${gBadge(g)}<span class="tag">${esc(g.proveedor)}</span>${esc(g.equipo)}${g.cliente ? ' · ' + esc(g.cliente) : ''}<span class="q">Entregada ${esc(fmtD(g.cerrada_at))} · se borra en ${Math.max(1, Math.ceil((G_BORRA - (Date.now() - (g.cerrada_at || 0))) / 3600e3))} h</span></span><span class="acc"><button type="button" data-geditar="${esc(g._id)}">Editar</button><select data-ge="${esc(g._id)}" aria-label="Estado">${ESTADOS.map(s => `<option ${s === g.estado ? 'selected' : ''}>${s}</option>`).join('')}</select></span></div>`).join('') || '<p class="q">Ninguna entregada en las últimas 24 horas.</p>';
   };
   db.collection('garantias').onSnapshot(s => { gar = s.docs.map(d => { const x = {...d.data(), _id: d.id}; x.estado = gEst(x.estado); return x; }).filter(g => !(CERRADO(g.estado) && Date.now() - (g.cerrada_at || 0) > G_BORRA)); rG(); }, () => {});
   $('#g-form').addEventListener('submit', async e => { e.preventDefault(); const f = new FormData(e.target);
