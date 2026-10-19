@@ -471,14 +471,14 @@ details.hechas summary{cursor:pointer}
 
   <details class="serv" id="garantias">
     <summary>Garantías con proveedores <span class="fcount" id="g-count"></span></summary>
-    <p class="foot">Piezas o equipos en garantía con COOL, Apokin, Esmovil o Anovo. Si el cliente está esperando, aparece arriba y en rojo cuando lleva más de 14 días sin respuesta: reclama al proveedor y avisa al cliente de cómo va.</p>
+    <p class="foot">Piezas o equipos en garantía con COOL, Apokin, Esmovil o Anovo. Si el cliente está esperando, aparece arriba y en rojo cuando lleva más de 14 días sin respuesta: reclama al proveedor y avisa al cliente de cómo va. Estados: Por enviar → Enviada, esperando respuesta → Reparado y pendiente de entrega → Entregada. Las entregadas se borran solas a las 24 horas.</p>
     <div class="gsum" id="g-sum"></div>
     <button type="button" class="nuevo" data-abre="g-form" aria-expanded="false">+ Nueva garantía</button>
     <form class="fform plegado" id="g-form" autocomplete="off">
       <label>Proveedor<select name="proveedor"><option>COOL</option><option>Apokin</option><option>Esmovil</option><option>Anovo</option><option>Otro</option></select></label>
       <label>Qué es<input name="equipo" required placeholder="p. ej. Pantalla iPhone 13 / Redmi Note 13"></label>
       <label>Problema<input name="problema" placeholder="p. ej. táctil falla, no carga"></label>
-      <label>Estado<select name="estado"><option>Por tramitar</option><option selected>Tramitada, esperando respuesta</option><option>Aceptada, esperando pieza o abono</option><option>Rechazada</option><option>Resuelta y entregada al cliente</option></select></label>
+      <label>Estado<select name="estado"><option selected>Por enviar</option><option>Enviada, esperando respuesta</option><option>Reparado y pendiente de entrega</option><option>Entregada</option></select></label>
       <label>Nº RMA o pedido<input name="ref" placeholder="Opcional"></label>
       <label>Cliente (si espera)<input name="cliente" placeholder="Vacío si es pieza de stock"></label>
       <label>Móvil del cliente<input name="telefono" inputmode="tel" placeholder="Opcional"></label>
@@ -487,7 +487,7 @@ details.hechas summary{cursor:pointer}
     </form>
     <p class="q" id="g-msg" aria-live="polite"></p>
     <div id="g-list" class="flist"></div>
-    <details class="hechas"><summary class="q">Cerradas recientemente</summary><div id="g-done" class="flist"></div></details>
+    <details class="hechas"><summary class="q">Entregadas (se borran a las 24 horas)</summary><div id="g-done" class="flist"></div></details>
   </details>
   <!-- ==== FIN TAREAS Y GARANTIAS ==== -->
   <details class="serv" id="faq">
@@ -1434,8 +1434,11 @@ new MutationObserver(() => document.querySelectorAll('#reservas form.fedit texta
     try { await db.collection('notas').doc(b.dataset.nq).update({quitada: true, quitada_at: Date.now()}); } catch (x) { err('#n-msg', x); } });
   $('#n-banner').addEventListener('click', () => { const nb = document.querySelector('#vnav button[data-v="tareas"]'); if (nb) nb.click(); });
   // --- Garantías ---
-  const ESTADOS = ['Por tramitar', 'Tramitada, esperando respuesta', 'Aceptada, esperando pieza o abono', 'Rechazada', 'Resuelta y entregada al cliente'];
-  const CERRADO = s => s === ESTADOS[3] || s === ESTADOS[4];
+  const ESTADOS = ['Por enviar', 'Enviada, esperando respuesta', 'Reparado y pendiente de entrega', 'Entregada'];
+  const CERRADO = s => s === ESTADOS[3];
+  const G_VIEJO = {'Por tramitar': 0, 'Tramitada, esperando respuesta': 1, 'Aceptada, esperando pieza o abono': 1, 'Rechazada': 3, 'Resuelta y entregada al cliente': 3};
+  const gEst = s => ESTADOS.includes(s) ? s : ESTADOS[G_VIEJO[s] ?? 1];
+  const G_BORRA = 24 * 3600e3; // las entregadas se borran a las 24 h (también lo hace Supabase cada hora)
   let gar = [], gEdit = null;
   const gForm = g => `<form class="fedit" data-gedit="${esc(g._id)}" autocomplete="off">
       <label>Proveedor<select name="proveedor">${['COOL', 'Apokin', 'Esmovil', 'Anovo', 'Otro'].map(p => `<option ${p === g.proveedor ? 'selected' : ''}>${p}</option>`).join('')}</select></label>
@@ -1456,16 +1459,16 @@ new MutationObserver(() => document.querySelectorAll('#reservas form.fedit texta
     const tarde = g => g.estado === ESTADOS[1] && dias(g.enviada_at || g.creado) > 14;
     $('#g-count').textContent = ab.length || '';
     const por = p => ab.filter(g => g.proveedor === p).length;
-    $('#g-sum').innerHTML = ['COOL', 'Apokin', 'Esmovil', 'Anovo', 'Otro'].map(p => `<span><b>${por(p)}</b> ${p}</span>`).join('') + `<span><b>${ab.filter(g => g.esperando).length}</b> clientes esperando</span><span class="late"><b>${ab.filter(tarde).length}</b> sin respuesta +14 días</span>`;
+    $('#g-sum').innerHTML = ['COOL', 'Apokin', 'Esmovil', 'Anovo', 'Otro'].map(p => `<span><b>${por(p)}</b> ${p}</span>`).join('') + `<span><b>${ab.filter(g => g.esperando).length}</b> clientes esperando</span><span class="late"><b>${ab.filter(tarde).length}</b> sin respuesta +14 días</span><span><b>${ab.filter(g => g.estado === ESTADOS[2]).length}</b> para entregar</span>`;
     $('#g-list').innerHTML = ab.length ? ab.map(g => {
       if (g._id === gEdit) return gForm(g);
       const d = dias(g.enviada_at || g.creado);
       return `<div class="fitem"><span><span class="tag">${esc(g.proveedor)}</span><b>${esc(g.equipo)}</b>${g.problema ? ' · ' + esc(g.problema) : ''}${g.notas ? `<span class="fobsv">${esc(g.notas)}</span>` : ''}
         <span class="q">${g.cliente ? `Cliente: ${esc(g.cliente)}${g.telefono ? ' · ' + esc(g.telefono) : ''}${g.esperando ? ' · <b>esperando</b>' : ''} · ` : 'Pieza de stock · '}${(g.fecha_tramite || g.creado) ? 'Tramitada ' + esc((g.fecha_tramite || hoyISO(g.creado)).split('-').reverse().join('/')) + ' · ' : ''}${g.fecha_factura ? 'Factura ' + esc(g.fecha_factura.split('-').reverse().join('/')) + ' · ' : ''}${g.ref ? 'Ref. ' + esc(g.ref) + ' · ' : ''}${g.enviada_at ? 'en trámite desde el ' + esc(fmtD(g.enviada_at)) : 'registrada ' + esc(fmtD(g.creado))} · <span class="${tarde(g) ? 'late' : ''}">${d} días${tarde(g) ? ': reclamar al proveedor y avisar al cliente' : ''}</span></span></span>
-        <span class="acc"><button type="button" data-geditar="${esc(g._id)}">Editar</button><select data-ge="${esc(g._id)}" aria-label="Estado">${ESTADOS.map(s => `<option ${s === g.estado ? 'selected' : ''}>${s}</option>`).join('')}</select>${g.telefono ? `<a class="afinar" target="_blank" rel="noopener" href="${'https://api.whatsapp.com/send?phone=34' + g.telefono + '&text=' + encodeURIComponent('Hola ' + (g.cliente || '').split(' ')[0] + ', soy de Reparo Novo. Te escribo para contarte cómo va la garantía de tu ' + g.equipo + ': ')}">WhatsApp cliente</a>` : ''}</span></div>`; }).join('') : '<p class="q">No hay garantías abiertas.</p>';
-    $('#g-done').innerHTML = gar.filter(g => CERRADO(g.estado) && dias(g.cerrada_at || 0) <= 30).map(g => g._id === gEdit ? gForm(g) : `<div class="fitem"><span><span class="tag">${esc(g.proveedor)}</span>${esc(g.equipo)}<span class="q">${esc(g.estado)} · ${esc(fmtD(g.cerrada_at))}</span></span><span class="acc"><button type="button" data-geditar="${esc(g._id)}">Editar</button></span></div>`).join('') || '<p class="q">Nada en el último mes.</p>';
+        <span class="acc"><button type="button" data-geditar="${esc(g._id)}">Editar</button><select data-ge="${esc(g._id)}" aria-label="Estado">${ESTADOS.map(s => `<option ${s === g.estado ? 'selected' : ''}>${s}</option>`).join('')}</select>${g.telefono ? `<a class="afinar" target="_blank" rel="noopener" href="${'https://api.whatsapp.com/send?phone=34' + g.telefono + '&text=' + encodeURIComponent(g.estado === ESTADOS[2] ? 'Hola ' + (g.cliente || '').split(' ')[0] + ', soy de Reparo Novo. Ya tenemos tu ' + g.equipo + ' reparado de la garantía, puedes pasar a recogerlo cuando quieras.' : 'Hola ' + (g.cliente || '').split(' ')[0] + ', soy de Reparo Novo. Te escribo para contarte cómo va la garantía de tu ' + g.equipo + ': ')}">WhatsApp cliente</a>` : ''}</span></div>`; }).join('') : '<p class="q">No hay garantías abiertas.</p>';
+    $('#g-done').innerHTML = gar.filter(g => CERRADO(g.estado)).map(g => g._id === gEdit ? gForm(g) : `<div class="fitem"><span><span class="tag">${esc(g.proveedor)}</span>${esc(g.equipo)}${g.cliente ? ' · ' + esc(g.cliente) : ''}<span class="q">Entregada ${esc(fmtD(g.cerrada_at))} · se borra en ${Math.max(1, Math.ceil((G_BORRA - (Date.now() - (g.cerrada_at || 0))) / 3600e3))} h</span></span><span class="acc"><button type="button" data-geditar="${esc(g._id)}">Editar</button><select data-ge="${esc(g._id)}" aria-label="Estado">${ESTADOS.map(s => `<option ${s === g.estado ? 'selected' : ''}>${s}</option>`).join('')}</select></span></div>`).join('') || '<p class="q">Ninguna entregada en las últimas 24 horas.</p>';
   };
-  db.collection('garantias').onSnapshot(s => { gar = s.docs.map(d => ({...d.data(), _id: d.id})); rG(); }, () => {});
+  db.collection('garantias').onSnapshot(s => { gar = s.docs.map(d => { const x = {...d.data(), _id: d.id}; x.estado = gEst(x.estado); return x; }).filter(g => !(CERRADO(g.estado) && Date.now() - (g.cerrada_at || 0) > G_BORRA)); rG(); }, () => {});
   $('#g-form').addEventListener('submit', async e => { e.preventDefault(); const f = new FormData(e.target);
     try { await db.collection('garantias').add({proveedor: f.get('proveedor'), equipo: String(f.get('equipo')).trim(), problema: String(f.get('problema') || '').trim(), ref: String(f.get('ref') || '').trim(), fecha_tramite: hoyISO(Date.now()), cliente: String(f.get('cliente') || '').trim(), telefono: String(f.get('telefono') || '').replace(/\D/g, ''), esperando: !!f.get('esperando') && !!String(f.get('cliente') || '').trim(), estado: ESTADOS.includes(f.get('estado')) ? f.get('estado') : ESTADOS[1], ...(f.get('estado') !== ESTADOS[0] ? {enviada_at: Date.now()} : {}), ...(CERRADO(f.get('estado')) ? {cerrada_at: Date.now()} : {}), creado: Date.now()});
       e.target.reset(); $('#g-msg').textContent = 'Garantía registrada. Cambia el estado según vaya respondiendo el proveedor.'; } catch (x) { err('#g-msg', x); } });
@@ -1478,9 +1481,10 @@ new MutationObserver(() => document.querySelectorAll('#reservas form.fedit texta
     const upd = {proveedor: f.get('proveedor'), equipo: String(f.get('equipo')).trim(), problema: String(f.get('problema') || '').trim(), ref: String(f.get('ref') || '').trim(), fecha_tramite: String(f.get('fecha_tramite') || '') || hoyISO(Date.now()), cliente, telefono: String(f.get('telefono') || '').replace(/\D/g, ''), notas: String(f.get('notas') || '').trim(), esperando: !!f.get('esperando') && !!cliente, estado, editado_at: Date.now()};
     if (estado === ESTADOS[1] && !g.enviada_at) upd.enviada_at = Date.now();
     if (CERRADO(estado) && !CERRADO(g.estado)) upd.cerrada_at = Date.now();
+    if (!CERRADO(estado) && CERRADO(g.estado)) upd.cerrada_at = null;
     try { await db.collection('garantias').doc(fe.dataset.gedit).update(upd); gEdit = null; document.activeElement && document.activeElement.blur(); $('#g-msg').textContent = 'Garantía actualizada.'; rG(); } catch (x) { err('#g-msg', x); } });
   $('#garantias').addEventListener('change', async e => { if (e.target.closest('form.fedit')) return; const s = e.target.closest('select[data-ge]'); if (!s) return;
-    const upd = {estado: s.value}; if (s.value === ESTADOS[1]) upd.enviada_at = Date.now(); if (CERRADO(s.value)) upd.cerrada_at = Date.now();
+    const g0 = gar.find(x => x._id === s.dataset.ge) || {}; const upd = {estado: s.value}; if (s.value === ESTADOS[1] && !g0.enviada_at) upd.enviada_at = Date.now(); if (CERRADO(s.value)) upd.cerrada_at = Date.now(); else if (CERRADO(g0.estado)) upd.cerrada_at = null;
     try { await db.collection('garantias').doc(s.dataset.ge).update(upd); } catch (x) { err('#g-msg', x); } });
 })();
 // ==== FIN TAREAS Y GARANTIAS ====
