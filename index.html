@@ -6,10 +6,10 @@
 <meta name="apple-mobile-web-app-title" content="Reparo Novo">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" href="icons/icon-192.png">
-<link rel="stylesheet" href="boot.css?v=202610192323">
+<link rel="stylesheet" href="boot.css?v=202610192328">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=202610192323"></script>
-<script src="shim.js?v=202610192323"></script>
+<script src="config.js?v=202610192328"></script>
+<script src="shim.js?v=202610192328"></script>
 </head><body>
 
 
@@ -194,14 +194,15 @@ details.serv summary{font:700 1.15rem var(--display);cursor:pointer}
 #f-pend>.fitem>span:first-of-type,#f-res>.fitem>span:first-of-type{flex:1;min-width:0}
 #f-pend>.fitem .acc,#f-res>.fitem .acc{flex:none;flex-direction:column;align-items:stretch}
 @media (max-width:520px){#f-pend>.fitem,#f-res>.fitem{flex-wrap:wrap}#f-pend>.fitem .acc,#f-res>.fitem .acc{flex-direction:row;width:100%;padding-left:40px}}
-/* Peticiones: los dos apartados bien diferenciados (naranja = pendiente de llegar, verde = ya está aquí, esperando al cliente) */
-#fundas .fh-pend,#fundas .fh-res{font-size:.95rem;letter-spacing:.05em;padding:10px 14px;border-radius:10px;margin:22px 0 8px}
-#fundas .fh-pend{color:#9a5b00;background:color-mix(in srgb,#e07b00 15%,var(--bg));border-left:6px solid #e07b00}
-#fundas .fh-res{color:var(--ok);background:var(--ok-bg);border-left:6px solid var(--ok);margin-top:30px}
-#f-pend>.fitem{border-left-color:#e07b00;background:color-mix(in srgb,#e07b00 5%,var(--bg))}
-#f-pend>.fitem::before{background:#e07b00;color:#fff}
-#f-res>.fitem{background:color-mix(in srgb,var(--ok) 7%,var(--bg))}
-@media (prefers-color-scheme: dark){#fundas .fh-pend{color:#f0b65c}}
+/* Peticiones: mismos colores que SATTPV. Pendientes de llegar = "Pendiente de recibir componentes" (#53ea8c);
+   reservadas esperando al cliente = "Recibido y pendiente de entrega" de Garantías (#4e9edd). */
+#fundas .fh-pend,#fundas .fh-res{font-size:.95rem;letter-spacing:.05em;padding:10px 14px;border-radius:10px;margin:22px 0 8px;color:var(--fg)}
+#fundas .fh-pend{background:color-mix(in srgb,#53ea8c 18%,var(--bg));border-left:6px solid #53ea8c}
+#fundas .fh-res{background:color-mix(in srgb,#4e9edd 18%,var(--bg));border-left:6px solid #4e9edd;margin-top:30px}
+#f-pend>.fitem{border-left-color:#53ea8c;background:color-mix(in srgb,#53ea8c 6%,var(--bg))}
+#f-pend>.fitem::before{background:#53ea8c;color:#0d2b1a}
+#f-res>.fitem{border-left-color:#4e9edd;background:color-mix(in srgb,#4e9edd 7%,var(--bg))}
+#f-res>.fitem::before{background:#4e9edd;color:#fff}
 /* ==== FIN FUNDAS ==== */
 /* ==== VISTAS v1 ==== */
 [data-oculto]{display:none!important}
@@ -1512,5 +1513,5 @@ renderList();
 
 
 
-<script src="boot.js?v=202610192323"></script>
+<script src="boot.js?v=202610192328"></script>
 </body></html>
