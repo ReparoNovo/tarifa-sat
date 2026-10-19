@@ -6,10 +6,10 @@
 <meta name="apple-mobile-web-app-title" content="Reparo Novo">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" href="icons/icon-192.png">
-<link rel="stylesheet" href="boot.css?v=202610191101">
+<link rel="stylesheet" href="boot.css?v=202610192304">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=202610191101"></script>
-<script src="shim.js?v=202610191101"></script>
+<script src="config.js?v=202610192304"></script>
+<script src="shim.js?v=202610192304"></script>
 </head><body>
 
 
@@ -194,6 +194,14 @@ details.serv summary{font:700 1.15rem var(--display);cursor:pointer}
 #f-pend>.fitem>span:first-of-type,#f-res>.fitem>span:first-of-type{flex:1;min-width:0}
 #f-pend>.fitem .acc,#f-res>.fitem .acc{flex:none;flex-direction:column;align-items:stretch}
 @media (max-width:520px){#f-pend>.fitem,#f-res>.fitem{flex-wrap:wrap}#f-pend>.fitem .acc,#f-res>.fitem .acc{flex-direction:row;width:100%;padding-left:40px}}
+/* Peticiones: los dos apartados bien diferenciados (naranja = pendiente de llegar, verde = ya está aquí, esperando al cliente) */
+#fundas .fh-pend,#fundas .fh-res{font-size:.95rem;letter-spacing:.05em;padding:10px 14px;border-radius:10px;margin:22px 0 8px}
+#fundas .fh-pend{color:#9a5b00;background:color-mix(in srgb,#e07b00 15%,var(--bg));border-left:6px solid #e07b00}
+#fundas .fh-res{color:var(--ok);background:var(--ok-bg);border-left:6px solid var(--ok);margin-top:30px}
+#f-pend>.fitem{border-left-color:#e07b00;background:color-mix(in srgb,#e07b00 5%,var(--bg))}
+#f-pend>.fitem::before{background:#e07b00;color:#fff}
+#f-res>.fitem{background:color-mix(in srgb,var(--ok) 7%,var(--bg))}
+@media (prefers-color-scheme: dark){#fundas .fh-pend{color:#f0b65c}}
 /* ==== FIN FUNDAS ==== */
 /* ==== VISTAS v1 ==== */
 [data-oculto]{display:none!important}
@@ -337,7 +345,7 @@ details.hechas summary{cursor:pointer}
   <!-- ==== VISTAS v1 ==== -->
   <nav class="vnav" id="vnav" aria-label="Secciones">
     <button data-v="tarifa"><span class="ic" aria-hidden="true">🔧</span>Tarifa</button>
-    <button data-v="fundas"><span class="ic" aria-hidden="true">📱</span>Fundas<span class="vc" data-of="f-count"></span></button>
+    <button data-v="fundas"><span class="ic" aria-hidden="true">📱</span>Peticiones<span class="vc" data-of="f-count"></span></button>
     <button data-v="reservas"><span class="ic" aria-hidden="true">📦</span>Reservas<span class="vc" data-of="r-count"></span></button>
     <button data-v="tareas"><span class="ic" aria-hidden="true">✅</span>Tareas<span class="vc" data-of="t-count"></span></button>
     <button data-v="garantias"><span class="ic" aria-hidden="true">🛡️</span>Garantías<span class="vc" data-of="g-count"></span></button>
@@ -404,7 +412,7 @@ details.hechas summary{cursor:pointer}
 
   <!-- ==== FUNDAS v1 ==== -->
   <details class="serv" id="fundas">
-    <summary>Peticiones de funda <span class="fcount" id="f-count"></span></summary>
+    <summary>Peticiones <span class="fcount" id="f-count"></span></summary>
     <p class="foot">Apunta aquí cada funda que pida un cliente y no tengamos. Cuando Miguel meta la factura en SATTPV, el sistema la detecta, avisa al cliente por WhatsApp y te dice aquí dónde dejar cada funda.</p>
     <button type="button" class="nuevo" data-abre="f-form" aria-expanded="false">+ Nueva petición de funda</button>
     <form class="fform plegado" id="f-form" autocomplete="off">
@@ -418,8 +426,8 @@ details.hechas summary{cursor:pointer}
     </form>
     <p class="q" id="f-msg" aria-live="polite"></p>
     <div id="f-tareas"></div>
-    <h3 class="fh">Pendientes de llegar</h3><div id="f-pend" class="flist"></div>
-    <h3 class="fh">Reservadas (esperando al cliente)</h3><div id="f-res" class="flist"></div>
+    <h3 class="fh fh-pend">⏳ Pendientes de llegar</h3><div id="f-pend" class="flist"></div>
+    <h3 class="fh fh-res">✅ Reservadas · esperando al cliente</h3><div id="f-res" class="flist"></div>
   </details>
   <!-- ==== FIN FUNDAS ==== -->
   <!-- ==== RESERVAS v1 ==== -->
@@ -1504,5 +1512,5 @@ renderList();
 
 
 
-<script src="boot.js?v=202610191101"></script>
+<script src="boot.js?v=202610192304"></script>
 </body></html>
