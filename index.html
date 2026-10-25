@@ -6,11 +6,12 @@
 <meta name="apple-mobile-web-app-title" content="Reparo Novo">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" href="icons/icon-192.png">
-<link rel="stylesheet" href="boot.css?v=202610232132">
+<link rel="stylesheet" href="boot.css?v=202610250942">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=202610232132"></script>
-<script src="shim.js?v=202610232132"></script>
+<script src="config.js?v=202610250942"></script>
+<script src="shim.js?v=202610250942"></script>
 </head><body>
+
 
 
 
@@ -344,14 +345,14 @@ details.hechas summary{cursor:pointer}
   <header>
     <h1>Reparo Novo</h1>
     <span class="upd" id="upd"></span>
-    <nav class="jump" aria-label="Ir a"><a href="#fundas" data-open>Peticiones de funda</a><a href="#reservas" data-open>Reservas de equipos</a><a href="#tareas" data-open>Tareas</a><a href="#garantias" data-open>Garantías</a><a href="#calc" data-open>¿No está el modelo?</a><a href="#tasador" data-open>Tasador de iPhone</a><a href="#faq" data-open>Respuestas rápidas</a><a href="#serv" data-open>Servicios</a></nav>
+    <nav class="jump" aria-label="Ir a"><a href="#fundas" data-open>Accesorios que piden</a><a href="#reservas" data-open>Equipos que encargan</a><a href="#tareas" data-open>Tareas</a><a href="#garantias" data-open>Garantías</a><a href="#calc" data-open>¿No está el modelo?</a><a href="#tasador" data-open>Tasador de iPhone</a><a href="#faq" data-open>Respuestas rápidas</a><a href="#serv" data-open>Servicios</a></nav>
   </header>
   <!-- ==== VISTAS v1 ==== -->
   <nav class="vnav" id="vnav" aria-label="Secciones">
     <button data-v="tareas"><span class="ic" aria-hidden="true">✅</span>Tareas<span class="vc" data-of="t-count"></span></button>
     <button data-v="tarifa"><span class="ic" aria-hidden="true">🔧</span>Tarifa</button>
-    <button data-v="fundas"><span class="ic" aria-hidden="true">📋</span>Peticiones<span class="vc" data-of="f-count"></span></button>
-    <button data-v="reservas"><span class="ic" aria-hidden="true">📱</span>Reservas<span class="vc" data-of="r-count"></span></button>
+    <button data-v="fundas"><span class="ic" aria-hidden="true">🎧</span>Accesorios<span class="vc" data-of="f-count"></span></button>
+    <button data-v="reservas"><span class="ic" aria-hidden="true">📱</span>Equipos<span class="vc" data-of="r-count"></span></button>
     <button data-v="garantias"><span class="ic" aria-hidden="true">🛡️</span>Garantías<span class="vc" data-of="g-count"></span></button>
     <button data-v="mas"><span class="ic" aria-hidden="true">☰</span>Más</button>
   </nav>
@@ -416,17 +417,19 @@ details.hechas summary{cursor:pointer}
 
   <!-- ==== FUNDAS v1 ==== -->
   <details class="serv" id="fundas">
-    <summary>Peticiones <span class="fcount" id="f-count"></span></summary>
-    <p class="foot">Apunta aquí cada funda que pida un cliente y no tengamos. Cuando Miguel meta la factura en SATTPV, el sistema la detecta, avisa al cliente por WhatsApp y te dice aquí dónde dejar cada funda.</p>
-    <button type="button" class="nuevo" data-abre="f-form" aria-expanded="false">+ Nueva petición de funda</button>
+    <summary>🎧 Accesorios que piden los clientes <span class="fcount" id="f-count"></span></summary>
+    <p class="foot" style="font-size:.95rem;color:var(--fg)"><b>Fundas, protectores, cables, cargadores, auriculares…</b> que nos pide un cliente y no tenemos.</p>
+    <p class="foot" style="margin-top:0">¿Es un teléfono, tablet, consola o portátil? → <a href="#reservas" data-open>apúntalo en Equipos</a>.</p>
+    <p class="foot">Apunta aquí cada accesorio que pida un cliente y no tengamos. Cuando Miguel meta la factura en SATTPV, el sistema la detecta, avisa al cliente por WhatsApp y te dice aquí dónde dejarlo.</p>
+    <button type="button" class="nuevo" data-abre="f-form" aria-expanded="false">+ Nuevo accesorio pedido</button>
     <form class="fform plegado" id="f-form" autocomplete="off">
       <label>Cliente<input name="cliente" required placeholder="Nombre"></label>
       <label>Móvil del cliente<input name="telefono" required inputmode="tel" pattern="[0-9 ]{9,12}" placeholder="600 000 000"></label>
-      <label>Modelo de teléfono<input name="modelo" required placeholder="p. ej. iPhone 15 Pro, Galaxy A55"></label>
-      <label>Qué funda<input name="detalle" placeholder="p. ej. transparente MagSafe, libro negra"></label>
+      <label>Para qué teléfono<input name="modelo" required placeholder="Ej.: iPhone 15 Pro, Galaxy A55"></label>
+      <label>Qué accesorio<input name="detalle" placeholder="Ej.: funda transparente MagSafe, cristal templado, cable USB-C 2 m"></label>
       <label class="fobs">Observaciones<textarea name="obs" rows="2" placeholder="p. ej. la quiere antes del viernes, si no hay negra vale azul"></textarea></label>
       <label class="fchk"><input type="checkbox" name="pagada"> Ya pagada o con señal</label>
-      <button type="submit" class="wa fbtn">Apuntar petición</button>
+      <button type="submit" class="wa fbtn">Apuntar accesorio</button>
     </form>
     <p class="q" id="f-msg" aria-live="polite"></p>
     <div id="f-tareas"></div>
@@ -436,15 +439,17 @@ details.hechas summary{cursor:pointer}
   <!-- ==== FIN FUNDAS ==== -->
   <!-- ==== RESERVAS v1 ==== -->
   <details class="serv" id="reservas">
-    <summary>Reservas y pedidos de equipos <span class="fcount" id="r-count"></span></summary>
-    <p class="foot">Teléfonos, tablets, portátiles… que un cliente ha reservado o encargado. Apunta lo que ha dado a cuenta y cambia el estado según avance: así se ve qué hay que pedir, qué está en camino y quién tiene que pasar a recoger.</p>
+    <summary>📱 Equipos que encargan o reservan <span class="fcount" id="r-count"></span></summary>
+    <p class="foot" style="font-size:.95rem;color:var(--fg)"><b>Móviles, tablets, consolas, portátiles, relojes…</b> que un cliente nos encarga o deja reservados.</p>
+    <p class="foot" style="margin-top:0">¿Es una funda, cable, cargador u otro accesorio? → <a href="#fundas" data-open>apúntalo en Accesorios</a>.</p>
+    <p class="foot"> Apunta lo que ha dado a cuenta y cambia el estado según avance: así se ve qué hay que pedir, qué está en camino y quién tiene que pasar a recoger.</p>
     <div class="gsum" id="r-sum"></div>
-    <button type="button" class="nuevo" data-abre="r-form" aria-expanded="false">+ Nueva reserva</button>
+    <button type="button" class="nuevo" data-abre="r-form" aria-expanded="false">+ Nuevo equipo encargado</button>
     <form class="fform plegado" id="r-form" autocomplete="off">
       <label>Cliente<input name="cliente" required placeholder="Nombre"></label>
       <label>Móvil del cliente<input name="telefono" required inputmode="tel" placeholder="600 000 000"></label>
-      <label>Tipo<select name="tipo"><option>Teléfono</option><option>Tablet</option><option>Portátil</option><option>Reloj</option><option>Otro</option></select></label>
-      <label class="fobs requipo">Equipo y características<textarea name="equipo" required rows="3" placeholder="p. ej. iPhone 15 128 GB negro, reacondicionado grado A, batería 100 %, con funda y cristal"></textarea></label>
+      <label>Tipo<select name="tipo"><option>Teléfono</option><option>Tablet</option><option>Consola</option><option>Portátil</option><option>Reloj</option><option>Otro</option></select></label>
+      <label class="fobs requipo">Equipo y características<textarea name="equipo" required rows="3" placeholder="Ej.: iPhone 16 128 GB negro nuevo · PS5 Slim digital · iPhone 15 reacondicionado grado A, batería 100 %"></textarea></label>
       <label>Precio total (€)<input name="precio" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0"></label>
       <label>Dado a cuenta (€)<input name="cuenta" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0"></label>
       <label>Estado<select name="estado"></select></label>
@@ -1231,7 +1236,7 @@ updAsk();
   let fundas = [], colocar = [], editId = null;
   const pagTxt = f => f.pagada ? '<span class="fpag">✓ Pagada</span>' : '';
   const obsTxt = f => f.obs ? `<span class="fobsv">${esc(f.obs)}</span>` : '';
-  const editForm = f => `<form class="fedit" data-edit="${esc(f._id)}" autocomplete="off"><label>Cliente<input name="cliente" required value="${esc(f.cliente)}"></label><label>Móvil<input name="telefono" required inputmode="tel" value="${esc(f.telefono)}"></label><label>Modelo<input name="modelo" required value="${esc(f.modelo)}"></label><label>Qué funda<input name="detalle" value="${esc(f.detalle || '')}"></label><label class="fobs">Observaciones<textarea name="obs" rows="2">${esc(f.obs || '')}</textarea></label><label class="fchk"><input type="checkbox" name="pagada" ${f.pagada ? 'checked' : ''}> Ya pagada o con señal</label><span class="fbtns"><button type="submit" class="wa fbtn">Guardar cambios</button><button type="button" data-noedit="1">Cancelar</button></span></form>`;
+  const editForm = f => `<form class="fedit" data-edit="${esc(f._id)}" autocomplete="off"><label>Cliente<input name="cliente" required value="${esc(f.cliente)}"></label><label>Móvil<input name="telefono" required inputmode="tel" value="${esc(f.telefono)}"></label><label>Modelo<input name="modelo" required value="${esc(f.modelo)}"></label><label>Qué accesorio<input name="detalle" value="${esc(f.detalle || '')}"></label><label class="fobs">Observaciones<textarea name="obs" rows="2">${esc(f.obs || '')}</textarea></label><label class="fchk"><input type="checkbox" name="pagada" ${f.pagada ? 'checked' : ''}> Ya pagada o con señal</label><span class="fbtns"><button type="submit" class="wa fbtn">Guardar cambios</button><button type="button" data-noedit="1">Cancelar</button></span></form>`;
   const render = () => {
     // Miguel 12/10: funda pedida hace más de 7 días → en rojo, URGENTE y la primera.
     const diasF = f => Math.floor((Date.now() - (f.creado || Date.now())) / 864e5), urgF = f => diasF(f) > 7;
@@ -1247,8 +1252,8 @@ updAsk();
         <button data-col="${esc(f._id)}">Hecho</button></div>`).join('') +
       tareasC.map(c => `<div class="ftarea fitem"><span>Coloca <b>${esc(c.unidades)} × ${esc(c.producto)}</b> en <b>${esc(c.ubicacion || 'su sitio')}</b>.<span class="q">Entró ${esc(fmt(c.fecha))}</span></span><button data-hecho="${esc(c._id)}">Hecho</button></div>`).join('') : '';
     if (document.querySelector('#fundas form.fedit') && document.querySelector('#fundas form.fedit').contains(document.activeElement)) return; // no pisar lo que se está escribiendo
-    $('#f-pend').innerHTML = pend.length ? pend.map(f => f._id === editId ? editForm(f) : `<div class="fitem${urgF(f) ? ' urg' : ''}"><span>${urgF(f) ? `<span class="urgtag">🔴 Urgente · ${diasF(f)} días</span>` : ''}${pagTxt(f)}<b>${esc(f.modelo)}</b>${f.detalle ? ' · ' + esc(f.detalle) : ''}<span class="q">${esc(f.cliente)} · ${esc(f.telefono)} · pedida ${esc(fmt(f.creado))}</span>${obsTxt(f)}</span><span class="acc"><button class="fok" data-aviso="${esc(f._id)}">✓ Ha llegado y está avisado</button><button data-editar="${esc(f._id)}">Editar</button><button class="fanular" data-cancel="${esc(f._id)}">Anular</button></span></div>`).join('') : '<p class="q">No hay ninguna funda pendiente.</p>';
-    $('#f-res').innerHTML = res.length ? res.map(f => f._id === editId ? editForm(f) : `<div class="fitem"><span>${pagTxt(f)}<b>${esc(f.cliente)}</b> · ${esc(f.producto || f.modelo)}<span class="q">${f.estado === 'avisado' ? 'Avisado ' + esc(fmt(f.avisado_at)) : 'Llegó ' + esc(fmt(f.llegada_at)) + ', aviso pendiente'} · ${esc(f.ubicacion || 'estantería de reservas')}</span>${obsTxt(f)}</span><span class="acc"><button data-editar="${esc(f._id)}">Editar</button><button class="fok" data-recog="${esc(f._id)}">✓ Recogida</button></span></div>`).join('') : '<p class="q">No hay fundas reservadas.</p>';
+    $('#f-pend').innerHTML = pend.length ? pend.map(f => f._id === editId ? editForm(f) : `<div class="fitem${urgF(f) ? ' urg' : ''}"><span>${urgF(f) ? `<span class="urgtag">🔴 Urgente · ${diasF(f)} días</span>` : ''}${pagTxt(f)}<b>${esc(f.modelo)}</b>${f.detalle ? ' · ' + esc(f.detalle) : ''}<span class="q">${esc(f.cliente)} · ${esc(f.telefono)} · pedida ${esc(fmt(f.creado))}</span>${obsTxt(f)}</span><span class="acc"><button class="fok" data-aviso="${esc(f._id)}">✓ Ha llegado y está avisado</button><button data-editar="${esc(f._id)}">Editar</button><button class="fanular" data-cancel="${esc(f._id)}">Anular</button></span></div>`).join('') : '<p class="q">No hay ningún accesorio pendiente.</p>';
+    $('#f-res').innerHTML = res.length ? res.map(f => f._id === editId ? editForm(f) : `<div class="fitem"><span>${pagTxt(f)}<b>${esc(f.cliente)}</b> · ${esc(f.producto || f.modelo)}<span class="q">${f.estado === 'avisado' ? 'Avisado ' + esc(fmt(f.avisado_at)) : 'Llegó ' + esc(fmt(f.llegada_at)) + ', aviso pendiente'} · ${esc(f.ubicacion || 'estantería de reservas')}</span>${obsTxt(f)}</span><span class="acc"><button data-editar="${esc(f._id)}">Editar</button><button class="fok" data-recog="${esc(f._id)}">✓ Recogida</button></span></div>`).join('') : '<p class="q">No hay accesorios esperando al cliente.</p>';
   };
   db.collection('fundas').onSnapshot(s => { fundas = s.docs.map(d => ({...d.data(), _id: d.id})).sort((a, b) => (a.creado || 0) - (b.creado || 0)); render(); }, () => msg('No se pudieron cargar las peticiones.'));
   db.collection('colocar').onSnapshot(s => { colocar = s.docs.map(d => ({...d.data(), _id: d.id})); render(); }, () => {});
@@ -1326,7 +1331,7 @@ updAsk();
     $('#r-count').textContent = abiertas.length || '';
     const cuenta = abiertas.reduce((a, r) => a + (+r.cuenta || 0), 0);
     $('#r-sum').innerHTML = EST.filter(e => !e.fin).map(e => `<span><b>${abiertas.filter(r => r.estado === e.n).length}</b> ${e.n.split(',')[0].toLowerCase()}</span>`).join('') + `<span><b>${eur(cuenta)}</b> a cuenta en total</span>`;
-    $('#r-list').innerHTML = abiertas.length ? abiertas.map(r => r._id === editId ? editForm(r) : item(r)).join('') : '<p class="q">No hay reservas abiertas.</p>';
+    $('#r-list').innerHTML = abiertas.length ? abiertas.map(r => r._id === editId ? editForm(r) : item(r)).join('') : '<p class="q">No hay equipos encargados ni reservados.</p>';
     $('#r-done').innerHTML = res.filter(r => est(r.estado).fin && Date.now() - (r.estado_at || 0) < 30 * 864e5).map(r => `<div class="fitem"><span><span class="tag">${esc(r.estado)}</span>${esc(r.equipo)} · ${esc(r.cliente)}<span class="q">${esc(fmtR(r.estado_at))} · a cuenta ${eur(r.cuenta)}</span></span></div>`).join('') || '<p class="q">Nada en el último mes.</p>';
   };
   db.collection('reservas').onSnapshot(s => { res = s.docs.map(d => ({...d.data(), _id: d.id})); render(); }, () => msg('No se pudieron cargar las reservas.'));
@@ -1337,7 +1342,7 @@ updAsk();
     if (!/^[6-9]\d{8}$/.test(tel)) { msg('El móvil debe tener 9 cifras.'); return; }
     if (d.precio && d.cuenta > d.precio) { msg('Lo dado a cuenta no puede ser más que el precio total.'); return; }
     try {
-      if (f0.id === 'r-form') { const st = new FormData(f0).get('estado'); await db.collection('reservas').add({...d, estado: st, estado_at: Date.now(), creado: Date.now()}); f0.reset(); $('#r-form [name=estado]').innerHTML = opts(EST[0].n); msg('Reserva apuntada.'); }
+      if (f0.id === 'r-form') { const st = new FormData(f0).get('estado'); await db.collection('reservas').add({...d, estado: st, estado_at: Date.now(), creado: Date.now()}); f0.reset(); $('#r-form [name=estado]').innerHTML = opts(EST[0].n); msg('Equipo apuntado.'); }
       else { await db.collection('reservas').doc(f0.dataset.redit).update({...d, editada_at: Date.now()}); editId = null; document.activeElement.blur(); render(); msg('Cambios guardados.'); }
     } catch (err) { msg('No se pudo guardar: ' + (err && err.message || 'error')); }
   });
@@ -1529,5 +1534,6 @@ renderList();
 
 
 
-<script src="boot.js?v=202610232132"></script>
+
+<script src="boot.js?v=202610250942"></script>
 </body></html>
