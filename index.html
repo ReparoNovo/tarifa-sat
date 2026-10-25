@@ -6,10 +6,10 @@
 <meta name="apple-mobile-web-app-title" content="Reparo Novo">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" href="icons/icon-192.png">
-<link rel="stylesheet" href="boot.css?v=202610251333">
+<link rel="stylesheet" href="boot.css?v=202610251335">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=202610251333"></script>
-<script src="shim.js?v=202610251333"></script>
+<script src="config.js?v=202610251335"></script>
+<script src="shim.js?v=202610251335"></script>
 </head><body>
 
 
@@ -1005,6 +1005,12 @@ document.addEventListener('click', e => { const b = e.target.closest('button[dat
   const abrir = f.classList.contains('plegado'); f.classList.toggle('plegado', !abrir); b.setAttribute('aria-expanded', abrir);
   b.textContent = abrir ? '✕ Cerrar' : b.dataset.txt; if (abrir) { const i = f.querySelector('input:not([type=checkbox]),textarea'); if (i) i.focus(); } });
 document.querySelectorAll('button[data-abre]').forEach(b => { b.dataset.txt = b.textContent; });
+// Miguel 25/10: botón «WhatsApp cliente» también en Accesorios (como en Equipos).
+window.waF = f => { const tel = String(f.telefono || '').replace(/\D/g, '').replace(/^34(?=\d{9}$)/, ''); if (!tel) return '';
+  const nom = String(f.cliente || '').trim().split(' ')[0], cosa = (f.producto || f.modelo || '') + (f.detalle ? ` (${f.detalle})` : '');
+  const txt = f.estado === 'pendiente' ? `Hola ${nom}! soy Miguel de Reparo Novo. Te escribo por lo que nos pediste: ${cosa}. `
+    : `Hola ${nom}! soy Miguel de Reparo Novo 😊. Ya tenemos aquí lo que nos pediste: ${cosa}. Pásate cuando quieras a recogerlo. Estamos de lunes a viernes de 9:30 a 14:00 y de 17:00 a 20:30, y los sábados de 10:00 a 14:00. ¡Un saludo!`;
+  return `<a class="afinar" target="_blank" rel="noopener" href="https://api.whatsapp.com/send?phone=34${tel}&text=${encodeURIComponent(txt)}">WhatsApp cliente</a>`; };
 // Miguel 25/10: añadir otro accesorio o equipo a la misma persona (rellena cliente y móvil).
 window.masB = (cli, tel) => { const e = x => String(x || '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
   return `<button type="button" class="masb" data-mas="f-form" data-cli="${e(cli)}" data-tel="${e(tel)}">+ Accesorio</button><button type="button" class="masb" data-mas="r-form" data-cli="${e(cli)}" data-tel="${e(tel)}">+ Equipo</button>`; };
@@ -1262,8 +1268,8 @@ updAsk();
         <button data-col="${esc(f._id)}">Hecho</button></div>`).join('') +
       tareasC.map(c => `<div class="ftarea fitem"><span>Coloca <b>${esc(c.unidades)} × ${esc(c.producto)}</b> en <b>${esc(c.ubicacion || 'su sitio')}</b>.<span class="q">Entró ${esc(fmt(c.fecha))}</span></span><button data-hecho="${esc(c._id)}">Hecho</button></div>`).join('') : '';
     if (document.querySelector('#fundas form.fedit') && document.querySelector('#fundas form.fedit').contains(document.activeElement)) return; // no pisar lo que se está escribiendo
-    $('#f-pend').innerHTML = pend.length ? pend.map(f => f._id === editId ? editForm(f) : `<div class="fitem${urgF(f) ? ' urg' : ''}"><span>${urgF(f) ? `<span class="urgtag">🔴 Urgente · ${diasF(f)} días</span>` : ''}${pagTxt(f)}<b>${esc(f.modelo)}</b>${f.detalle ? ' · ' + esc(f.detalle) : ''}<span class="q">${esc(f.cliente)} · ${esc(f.telefono)} · pedida ${esc(fmt(f.creado))}</span>${obsTxt(f)}</span><span class="acc"><button class="fok" data-aviso="${esc(f._id)}">✓ Ha llegado y está avisado</button><button data-editar="${esc(f._id)}">Editar</button>${masB(f.cliente, f.telefono)}<button class="fanular" data-cancel="${esc(f._id)}">Anular</button></span></div>`).join('') : '<p class="q">No hay ningún accesorio pendiente.</p>';
-    $('#f-res').innerHTML = res.length ? res.map(f => f._id === editId ? editForm(f) : `<div class="fitem"><span>${pagTxt(f)}<b>${esc(f.cliente)}</b> · ${esc(f.producto || f.modelo)}<span class="q">${f.estado === 'avisado' ? 'Avisado ' + esc(fmt(f.avisado_at)) : 'Llegó ' + esc(fmt(f.llegada_at)) + ', aviso pendiente'} · ${esc(f.ubicacion || 'estantería de reservas')}</span>${obsTxt(f)}</span><span class="acc"><button data-editar="${esc(f._id)}">Editar</button>${masB(f.cliente, f.telefono)}<button class="fok" data-recog="${esc(f._id)}">✓ Recogida</button></span></div>`).join('') : '<p class="q">No hay accesorios esperando al cliente.</p>';
+    $('#f-pend').innerHTML = pend.length ? pend.map(f => f._id === editId ? editForm(f) : `<div class="fitem${urgF(f) ? ' urg' : ''}"><span>${urgF(f) ? `<span class="urgtag">🔴 Urgente · ${diasF(f)} días</span>` : ''}${pagTxt(f)}<b>${esc(f.modelo)}</b>${f.detalle ? ' · ' + esc(f.detalle) : ''}<span class="q">${esc(f.cliente)} · ${esc(f.telefono)} · pedida ${esc(fmt(f.creado))}</span>${obsTxt(f)}</span><span class="acc"><button class="fok" data-aviso="${esc(f._id)}">✓ Ha llegado y está avisado</button><button data-editar="${esc(f._id)}">Editar</button>${masB(f.cliente, f.telefono)}${waF(f)}<button class="fanular" data-cancel="${esc(f._id)}">Anular</button></span></div>`).join('') : '<p class="q">No hay ningún accesorio pendiente.</p>';
+    $('#f-res').innerHTML = res.length ? res.map(f => f._id === editId ? editForm(f) : `<div class="fitem"><span>${pagTxt(f)}<b>${esc(f.cliente)}</b> · ${esc(f.producto || f.modelo)}<span class="q">${f.estado === 'avisado' ? 'Avisado ' + esc(fmt(f.avisado_at)) : 'Llegó ' + esc(fmt(f.llegada_at)) + ', aviso pendiente'} · ${esc(f.ubicacion || 'estantería de reservas')}</span>${obsTxt(f)}</span><span class="acc"><button data-editar="${esc(f._id)}">Editar</button>${masB(f.cliente, f.telefono)}${waF(f)}<button class="fok" data-recog="${esc(f._id)}">✓ Recogida</button></span></div>`).join('') : '<p class="q">No hay accesorios esperando al cliente.</p>';
   };
   db.collection('fundas').onSnapshot(s => { fundas = s.docs.map(d => ({...d.data(), _id: d.id})).sort((a, b) => (a.creado || 0) - (b.creado || 0)); render(); }, () => msg('No se pudieron cargar las peticiones.'));
   db.collection('colocar').onSnapshot(s => { colocar = s.docs.map(d => ({...d.data(), _id: d.id})); render(); }, () => {});
@@ -1546,5 +1552,5 @@ renderList();
 
 
 
-<script src="boot.js?v=202610251333"></script>
+<script src="boot.js?v=202610251335"></script>
 </body></html>
