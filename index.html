@@ -6,10 +6,10 @@
 <meta name="apple-mobile-web-app-title" content="Reparo Novo">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" href="icons/icon-192.png">
-<link rel="stylesheet" href="boot.css?v=202610251315">
+<link rel="stylesheet" href="boot.css?v=202610251333">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=202610251315"></script>
-<script src="shim.js?v=202610251315"></script>
+<script src="config.js?v=202610251333"></script>
+<script src="shim.js?v=202610251333"></script>
 </head><body>
 
 
@@ -189,6 +189,7 @@ details.serv summary{font:700 1.15rem var(--display);cursor:pointer}
 .fedit .fchk{flex-direction:row;align-items:center;gap:8px;color:var(--fg)}
 .fedit .fbtns{display:flex;gap:8px;align-items:center}
 .fitem .acc button{margin:0}
+.fitem .acc .masb{border-style:dashed;color:var(--accent);font-size:.78rem}
 .fpag{display:inline-block;margin:0 6px 2px 0;font:600 .74rem var(--display);letter-spacing:.04em;color:var(--ok);background:var(--ok-bg);border:1px solid var(--ok);border-radius:999px;padding:1px 8px;vertical-align:1px}
 #f-pend,#f-res{counter-reset:fn;gap:8px}
 #f-pend>.fitem,#f-res>.fitem{counter-increment:fn;flex-wrap:nowrap;align-items:flex-start;gap:12px;background:var(--bg);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;padding:10px 12px}
@@ -455,7 +456,7 @@ details.hechas summary{cursor:pointer}
       <label>Estado<select name="estado"></select></label>
       <label>Proveedor<input name="proveedor" placeholder="Opcional (J.J., stock tienda…)"></label>
       <label class="fobs">Observaciones<textarea name="obs" rows="2" placeholder="p. ej. lo quiere para el cumpleaños del día 20, color alternativo azul"></textarea></label>
-      <button type="submit" class="wa fbtn">Apuntar reserva</button>
+      <button type="submit" class="wa fbtn">Apuntar equipo</button>
     </form>
     <p class="q" id="r-msg" aria-live="polite"></p>
     <div id="r-list" class="flist"></div>
@@ -1004,6 +1005,15 @@ document.addEventListener('click', e => { const b = e.target.closest('button[dat
   const abrir = f.classList.contains('plegado'); f.classList.toggle('plegado', !abrir); b.setAttribute('aria-expanded', abrir);
   b.textContent = abrir ? '✕ Cerrar' : b.dataset.txt; if (abrir) { const i = f.querySelector('input:not([type=checkbox]),textarea'); if (i) i.focus(); } });
 document.querySelectorAll('button[data-abre]').forEach(b => { b.dataset.txt = b.textContent; });
+// Miguel 25/10: añadir otro accesorio o equipo a la misma persona (rellena cliente y móvil).
+window.masB = (cli, tel) => { const e = x => String(x || '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  return `<button type="button" class="masb" data-mas="f-form" data-cli="${e(cli)}" data-tel="${e(tel)}">+ Accesorio</button><button type="button" class="masb" data-mas="r-form" data-cli="${e(cli)}" data-tel="${e(tel)}">+ Equipo</button>`; };
+document.addEventListener('click', e => { const b = e.target.closest('button[data-mas]'); if (!b) return; e.preventDefault();
+  const fid = b.dataset.mas, v = fid === 'f-form' ? 'fundas' : 'reservas', nav = document.querySelector(`#vnav button[data-v="${v}"]`); if (nav) nav.click();
+  const f = document.getElementById(fid); if (!f) return;
+  if (f.classList.contains('plegado')) { const ab = document.querySelector(`button[data-abre="${fid}"]`); if (ab) ab.click(); }
+  f.elements.cliente.value = b.dataset.cli; f.elements.telefono.value = b.dataset.tel;
+  const foco = f.elements[fid === 'f-form' ? 'modelo' : 'equipo']; setTimeout(() => { f.scrollIntoView({block: 'center'}); if (foco) foco.focus(); }, 60); });
 document.addEventListener('reset', e => { const f = e.target; if (!f.classList || !f.classList.contains('fform')) return; setTimeout(() => { f.classList.add('plegado'); const b = document.querySelector(`button[data-abre="${f.id}"]`); if (b) { b.setAttribute('aria-expanded', 'false'); b.textContent = b.dataset.txt; } }, 0); }, true);
 setInterval(() => document.querySelectorAll('button[data-abre]').forEach(b => { const f = document.getElementById(b.dataset.abre); b.hidden = !!(f && f.hidden); }), 2000);
 
@@ -1252,8 +1262,8 @@ updAsk();
         <button data-col="${esc(f._id)}">Hecho</button></div>`).join('') +
       tareasC.map(c => `<div class="ftarea fitem"><span>Coloca <b>${esc(c.unidades)} × ${esc(c.producto)}</b> en <b>${esc(c.ubicacion || 'su sitio')}</b>.<span class="q">Entró ${esc(fmt(c.fecha))}</span></span><button data-hecho="${esc(c._id)}">Hecho</button></div>`).join('') : '';
     if (document.querySelector('#fundas form.fedit') && document.querySelector('#fundas form.fedit').contains(document.activeElement)) return; // no pisar lo que se está escribiendo
-    $('#f-pend').innerHTML = pend.length ? pend.map(f => f._id === editId ? editForm(f) : `<div class="fitem${urgF(f) ? ' urg' : ''}"><span>${urgF(f) ? `<span class="urgtag">🔴 Urgente · ${diasF(f)} días</span>` : ''}${pagTxt(f)}<b>${esc(f.modelo)}</b>${f.detalle ? ' · ' + esc(f.detalle) : ''}<span class="q">${esc(f.cliente)} · ${esc(f.telefono)} · pedida ${esc(fmt(f.creado))}</span>${obsTxt(f)}</span><span class="acc"><button class="fok" data-aviso="${esc(f._id)}">✓ Ha llegado y está avisado</button><button data-editar="${esc(f._id)}">Editar</button><button class="fanular" data-cancel="${esc(f._id)}">Anular</button></span></div>`).join('') : '<p class="q">No hay ningún accesorio pendiente.</p>';
-    $('#f-res').innerHTML = res.length ? res.map(f => f._id === editId ? editForm(f) : `<div class="fitem"><span>${pagTxt(f)}<b>${esc(f.cliente)}</b> · ${esc(f.producto || f.modelo)}<span class="q">${f.estado === 'avisado' ? 'Avisado ' + esc(fmt(f.avisado_at)) : 'Llegó ' + esc(fmt(f.llegada_at)) + ', aviso pendiente'} · ${esc(f.ubicacion || 'estantería de reservas')}</span>${obsTxt(f)}</span><span class="acc"><button data-editar="${esc(f._id)}">Editar</button><button class="fok" data-recog="${esc(f._id)}">✓ Recogida</button></span></div>`).join('') : '<p class="q">No hay accesorios esperando al cliente.</p>';
+    $('#f-pend').innerHTML = pend.length ? pend.map(f => f._id === editId ? editForm(f) : `<div class="fitem${urgF(f) ? ' urg' : ''}"><span>${urgF(f) ? `<span class="urgtag">🔴 Urgente · ${diasF(f)} días</span>` : ''}${pagTxt(f)}<b>${esc(f.modelo)}</b>${f.detalle ? ' · ' + esc(f.detalle) : ''}<span class="q">${esc(f.cliente)} · ${esc(f.telefono)} · pedida ${esc(fmt(f.creado))}</span>${obsTxt(f)}</span><span class="acc"><button class="fok" data-aviso="${esc(f._id)}">✓ Ha llegado y está avisado</button><button data-editar="${esc(f._id)}">Editar</button>${masB(f.cliente, f.telefono)}<button class="fanular" data-cancel="${esc(f._id)}">Anular</button></span></div>`).join('') : '<p class="q">No hay ningún accesorio pendiente.</p>';
+    $('#f-res').innerHTML = res.length ? res.map(f => f._id === editId ? editForm(f) : `<div class="fitem"><span>${pagTxt(f)}<b>${esc(f.cliente)}</b> · ${esc(f.producto || f.modelo)}<span class="q">${f.estado === 'avisado' ? 'Avisado ' + esc(fmt(f.avisado_at)) : 'Llegó ' + esc(fmt(f.llegada_at)) + ', aviso pendiente'} · ${esc(f.ubicacion || 'estantería de reservas')}</span>${obsTxt(f)}</span><span class="acc"><button data-editar="${esc(f._id)}">Editar</button>${masB(f.cliente, f.telefono)}<button class="fok" data-recog="${esc(f._id)}">✓ Recogida</button></span></div>`).join('') : '<p class="q">No hay accesorios esperando al cliente.</p>';
   };
   db.collection('fundas').onSnapshot(s => { fundas = s.docs.map(d => ({...d.data(), _id: d.id})).sort((a, b) => (a.creado || 0) - (b.creado || 0)); render(); }, () => msg('No se pudieron cargar las peticiones.'));
   db.collection('colocar').onSnapshot(s => { colocar = s.docs.map(d => ({...d.data(), _id: d.id})); render(); }, () => {});
@@ -1324,7 +1334,7 @@ updAsk();
       <span class="q">${esc(r.cliente)} · ${esc(r.telefono)} · apuntada ${esc(fmtR(r.creado))}${r.proveedor ? ' · ' + esc(r.proveedor) : ''}${r.estado_at ? ' · estado desde ' + esc(fmtR(r.estado_at)) : ''}</span>
       <span class="rmoney">${r.precio ? `<span>Total <b>${eur(r.precio)}</b></span>` : ''}<span>A cuenta <b>${eur(r.cuenta)}</b></span>${r.precio ? (debe ? `<span class="rdebe">Falta ${eur(debe)}</span>` : '<span class="fpag">✓ Pagado</span>') : ''}</span>
       ${r.obs ? `<span class="fobsv">${esc(r.obs)}</span>` : ''}</span>
-      <span class="acc"><select data-rest="${esc(r._id)}" aria-label="Estado">${opts(r.estado)}</select><button data-reditar="${esc(r._id)}">Editar</button><a class="afinar" target="_blank" rel="noopener" href="${waCli(r, aviso)}">WhatsApp cliente</a></span></div>`; };
+      <span class="acc"><select data-rest="${esc(r._id)}" aria-label="Estado">${opts(r.estado)}</select><button data-reditar="${esc(r._id)}">Editar</button>${masB(r.cliente, r.telefono)}<a class="afinar" target="_blank" rel="noopener" href="${waCli(r, aviso)}">WhatsApp cliente</a></span></div>`; };
   const render = () => {
     if (document.querySelector('#reservas form.fedit') && document.querySelector('#reservas form.fedit').contains(document.activeElement)) return;
     const urgR = r => (Date.now() - (r.creado || Date.now())) / 864e5 > 15; // Miguel 12/10: equipos a los 15 días → rojo y arriba
@@ -1536,5 +1546,5 @@ renderList();
 
 
 
-<script src="boot.js?v=202610251315"></script>
+<script src="boot.js?v=202610251333"></script>
 </body></html>
