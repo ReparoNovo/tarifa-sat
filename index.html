@@ -6,10 +6,10 @@
 <meta name="apple-mobile-web-app-title" content="Reparo Novo">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" href="icons/icon-192.png">
-<link rel="stylesheet" href="boot.css?v=202610251046">
+<link rel="stylesheet" href="boot.css?v=202610251315">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=202610251046"></script>
-<script src="shim.js?v=202610251046"></script>
+<script src="config.js?v=202610251315"></script>
+<script src="shim.js?v=202610251315"></script>
 </head><body>
 
 
@@ -1297,6 +1297,7 @@ updAsk();
 // Reservas y pedidos de equipos (colección "reservas" de la base de datos de la página).
 (async () => {
   const EST = [
+    {n: 'Precio dado, esperando que confirme', c: '#7c3aed'}, // Miguel 25/10: ya se le ha dado precio y falta que diga si se pide
     {n: 'Por pedir', c: '#b45309'},
     {n: 'Pedido, esperando que llegue', c: '#0b6e8a'},
     {n: 'En tienda, esperando que recojan', c: '#1f8a4c'},
@@ -1307,7 +1308,7 @@ updAsk();
   const fmtR = ms => ms ? new Date(ms).toLocaleDateString('es-ES', {day: 'numeric', month: 'numeric'}) : '';
   const msg = t => { $('#r-msg').textContent = t; };
   const opts = sel => EST.map(e => `<option ${e.n === sel ? 'selected' : ''}>${e.n}</option>`).join('');
-  $('#r-form [name=estado]').innerHTML = opts(EST[0].n);
+  $('#r-form [name=estado]').innerHTML = opts('Por pedir');
   let db = null;
   try { db = await claude.use('db'); } catch (e) {}
   if (!db) { $('#r-form').hidden = true; msg('Las reservas solo se pueden apuntar abriendo esta página en Claude con tu cuenta.'); return; }
@@ -1315,9 +1316,9 @@ updAsk();
   const waCli = (r, txt) => 'https://api.whatsapp.com/send?phone=34' + r.telefono + '&text=' + encodeURIComponent(txt);
   const leer = f => { const tel = String(f.get('telefono')).replace(/\D/g, '').replace(/^34(?=\d{9}$)/, '');
     return {tel, d: {cliente: String(f.get('cliente')).trim(), telefono: tel, tipo: f.get('tipo'), equipo: String(f.get('equipo')).trim(), precio: +f.get('precio') || 0, cuenta: +f.get('cuenta') || 0, proveedor: String(f.get('proveedor') || '').trim(), obs: String(f.get('obs') || '').trim()}}; };
-  const editForm = r => `<form class="fedit" data-redit="${esc(r._id)}" autocomplete="off"><label>Cliente<input name="cliente" required value="${esc(r.cliente)}"></label><label>Móvil<input name="telefono" required inputmode="tel" value="${esc(r.telefono)}"></label><label>Tipo<select name="tipo">${['Teléfono','Tablet','Portátil','Reloj','Otro'].map(t => `<option ${t === r.tipo ? 'selected' : ''}>${t}</option>`).join('')}</select></label><label class="fobs requipo">Equipo y características<textarea name="equipo" required rows="3">${esc(r.equipo)}</textarea></label><label>Precio total (€)<input name="precio" type="number" min="0" step="0.01" value="${r.precio || ''}"></label><label>Dado a cuenta (€)<input name="cuenta" type="number" min="0" step="0.01" value="${r.cuenta || ''}"></label><label>Proveedor<input name="proveedor" value="${esc(r.proveedor || '')}"></label><label class="fobs">Observaciones<textarea name="obs" rows="2">${esc(r.obs || '')}</textarea></label><span class="fbtns"><button type="submit" class="wa fbtn">Guardar cambios</button><button type="button" data-rnoedit="1">Cancelar</button></span></form>`;
+  const editForm = r => `<form class="fedit" data-redit="${esc(r._id)}" autocomplete="off"><label>Cliente<input name="cliente" required value="${esc(r.cliente)}"></label><label>Móvil<input name="telefono" required inputmode="tel" value="${esc(r.telefono)}"></label><label>Tipo<select name="tipo">${['Teléfono','Tablet','Consola','Portátil','Reloj','Otro'].map(t => `<option ${t === r.tipo ? 'selected' : ''}>${t}</option>`).join('')}</select></label><label class="fobs requipo">Equipo y características<textarea name="equipo" required rows="3">${esc(r.equipo)}</textarea></label><label>Precio total (€)<input name="precio" type="number" min="0" step="0.01" value="${r.precio || ''}"></label><label>Dado a cuenta (€)<input name="cuenta" type="number" min="0" step="0.01" value="${r.cuenta || ''}"></label><label>Proveedor<input name="proveedor" value="${esc(r.proveedor || '')}"></label><label class="fobs">Observaciones<textarea name="obs" rows="2">${esc(r.obs || '')}</textarea></label><span class="fbtns"><button type="submit" class="wa fbtn">Guardar cambios</button><button type="button" data-rnoedit="1">Cancelar</button></span></form>`;
   const item = r => { const e = est(r.estado), debe = Math.max(0, (r.precio || 0) - (r.cuenta || 0));
-    const aviso = r.estado === EST[2].n ? `Hola ${(r.cliente || '').split(' ')[0]}! soy Miguel de Reparo Novo 😊. Ya tenemos aquí tu ${r.equipo}. Pásate cuando quieras a recogerlo${debe ? ` (quedan ${eur(debe)} por pagar)` : ''}. Estamos de lunes a viernes de 9:30 a 14:00 y de 17:00 a 20:30, y los sábados de 10:00 a 14:00. ¡Un saludo!` : `Hola ${(r.cliente || '').split(' ')[0]}! soy Miguel de Reparo Novo. Te escribo por tu ${r.equipo}: `;
+    const aviso = r.estado === 'En tienda, esperando que recojan' ? `Hola ${(r.cliente || '').split(' ')[0]}! soy Miguel de Reparo Novo 😊. Ya tenemos aquí tu ${r.equipo}. Pásate cuando quieras a recogerlo${debe ? ` (quedan ${eur(debe)} por pagar)` : ''}. Estamos de lunes a viernes de 9:30 a 14:00 y de 17:00 a 20:30, y los sábados de 10:00 a 14:00. ¡Un saludo!` : `Hola ${(r.cliente || '').split(' ')[0]}! soy Miguel de Reparo Novo. Te escribo por tu ${r.equipo}: `;
     const dR = Math.floor((Date.now() - (r.creado || Date.now())) / 864e5), uR = dR > 15;
     return `<div class="fitem${uR ? ' urg' : ''}" style="--rc:${uR ? '#c62828' : e.c}"><span>${uR ? `<span class="urgtag">🔴 Urgente · ${dR} días</span>` : ''}<span class="rest">${esc(e.n)}</span><span class="tag">${esc(r.tipo || 'Equipo')}</span><b class="requip">${esc(r.equipo)}</b>
       <span class="q">${esc(r.cliente)} · ${esc(r.telefono)} · apuntada ${esc(fmtR(r.creado))}${r.proveedor ? ' · ' + esc(r.proveedor) : ''}${r.estado_at ? ' · estado desde ' + esc(fmtR(r.estado_at)) : ''}</span>
@@ -1342,7 +1343,7 @@ updAsk();
     if (!/^[6-9]\d{8}$/.test(tel)) { msg('El móvil debe tener 9 cifras.'); return; }
     if (d.precio && d.cuenta > d.precio) { msg('Lo dado a cuenta no puede ser más que el precio total.'); return; }
     try {
-      if (f0.id === 'r-form') { const st = new FormData(f0).get('estado'); await db.collection('reservas').add({...d, estado: st, estado_at: Date.now(), creado: Date.now()}); f0.reset(); $('#r-form [name=estado]').innerHTML = opts(EST[0].n); msg('Equipo apuntado.'); }
+      if (f0.id === 'r-form') { const st = new FormData(f0).get('estado'); await db.collection('reservas').add({...d, estado: st, estado_at: Date.now(), creado: Date.now()}); f0.reset(); $('#r-form [name=estado]').innerHTML = opts('Por pedir'); msg('Equipo apuntado.'); }
       else { await db.collection('reservas').doc(f0.dataset.redit).update({...d, editada_at: Date.now()}); editId = null; document.activeElement.blur(); render(); msg('Cambios guardados.'); }
     } catch (err) { msg('No se pudo guardar: ' + (err && err.message || 'error')); }
   });
@@ -1535,5 +1536,5 @@ renderList();
 
 
 
-<script src="boot.js?v=202610251046"></script>
+<script src="boot.js?v=202610251315"></script>
 </body></html>
