@@ -6,10 +6,10 @@
 <meta name="apple-mobile-web-app-title" content="Reparo Novo">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" href="icons/icon-192.png">
-<link rel="stylesheet" href="boot.css?v=202610251335">
+<link rel="stylesheet" href="boot.css?v=202610251339">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=202610251335"></script>
-<script src="shim.js?v=202610251335"></script>
+<script src="config.js?v=202610251339"></script>
+<script src="shim.js?v=202610251339"></script>
 </head><body>
 
 
@@ -189,6 +189,17 @@ details.serv summary{font:700 1.15rem var(--display);cursor:pointer}
 .fedit .fchk{flex-direction:row;align-items:center;gap:8px;color:var(--fg)}
 .fedit .fbtns{display:flex;gap:8px;align-items:center}
 .fitem .acc button{margin:0}
+.gcli .gbody{flex:1;min-width:0;display:flex;flex-direction:column;gap:0}
+.gcli .ghead{font-size:1.05rem;padding-bottom:6px;border-bottom:1px solid var(--line)}
+.gcli .gitem{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 12px;padding:9px 0 9px 10px;border-bottom:1px dashed var(--line);border-left:3px solid var(--rc,transparent)}
+.gcli .gitem>span:first-child{flex:1;min-width:200px}
+.gcli .gitem.urg{background:color-mix(in srgb,#c62828 7%,transparent)}
+.gcli .gacc{padding-top:8px;flex-direction:row!important}
+.gcli .fedit{border-bottom:1px dashed var(--line)}
+.gcli .gitem .acc,.gcli .gacc{padding-left:0!important;width:auto!important;flex-direction:row!important;flex-wrap:wrap;justify-content:flex-start!important}
+.gcli .gitem select{max-width:100%}
+.gcli .gitem .acc{flex:1 1 auto!important;max-width:100%}
+@media (max-width:520px){.gcli .gitem .acc{flex-basis:100%!important}}
 .fitem .acc .masb{border-style:dashed;color:var(--accent);font-size:.78rem}
 .fpag{display:inline-block;margin:0 6px 2px 0;font:600 .74rem var(--display);letter-spacing:.04em;color:var(--ok);background:var(--ok-bg);border:1px solid var(--ok);border-radius:999px;padding:1px 8px;vertical-align:1px}
 #f-pend,#f-res{counter-reset:fn;gap:8px}
@@ -1005,6 +1016,11 @@ document.addEventListener('click', e => { const b = e.target.closest('button[dat
   const abrir = f.classList.contains('plegado'); f.classList.toggle('plegado', !abrir); b.setAttribute('aria-expanded', abrir);
   b.textContent = abrir ? '✕ Cerrar' : b.dataset.txt; if (abrir) { const i = f.querySelector('input:not([type=checkbox]),textarea'); if (i) i.focus(); } });
 document.querySelectorAll('button[data-abre]').forEach(b => { b.dataset.txt = b.textContent; });
+// Miguel 25/10: un recuadro por cliente y dentro una sección por cada cosa que ha pedido.
+window.grupoCli = (lista, sub, urg) => { const g = new Map();
+  lista.forEach(x => { const k = String(x.telefono || '').replace(/\D/g, '').slice(-9) || String(x.cliente || '').trim().toLowerCase(); if (!g.has(k)) g.set(k, []); g.get(k).push(x); });
+  return [...g.values()].map(it => { const f = it[0], u = it.some(urg);
+    return `<div class="fitem gcli${u ? ' urg' : ''}"><span class="gbody"><span class="ghead"><b>${esc(f.cliente)}</b> <span class="q">${esc(f.telefono)}${it.length > 1 ? ` · <b>${it.length} cosas</b>` : ''}</span></span>${it.map(sub).join('')}<span class="acc gacc">${masB(f.cliente, f.telefono)}</span></span></div>`; }).join(''); };
 // Miguel 25/10: botón «WhatsApp cliente» también en Accesorios (como en Equipos).
 window.waF = f => { const tel = String(f.telefono || '').replace(/\D/g, '').replace(/^34(?=\d{9}$)/, ''); if (!tel) return '';
   const nom = String(f.cliente || '').trim().split(' ')[0], cosa = (f.producto || f.modelo || '') + (f.detalle ? ` (${f.detalle})` : '');
@@ -1268,8 +1284,8 @@ updAsk();
         <button data-col="${esc(f._id)}">Hecho</button></div>`).join('') +
       tareasC.map(c => `<div class="ftarea fitem"><span>Coloca <b>${esc(c.unidades)} × ${esc(c.producto)}</b> en <b>${esc(c.ubicacion || 'su sitio')}</b>.<span class="q">Entró ${esc(fmt(c.fecha))}</span></span><button data-hecho="${esc(c._id)}">Hecho</button></div>`).join('') : '';
     if (document.querySelector('#fundas form.fedit') && document.querySelector('#fundas form.fedit').contains(document.activeElement)) return; // no pisar lo que se está escribiendo
-    $('#f-pend').innerHTML = pend.length ? pend.map(f => f._id === editId ? editForm(f) : `<div class="fitem${urgF(f) ? ' urg' : ''}"><span>${urgF(f) ? `<span class="urgtag">🔴 Urgente · ${diasF(f)} días</span>` : ''}${pagTxt(f)}<b>${esc(f.modelo)}</b>${f.detalle ? ' · ' + esc(f.detalle) : ''}<span class="q">${esc(f.cliente)} · ${esc(f.telefono)} · pedida ${esc(fmt(f.creado))}</span>${obsTxt(f)}</span><span class="acc"><button class="fok" data-aviso="${esc(f._id)}">✓ Ha llegado y está avisado</button><button data-editar="${esc(f._id)}">Editar</button>${masB(f.cliente, f.telefono)}${waF(f)}<button class="fanular" data-cancel="${esc(f._id)}">Anular</button></span></div>`).join('') : '<p class="q">No hay ningún accesorio pendiente.</p>';
-    $('#f-res').innerHTML = res.length ? res.map(f => f._id === editId ? editForm(f) : `<div class="fitem"><span>${pagTxt(f)}<b>${esc(f.cliente)}</b> · ${esc(f.producto || f.modelo)}<span class="q">${f.estado === 'avisado' ? 'Avisado ' + esc(fmt(f.avisado_at)) : 'Llegó ' + esc(fmt(f.llegada_at)) + ', aviso pendiente'} · ${esc(f.ubicacion || 'estantería de reservas')}</span>${obsTxt(f)}</span><span class="acc"><button data-editar="${esc(f._id)}">Editar</button>${masB(f.cliente, f.telefono)}${waF(f)}<button class="fok" data-recog="${esc(f._id)}">✓ Recogida</button></span></div>`).join('') : '<p class="q">No hay accesorios esperando al cliente.</p>';
+    $('#f-pend').innerHTML = pend.length ? grupoCli(pend, f => f._id === editId ? editForm(f) : `<div class="gitem${urgF(f) ? ' urg' : ''}"><span>${urgF(f) ? `<span class="urgtag">🔴 Urgente · ${diasF(f)} días</span>` : ''}${pagTxt(f)}<b>${esc(f.modelo)}</b>${f.detalle ? ' · ' + esc(f.detalle) : ''}<span class="q">pedida ${esc(fmt(f.creado))}</span>${obsTxt(f)}</span><span class="acc"><button class="fok" data-aviso="${esc(f._id)}">✓ Ha llegado y está avisado</button><button data-editar="${esc(f._id)}">Editar</button>${waF(f)}<button class="fanular" data-cancel="${esc(f._id)}">Anular</button></span></div>`, urgF) : '<p class="q">No hay ningún accesorio pendiente.</p>';
+    $('#f-res').innerHTML = res.length ? grupoCli(res, f => f._id === editId ? editForm(f) : `<div class="gitem"><span>${pagTxt(f)}<b>${esc(f.producto || f.modelo)}</b><span class="q">${f.estado === 'avisado' ? 'Avisado ' + esc(fmt(f.avisado_at)) : 'Llegó ' + esc(fmt(f.llegada_at)) + ', aviso pendiente'} · ${esc(f.ubicacion || 'estantería de reservas')}</span>${obsTxt(f)}</span><span class="acc"><button data-editar="${esc(f._id)}">Editar</button>${waF(f)}<button class="fok" data-recog="${esc(f._id)}">✓ Recogida</button></span></div>`, () => false) : '<p class="q">No hay accesorios esperando al cliente.</p>';
   };
   db.collection('fundas').onSnapshot(s => { fundas = s.docs.map(d => ({...d.data(), _id: d.id})).sort((a, b) => (a.creado || 0) - (b.creado || 0)); render(); }, () => msg('No se pudieron cargar las peticiones.'));
   db.collection('colocar').onSnapshot(s => { colocar = s.docs.map(d => ({...d.data(), _id: d.id})); render(); }, () => {});
@@ -1333,14 +1349,14 @@ updAsk();
   const leer = f => { const tel = String(f.get('telefono')).replace(/\D/g, '').replace(/^34(?=\d{9}$)/, '');
     return {tel, d: {cliente: String(f.get('cliente')).trim(), telefono: tel, tipo: f.get('tipo'), equipo: String(f.get('equipo')).trim(), precio: +f.get('precio') || 0, cuenta: +f.get('cuenta') || 0, proveedor: String(f.get('proveedor') || '').trim(), obs: String(f.get('obs') || '').trim()}}; };
   const editForm = r => `<form class="fedit" data-redit="${esc(r._id)}" autocomplete="off"><label>Cliente<input name="cliente" required value="${esc(r.cliente)}"></label><label>Móvil<input name="telefono" required inputmode="tel" value="${esc(r.telefono)}"></label><label>Tipo<select name="tipo">${['Teléfono','Tablet','Consola','Portátil','Reloj','Otro'].map(t => `<option ${t === r.tipo ? 'selected' : ''}>${t}</option>`).join('')}</select></label><label class="fobs requipo">Equipo y características<textarea name="equipo" required rows="3">${esc(r.equipo)}</textarea></label><label>Precio total (€)<input name="precio" type="number" min="0" step="0.01" value="${r.precio || ''}"></label><label>Dado a cuenta (€)<input name="cuenta" type="number" min="0" step="0.01" value="${r.cuenta || ''}"></label><label>Proveedor<input name="proveedor" value="${esc(r.proveedor || '')}"></label><label class="fobs">Observaciones<textarea name="obs" rows="2">${esc(r.obs || '')}</textarea></label><span class="fbtns"><button type="submit" class="wa fbtn">Guardar cambios</button><button type="button" data-rnoedit="1">Cancelar</button></span></form>`;
-  const item = r => { const e = est(r.estado), debe = Math.max(0, (r.precio || 0) - (r.cuenta || 0));
+  const item = (r, g) => { const e = est(r.estado), debe = Math.max(0, (r.precio || 0) - (r.cuenta || 0));
     const aviso = r.estado === 'En tienda, esperando que recojan' ? `Hola ${(r.cliente || '').split(' ')[0]}! soy Miguel de Reparo Novo 😊. Ya tenemos aquí tu ${r.equipo}. Pásate cuando quieras a recogerlo${debe ? ` (quedan ${eur(debe)} por pagar)` : ''}. Estamos de lunes a viernes de 9:30 a 14:00 y de 17:00 a 20:30, y los sábados de 10:00 a 14:00. ¡Un saludo!` : `Hola ${(r.cliente || '').split(' ')[0]}! soy Miguel de Reparo Novo. Te escribo por tu ${r.equipo}: `;
     const dR = Math.floor((Date.now() - (r.creado || Date.now())) / 864e5), uR = dR > 15;
-    return `<div class="fitem${uR ? ' urg' : ''}" style="--rc:${uR ? '#c62828' : e.c}"><span>${uR ? `<span class="urgtag">🔴 Urgente · ${dR} días</span>` : ''}<span class="rest">${esc(e.n)}</span><span class="tag">${esc(r.tipo || 'Equipo')}</span><b class="requip">${esc(r.equipo)}</b>
-      <span class="q">${esc(r.cliente)} · ${esc(r.telefono)} · apuntada ${esc(fmtR(r.creado))}${r.proveedor ? ' · ' + esc(r.proveedor) : ''}${r.estado_at ? ' · estado desde ' + esc(fmtR(r.estado_at)) : ''}</span>
+    return `<div class="${g ? 'gitem' : 'fitem'}${uR ? ' urg' : ''}" style="--rc:${uR ? '#c62828' : e.c}"><span>${uR ? `<span class="urgtag">🔴 Urgente · ${dR} días</span>` : ''}<span class="rest">${esc(e.n)}</span><span class="tag">${esc(r.tipo || 'Equipo')}</span><b class="requip">${esc(r.equipo)}</b>
+      <span class="q">${g ? '' : esc(r.cliente) + ' · ' + esc(r.telefono) + ' · '}apuntada ${esc(fmtR(r.creado))}${r.proveedor ? ' · ' + esc(r.proveedor) : ''}${r.estado_at ? ' · estado desde ' + esc(fmtR(r.estado_at)) : ''}</span>
       <span class="rmoney">${r.precio ? `<span>Total <b>${eur(r.precio)}</b></span>` : ''}<span>A cuenta <b>${eur(r.cuenta)}</b></span>${r.precio ? (debe ? `<span class="rdebe">Falta ${eur(debe)}</span>` : '<span class="fpag">✓ Pagado</span>') : ''}</span>
       ${r.obs ? `<span class="fobsv">${esc(r.obs)}</span>` : ''}</span>
-      <span class="acc"><select data-rest="${esc(r._id)}" aria-label="Estado">${opts(r.estado)}</select><button data-reditar="${esc(r._id)}">Editar</button>${masB(r.cliente, r.telefono)}<a class="afinar" target="_blank" rel="noopener" href="${waCli(r, aviso)}">WhatsApp cliente</a></span></div>`; };
+      <span class="acc"><select data-rest="${esc(r._id)}" aria-label="Estado">${opts(r.estado)}</select><button data-reditar="${esc(r._id)}">Editar</button>${g ? '' : masB(r.cliente, r.telefono)}<a class="afinar" target="_blank" rel="noopener" href="${waCli(r, aviso)}">WhatsApp cliente</a></span></div>`; };
   const render = () => {
     if (document.querySelector('#reservas form.fedit') && document.querySelector('#reservas form.fedit').contains(document.activeElement)) return;
     const urgR = r => (Date.now() - (r.creado || Date.now())) / 864e5 > 15; // Miguel 12/10: equipos a los 15 días → rojo y arriba
@@ -1348,7 +1364,7 @@ updAsk();
     $('#r-count').textContent = abiertas.length || '';
     const cuenta = abiertas.reduce((a, r) => a + (+r.cuenta || 0), 0);
     $('#r-sum').innerHTML = EST.filter(e => !e.fin).map(e => `<span><b>${abiertas.filter(r => r.estado === e.n).length}</b> ${e.n.split(',')[0].toLowerCase()}</span>`).join('') + `<span><b>${eur(cuenta)}</b> a cuenta en total</span>`;
-    $('#r-list').innerHTML = abiertas.length ? abiertas.map(r => r._id === editId ? editForm(r) : item(r)).join('') : '<p class="q">No hay equipos encargados ni reservados.</p>';
+    $('#r-list').innerHTML = abiertas.length ? grupoCli(abiertas, r => r._id === editId ? editForm(r) : item(r, true), urgR) : '<p class="q">No hay equipos encargados ni reservados.</p>';
     $('#r-done').innerHTML = res.filter(r => est(r.estado).fin && Date.now() - (r.estado_at || 0) < 30 * 864e5).map(r => `<div class="fitem"><span><span class="tag">${esc(r.estado)}</span>${esc(r.equipo)} · ${esc(r.cliente)}<span class="q">${esc(fmtR(r.estado_at))} · a cuenta ${eur(r.cuenta)}</span></span></div>`).join('') || '<p class="q">Nada en el último mes.</p>';
   };
   db.collection('reservas').onSnapshot(s => { res = s.docs.map(d => ({...d.data(), _id: d.id})); render(); }, () => msg('No se pudieron cargar las reservas.'));
@@ -1552,5 +1568,5 @@ renderList();
 
 
 
-<script src="boot.js?v=202610251335"></script>
+<script src="boot.js?v=202610251339"></script>
 </body></html>
