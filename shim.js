@@ -2,6 +2,10 @@
 // Aquí se ofrece la misma forma —collection(x).onSnapshot / add / doc(id).update—
 // guardando en Supabase (tabla docs) y sincronizando en tiempo real entre dispositivos.
 (function () {
+  if (!window.supabase || !window.RN_CONFIG) {   // no ha cargado la librería: en vez de pantalla en blanco, botón para reintentar
+    document.addEventListener('DOMContentLoaded', () => { document.body.insertAdjacentHTML('afterbegin', '<div style="position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:#f3f5f6;font:16px system-ui;padding:20px;text-align:center"><b>No se ha podido abrir la app</b><span>Revisa la conexión y vuelve a intentarlo.</span><button onclick="location.reload()" style="font:700 1rem system-ui;padding:12px 18px;border:0;border-radius:10px;background:#0b6e8a;color:#fff">Reintentar</button></div>'); });
+    return;
+  }
   const sb = window.supabase.createClient(RN_CONFIG.url, RN_CONFIG.key, {
     auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
     realtime: { params: { eventsPerSecond: 10 } }

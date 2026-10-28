@@ -53,7 +53,7 @@ def main(src, clave_b64):
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="stylesheet" href="boot.css?v={ver}">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="vendor/supabase-2.45.4.js"></script>
 <script src="config.js?v={ver}"></script>
 <script src="shim.js?v={ver}"></script>
 '''
