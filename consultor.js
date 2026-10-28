@@ -55,6 +55,7 @@
   function margenDe(x) { if (f.mg !== '' && !isNaN(+f.mg)) return +f.mg; return x.t === 'p' ? MARGEN.p : (x.mc === 'Apple' ? MARGEN.ma : MARGEN.m); }
 
   function filtra() {
+    if (f.t === 'm') { f.ram = 0; f.pmin = ''; f.pmax = ''; f.mg = ''; f.prov = ''; f.g5 = false; }
     const txt = f.txt.trim().toLowerCase().split(/\s+/).filter(Boolean);
     let r = items.filter(x => x.t === f.t
       && (!f.mc || x.mc === f.mc) && (!f.prov || x.prov === f.prov)
@@ -85,17 +86,16 @@
       <form>
         <div class="seg"><button type="button" data-t="m" class="${f.t === 'm' ? 'on' : ''}">📱 Teléfonos</button><button type="button" data-t="p" class="${f.t === 'p' ? 'on' : ''}">💻 Portátiles</button></div>
         <label>Marca<select name="mc"><option value="">Todas</option>${opciones(marcas, f.mc)}</select></label>
-        <label>RAM mínima<select name="ram"><option value="0">Cualquiera</option>${opciones([3, 4, 6, 8, 12, 16, 24, 32, 64], f.ram, v => v + ' GB')}</select></label>
+        ${f.t === 'p' ? `<label>RAM mínima<select name="ram"><option value="0">Cualquiera</option>${opciones([3, 4, 6, 8, 12, 16, 24, 32, 64], f.ram, v => v + ' GB')}</select></label>` : ''}
         <label>Almacenamiento mín.<select name="alm"><option value="0">Cualquiera</option>${opciones([64, 128, 256, 512, 1024, 2048], f.alm, gb)}</select></label>
-        <label>Pantalla desde (")<input name="pmin" inputmode="decimal" placeholder="${f.t === 'm' ? '6.5' : '14'}" value="${esc(f.pmin)}"></label>
-        <label>Pantalla hasta (")<input name="pmax" inputmode="decimal" placeholder="${f.t === 'm' ? '6.9' : '16'}" value="${esc(f.pmax)}"></label>
+        ${f.t === 'p' ? `<label>Pantalla desde (")<input name="pmin" inputmode="decimal" placeholder="${f.t === 'm' ? '6.5' : '14'}" value="${esc(f.pmin)}"></label>
+        <label>Pantalla hasta (")<input name="pmax" inputmode="decimal" placeholder="${f.t === 'm' ? '6.9' : '16'}" value="${esc(f.pmax)}"></label>` : ''}
         ${f.t === 'p' ? `<label>Sistema<select name="so"><option value="">Cualquiera</option>${opciones(['win', 'sin', 'mac', 'chrome'], f.so, v => ({ win: 'Windows', sin: 'Sin sistema', mac: 'macOS', chrome: 'Chrome OS' })[v])}</select></label>` : ''}
         <label>PVP hasta (€)<input name="max" inputmode="numeric" placeholder="300" value="${esc(f.max)}"></label>
-        <label>Margen % (opcional)<input name="mg" inputmode="numeric" placeholder="auto" value="${esc(f.mg)}"></label>
-        <label>Proveedor<select name="prov"><option value="">Todos</option>${opciones(provs, f.prov)}</select></label>
+        ${f.t === 'p' ? `<label>Margen % (opcional)<input name="mg" inputmode="numeric" placeholder="auto" value="${esc(f.mg)}"></label>
+        <label>Proveedor<select name="prov"><option value="">Todos</option>${opciones(provs, f.prov)}</select></label>` : ''}
         <label>Ordenar<select name="ord">${opciones(['c', 'ram', 'alm'], f.ord, v => ({ c: 'Más barato', ram: 'Más RAM', alm: 'Más memoria' })[v])}</select></label>
         <label>Buscar<input name="txt" placeholder="note 17, galaxy…" value="${esc(f.txt)}"></label>
-        ${f.t === 'm' ? `<label class="ck"><input type="checkbox" name="g5" ${f.g5 ? 'checked' : ''}> Solo 5G</label>` : ''}
         <label class="ck"><input type="checkbox" name="tienda" ${f.tienda ? 'checked' : ''}> Solo lo que hay en tienda</label>
       </form>
       <div class="q" style="margin-bottom:6px">${r.length} resultado${r.length === 1 ? '' : 's'}</div>
