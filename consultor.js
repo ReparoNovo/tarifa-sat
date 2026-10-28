@@ -6,7 +6,9 @@
   const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const eur = n => (Math.round(n * 100) / 100).toLocaleString('es-ES', { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 }) + ' €';
   const MARGEN = { m: 25, ma: 8, p: 20 }; // móvil Android, móvil Apple (nuevo), portátil
-  const pvp = (c, mg) => { const p = c / (1 - mg / 100); return Math.ceil((p + 1) / 10) * 10 - 1; };
+  const GANA_MIN_MOVIL = 70; // Miguel 28/10/2026: en cada teléfono que se pida hay que ganar como mínimo 70–80 €
+  const a9 = p => Math.ceil((p + 1) / 10) * 10 - 1;   // redondeo hacia arriba a un precio acabado en 9
+  const pvp = (c, mg, movil) => { let p = a9(c / (1 - mg / 100)); if (movil && p - c < GANA_MIN_MOVIL) p = a9(c + GANA_MIN_MOVIL); return p; };
   const gb = n => n >= 1024 ? (n / 1024) + ' TB' : n + ' GB';
 
   const css = document.createElement('style');
@@ -68,7 +70,7 @@
       && (!f.g5 || x.g5) && (!f.tienda || x.ti)
       && (!f.so || (f.so === 'win' ? /win/i.test(x.so || x.n) : f.so === 'sin' ? /sin sistema|freedos/i.test(x.so || x.n) : f.so === 'mac' ? x.mc === 'Apple' : /chrome/i.test(x.so || x.n)))
       && txt.every(w => x.n.toLowerCase().includes(w)));
-    r.forEach(x => { x._mg = margenDe(x); x._pvp = pvp(x.c, x._mg); });
+    r.forEach(x => { x._mg = margenDe(x); x._pvp = pvp(x.c, x._mg, x.t === 'm'); });
     if (f.max !== '') r = r.filter(x => x._pvp <= +f.max);
     r.sort(f.ord === 'ram' ? (a, b) => (b.ram || 0) - (a.ram || 0) || a.c - b.c : f.ord === 'alm' ? (a, b) => (b.alm || 0) - (a.alm || 0) || a.c - b.c : (a, b) => a.c - b.c);
     // el más barato del mismo modelo entre proveedores
@@ -88,7 +90,7 @@
     const fechas = Object.values(datos.prov || {}).map(p => `${esc(p.nombre)} ${esc((p.fecha || '').split('-').reverse().join('/'))}`).join(' · ');
     const r = filtra();
     pan.innerHTML = `<h2><span>💶 Consultor de precios</span><button type="button" data-x>Cerrar</button></h2>
-      <div class="q">Tarifas: ${fechas}. Coste real con IVA y recargo. PVP sugerido con margen ${f.mg !== '' ? f.mg + ' %' : 'del 25 % (Android), 8 % (iPhone nuevo) y 20 % (portátiles)'}, acabado en 9.</div>
+      <div class="q">Tarifas: ${fechas}. Coste real con IVA y recargo. PVP sugerido ${f.t === 'm' ? 'con margen del 25 % (8 % en iPhone nuevo) y ganando como mínimo 70–80 € por teléfono' : `con margen del ${f.mg !== '' ? f.mg : 20} %`}, acabado en 9.</div>
       <form>
         <div class="seg"><button type="button" data-t="m" class="${f.t === 'm' ? 'on' : ''}">📱 Teléfonos</button><button type="button" data-t="p" class="${f.t === 'p' ? 'on' : ''}">💻 Portátiles</button></div>
         <label>Marca<select name="mc"><option value="">Todas</option>${opciones(marcas, f.mc)}</select></label>
@@ -110,7 +112,7 @@
           <div><b>${esc(x.n.replace(/\//g, ' / '))}</b><br>
             <span class="tag">${esc(x.prov)}</span>${x._best ? '<span class="tag best">El más barato</span>' : ''}${x.ti ? `<span class="tag st">En tienda: ${x.ti} a ${eur(x.pt)}</span>` : ''}
             <span class="q">${[x.ram ? x.ram + ' GB RAM' : '', x.alm ? gb(x.alm) : '', x.pant ? x.pant + '"' : '', x.g5 ? '5G' : '', x.cpu || '', x.col && x.col.length ? x.col.join(', ') : ''].filter(Boolean).map(esc).join(' · ')}</span></div>
-          <div class="pr"><span class="pv">${eur(x._pvp)}</span><br><span class="q">Coste ${eur(x.c)} · ganas ${eur(x._pvp - x.c)} (${x._mg} %)</span></div>
+          <div class="pr"><span class="pv">${eur(x._pvp)}</span><br><span class="q">Coste ${eur(x.c)} · ganas ${eur(x._pvp - x.c)} (${Math.round((x._pvp - x.c) / x._pvp * 100)} %)</span></div>
         </div>`).join('') || '<div class="vacio">No hay ningún equipo con esos datos. Prueba a quitar algún filtro.</div>'}</div>`;
     pan.querySelector('[data-x]').onclick = () => box.remove();
     pan.querySelectorAll('[data-t]').forEach(b => b.onclick = () => { f.t = b.dataset.t; f.mc = ''; f.md = ''; f.so = ''; guarda(); pinta(box); });
