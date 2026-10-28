@@ -11,6 +11,10 @@
   document.body.appendChild(caja);
   document.body.classList.add('rn-bloq');
 
+  // En el iPhone, al abrir o reanudar la app con mala cobertura, las llamadas a Supabase pueden quedarse colgadas
+  // y la pantalla se quedaba en blanco: todas llevan tiempo máximo y, si no responde, se usa lo último guardado.
+  const conTiempo = (p, ms) => Promise.race([p, new Promise((_, no) => setTimeout(() => no(new Error('tiempo de espera')), ms))]);
+
   function pinta(html) { caja.innerHTML = '<div class="rn-panel"><h1>Reparo Novo</h1>' + html + '</div>'; caja.hidden = false; }
   function msg(t, err) { const p = caja.querySelector('.rn-msg'); if (p) { p.textContent = t; p.classList.toggle('rn-err', !!err); } }
 
@@ -84,7 +88,17 @@
   }
 
   async function comprobar() {
-    const { data: { session } } = await sb.auth.getSession();
+    pinta('<p class="rn-sub">Abriendo…</p>');
+    let session = null;
+    try { ({ data: { session } } = await conTiempo(sb.auth.getSession(), 8000)); }
+    catch (e) {
+      // Sin respuesta (cobertura): si ya se entró antes en este móvil, se abre con lo guardado
+      const cuenta = LS.get('rn_ok');
+      if (cuenta && LS.get('rn_clave')) { window.RN_USER = { email: cuenta, nombre: '' }; return arrancar(); }
+      pinta(`<p class="rn-sub rn-err">No hay conexión con el servidor.</p><button type="button" class="rn-btn" id="rn-re">Reintentar</button>`);
+      caja.querySelector('#rn-re').onclick = () => location.reload();
+      return;
+    }
     if (!session) {
       if (LS.get('rn_cuenta')) formLogin('entrar'); else formLogin('entrar');
       return;
@@ -92,7 +106,7 @@
     const email = (session.user.email || '').toLowerCase();
     let perm = null;
     try {
-      const { data, error } = await sb.from('permitidos').select('email,nombre').eq('email', email).maybeSingle();
+      const { data, error } = await conTiempo(sb.from('permitidos').select('email,nombre').eq('email', email).maybeSingle(), 7000);
       if (error) throw error;
       perm = data;
       if (perm) LS.set('rn_ok', email); else LS.del('rn_ok');
@@ -116,7 +130,7 @@
   async function clave() {
     let k = LS.get('rn_clave');
     try {
-      const { data, error } = await sb.from('claves').select('valor').eq('id', 'tarifa').maybeSingle();
+      const { data, error } = await conTiempo(sb.from('claves').select('valor').eq('id', 'tarifa').maybeSingle(), 7000);
       if (!error && data) { k = data.valor; LS.set('rn_clave', k); }
     } catch (e) {}
     if (!k) throw new Error('No se pudo obtener la clave de la tarifa');
@@ -190,6 +204,12 @@
   }
   function confirmar() { return true; }
   function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+
+  setTimeout(() => {
+    if (arrancado || caja.querySelector('form') || caja.querySelector('#rn-re')) return;
+    pinta(`<p class="rn-sub">Está tardando más de la cuenta (puede ser la cobertura).</p><button type="button" class="rn-btn" id="rn-re">Reintentar</button>`);
+    caja.querySelector('#rn-re').onclick = () => location.reload();
+  }, 25000);
 
   sb.auth.onAuthStateChange(ev => { if (ev === 'PASSWORD_RECOVERY') formNueva(); });
   if (/type=recovery/.test(location.hash)) { /* lo gestiona onAuthStateChange */ }
