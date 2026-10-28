@@ -123,8 +123,8 @@
     return k;
   }
 
-  async function descifrar(k) {
-    const r = await fetch('data.enc', { cache: 'no-cache' });
+  async function descifrar(k, archivo) {
+    const r = await fetch(archivo || 'data.enc', { cache: 'no-cache' });
     if (!r.ok) throw new Error('No se pudo descargar la tarifa');
     const raw = Uint8Array.from(atob((await r.text()).trim()), c => c.charCodeAt(0));
     const key = await crypto.subtle.importKey('raw', Uint8Array.from(atob(k), c => c.charCodeAt(0)), 'AES-GCM', false, ['decrypt']);
@@ -164,6 +164,8 @@
       return;
     }
     arrancado = true;
+    // Para otros módulos de la app (consultor de precios): abre otro archivo cifrado con la misma clave
+    window.RN_ABRIR = async archivo => descifrar(await clave(), archivo);
     await enVivo(d);
     document.getElementById('data').textContent = JSON.stringify(d.data);
     document.getElementById('agenda').textContent = JSON.stringify(d.agenda);
@@ -173,6 +175,7 @@
     const ver = (document.querySelector('script[src^="boot.js"]')?.src.split('v=')[1] || '1');
     const ev = document.createElement('script'); ev.src = 'envios.js?v=' + ver; document.body.appendChild(ev);
     const es = document.createElement('script'); es.src = 'estado.js?v=' + ver; document.body.appendChild(es);
+    const co = document.createElement('script'); co.src = 'consultor.js?v=' + ver; document.body.appendChild(co);
     caja.hidden = true; caja.innerHTML = '';
     document.body.classList.remove('rn-bloq');
     pie();

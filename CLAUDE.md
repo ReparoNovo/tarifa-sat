@@ -17,6 +17,7 @@ App interna (PWA) de la tienda Reparo Novo (Priego de Córdoba): tarifa de repar
 - `shim.js`: sustituye `claude.use('db'|'user')` del artifact por Supabase (misma forma: `collection().onSnapshot/add`, `doc(id).update/set/get`).
 - `boot.js` / `boot.css`: login, comprobación de permiso, descifrado de la tarifa y arranque de la página. Oculta `#rn-aviso-app` (aviso que solo debe verse en la página de Claude).
 - `config.js`: URL y clave publishable de Supabase (públicas por diseño).
+- `consultor.js` + `consultor.enc`: consultor de precios de teléfonos y portátiles (J.J., Depau, Megasur), botón «💶 Consultor» en la cabecera. `consultor.enc` va cifrado con la misma clave que `data.enc`; se genera con `tools/consultor_enc.py datos.json <clave>` (datos.json fuera del repo; el parser y las fuentes están en el proyecto de Claude, `claude/tarifa-sat/consultor/`). Se actualiza los lunes, cuando Miguel pasa la tarifa de J.J.
 - `sw.js`, `manifest.webmanifest`, `icons/`: PWA. Iconos generados por la acción `.github/workflows/iconos.yml` desde el logo de reparonovo.com.
 
 ## Dónde hacer cada cambio
