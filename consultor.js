@@ -42,7 +42,7 @@
   (document.querySelector('header') || document.body).appendChild(btn);
 
   let datos = null, items = [];
-  const f = { t: 'm', mc: '', ram: 0, alm: 0, pmin: '', pmax: '', g5: false, so: '', max: '', txt: '', mg: '', prov: '', tienda: false, ord: 'c' };
+  const f = { t: 'm', mc: '', md: '', ram: 0, alm: 0, pmin: '', pmax: '', g5: false, so: '', max: '', txt: '', mg: '', prov: '', tienda: false, ord: 'c' };
   try { Object.assign(f, JSON.parse(localStorage.getItem('rn_con_f') || '{}')); } catch (e) {}
 
   async function carga() {
@@ -52,13 +52,17 @@
     Object.values(datos.prov || {}).forEach(p => (p.items || []).forEach(x => items.push(Object.assign({ prov: p.nombre, fecha: p.fecha }, x))));
   }
 
+  // modelo sin memoria ni color: «Xiaomi Redmi Note 17 6GB/256GB» -> «Redmi Note 17»
+  const base = x => { const b = base0(x); return /^\d/.test(b) ? (x.mc + ' ' + b) : b; };
+  const base0 = x => x.n.split('/')[0].replace(/\s+\d+\s*(GB|TB)\b.*$/i, '').replace(new RegExp('^' + (x.mc || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s+', 'i'), '').trim();
+
   function margenDe(x) { if (f.mg !== '' && !isNaN(+f.mg)) return +f.mg; return x.t === 'p' ? MARGEN.p : (x.mc === 'Apple' ? MARGEN.ma : MARGEN.m); }
 
   function filtra() {
     if (f.t === 'm') { f.ram = 0; f.pmin = ''; f.pmax = ''; f.mg = ''; f.prov = ''; f.g5 = false; }
     const txt = f.txt.trim().toLowerCase().split(/\s+/).filter(Boolean);
     let r = items.filter(x => x.t === f.t
-      && (!f.mc || x.mc === f.mc) && (!f.prov || x.prov === f.prov)
+      && (!f.mc || x.mc === f.mc) && (!f.md || f.t !== 'm' || base(x) === f.md) && (!f.prov || x.prov === f.prov)
       && (!f.ram || (x.ram || 0) >= f.ram) && (!f.alm || (x.alm || 0) >= f.alm)
       && (f.pmin === '' || (x.pant || 0) >= +f.pmin) && (f.pmax === '' || (x.pant || 99) <= +f.pmax)
       && (!f.g5 || x.g5) && (!f.tienda || x.ti)
@@ -78,6 +82,8 @@
   function pinta(box) {
     const pan = box.querySelector('.pan');
     const marcas = [...new Set(items.filter(x => x.t === f.t).map(x => x.mc))].sort();
+    const modelos = [...new Set(items.filter(x => x.t === 'm' && (!f.mc || x.mc === f.mc)).map(base))].sort((a, b) => a.localeCompare(b, 'es', { numeric: true }));
+    if (f.md && !modelos.includes(f.md)) f.md = '';
     const provs = [...new Set(items.map(x => x.prov))].sort();
     const fechas = Object.values(datos.prov || {}).map(p => `${esc(p.nombre)} ${esc((p.fecha || '').split('-').reverse().join('/'))}`).join(' · ');
     const r = filtra();
@@ -86,8 +92,8 @@
       <form>
         <div class="seg"><button type="button" data-t="m" class="${f.t === 'm' ? 'on' : ''}">📱 Teléfonos</button><button type="button" data-t="p" class="${f.t === 'p' ? 'on' : ''}">💻 Portátiles</button></div>
         <label>Marca<select name="mc"><option value="">Todas</option>${opciones(marcas, f.mc)}</select></label>
+        ${f.t === 'm' ? `<label>Modelo<select name="md"><option value="">Todos</option>${opciones(modelos, f.md)}</select></label>` : ''}
         ${f.t === 'p' ? `<label>RAM mínima<select name="ram"><option value="0">Cualquiera</option>${opciones([3, 4, 6, 8, 12, 16, 24, 32, 64], f.ram, v => v + ' GB')}</select></label>` : ''}
-        <label>Almacenamiento mín.<select name="alm"><option value="0">Cualquiera</option>${opciones([64, 128, 256, 512, 1024, 2048], f.alm, gb)}</select></label>
         ${f.t === 'p' ? `<label>Pantalla desde (")<input name="pmin" inputmode="decimal" placeholder="${f.t === 'm' ? '6.5' : '14'}" value="${esc(f.pmin)}"></label>
         <label>Pantalla hasta (")<input name="pmax" inputmode="decimal" placeholder="${f.t === 'm' ? '6.9' : '16'}" value="${esc(f.pmax)}"></label>` : ''}
         ${f.t === 'p' ? `<label>Sistema<select name="so"><option value="">Cualquiera</option>${opciones(['win', 'sin', 'mac', 'chrome'], f.so, v => ({ win: 'Windows', sin: 'Sin sistema', mac: 'macOS', chrome: 'Chrome OS' })[v])}</select></label>` : ''}
@@ -96,6 +102,7 @@
         <label>Proveedor<select name="prov"><option value="">Todos</option>${opciones(provs, f.prov)}</select></label>` : ''}
         <label>Ordenar<select name="ord">${opciones(['c', 'ram', 'alm'], f.ord, v => ({ c: 'Más barato', ram: 'Más RAM', alm: 'Más memoria' })[v])}</select></label>
         <label>Buscar<input name="txt" placeholder="note 17, galaxy…" value="${esc(f.txt)}"></label>
+        <label>Almacenamiento mín.<select name="alm"><option value="0">Cualquiera</option>${opciones([64, 128, 256, 512, 1024, 2048], f.alm, gb)}</select></label>
         <label class="ck"><input type="checkbox" name="tienda" ${f.tienda ? 'checked' : ''}> Solo lo que hay en tienda</label>
       </form>
       <div class="q" style="margin-bottom:6px">${r.length} resultado${r.length === 1 ? '' : 's'}</div>
@@ -106,11 +113,11 @@
           <div class="pr"><span class="pv">${eur(x._pvp)}</span><br><span class="q">Coste ${eur(x.c)} · ganas ${eur(x._pvp - x.c)} (${x._mg} %)</span></div>
         </div>`).join('') || '<div class="vacio">No hay ningún equipo con esos datos. Prueba a quitar algún filtro.</div>'}</div>`;
     pan.querySelector('[data-x]').onclick = () => box.remove();
-    pan.querySelectorAll('[data-t]').forEach(b => b.onclick = () => { f.t = b.dataset.t; f.mc = ''; f.so = ''; guarda(); pinta(box); });
+    pan.querySelectorAll('[data-t]').forEach(b => b.onclick = () => { f.t = b.dataset.t; f.mc = ''; f.md = ''; f.so = ''; guarda(); pinta(box); });
     const form = pan.querySelector('form');
     const lee = () => {
       const fd = new FormData(form);
-      ['mc', 'pmin', 'pmax', 'so', 'max', 'txt', 'mg', 'prov', 'ord'].forEach(k => { if (fd.has(k)) f[k] = String(fd.get(k)).replace(',', '.'); });
+      ['mc', 'md', 'pmin', 'pmax', 'so', 'max', 'txt', 'mg', 'prov', 'ord'].forEach(k => { if (fd.has(k)) f[k] = String(fd.get(k)).replace(',', '.'); });
       f.ram = +fd.get('ram') || 0; f.alm = +fd.get('alm') || 0; f.g5 = fd.has('g5'); f.tienda = fd.has('tienda');
       guarda();
     };

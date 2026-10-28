@@ -1,6 +1,6 @@
 // Service worker: la app abre aunque no haya conexión (con la última tarifa descargada).
 // Página y tarifa: primero red, si falla la copia guardada. Resto de archivos: copia guardada.
-const VERSION = '202610281029';
+const VERSION = '202610281047';
 const CACHE = 'tarifa-sat-' + VERSION;
 const BASE = ['./', 'index.html', 'boot.css', 'boot.js', 'shim.js', 'envios.js', 'estado.js', 'consultor.js', 'config.js', 'manifest.webmanifest',
   'icons/icon-192.png', 'icons/apple-touch-icon.png', 'vendor/supabase-2.45.4.js'];
