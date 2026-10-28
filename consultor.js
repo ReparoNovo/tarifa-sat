@@ -61,11 +61,15 @@
   function margenDe(x) { if (f.mg !== '' && !isNaN(+f.mg)) return +f.mg; return x.t === 'p' ? MARGEN.p : (x.mc === 'Apple' ? MARGEN.ma : MARGEN.m); }
 
   function filtra() {
-    if (f.t === 'm') { f.ram = 0; f.pmin = ''; f.pmax = ''; f.mg = ''; f.prov = ''; f.g5 = false; }
+    // consultor sencillo: solo marca, modelo/RAM/pantalla y almacenamiento; lo demás no se filtra
+    f.so = ''; f.max = ''; f.txt = ''; f.mg = ''; f.prov = ''; f.tienda = false; f.ord = 'c'; f.g5 = false;
+    if (f.t === 'm') { f.ram = 0; f.pan = ''; }
+    const P = { '13': [0, 13.9], '14': [14, 14.9], '15': [15, 15.9], '16': [16, 99] }[f.pan || ''];
+    f.pmin = P ? P[0] : ''; f.pmax = P ? P[1] : '';
     const txt = f.txt.trim().toLowerCase().split(/\s+/).filter(Boolean);
     let r = items.filter(x => x.t === f.t
       && (!f.mc || x.mc === f.mc) && (!f.md || f.t !== 'm' || base(x) === f.md) && (!f.prov || x.prov === f.prov)
-      && (!f.ram || (x.ram || 0) >= f.ram) && (!f.alm || (x.alm || 0) >= f.alm)
+      && (!f.ram || (x.ram || 0) >= f.ram) && (!f.alm || (f.t === 'm' ? x.alm === f.alm : (x.alm || 0) >= f.alm))
       && (f.pmin === '' || (x.pant || 0) >= +f.pmin) && (f.pmax === '' || (x.pant || 99) <= +f.pmax)
       && (!f.g5 || x.g5) && (!f.tienda || x.ti)
       && (!f.so || (f.so === 'win' ? /win/i.test(x.so || x.n) : f.so === 'sin' ? /sin sistema|freedos/i.test(x.so || x.n) : f.so === 'mac' ? x.mc === 'Apple' : /chrome/i.test(x.so || x.n)))
@@ -90,22 +94,14 @@
     const fechas = Object.values(datos.prov || {}).map(p => `${esc(p.nombre)} ${esc((p.fecha || '').split('-').reverse().join('/'))}`).join(' · ');
     const r = filtra();
     pan.innerHTML = `<h2><span>💶 Consultor de precios</span><button type="button" data-x>Cerrar</button></h2>
-      <div class="q">Tarifas: ${fechas}. Coste real con IVA y recargo. PVP sugerido ${f.t === 'm' ? 'con margen del 25 % (8 % en iPhone nuevo) y ganando como mínimo 70–80 € por teléfono' : `con margen del ${f.mg !== '' ? f.mg : 20} %`}, acabado en 9.</div>
+      <div class="q">Precios de ${fechas}. El PVP ya lleva tu margen.</div>
       <form>
         <div class="seg"><button type="button" data-t="m" class="${f.t === 'm' ? 'on' : ''}">📱 Teléfonos</button><button type="button" data-t="p" class="${f.t === 'p' ? 'on' : ''}">💻 Portátiles</button></div>
         <label>Marca<select name="mc"><option value="">Todas</option>${opciones(marcas, f.mc)}</select></label>
         ${f.t === 'm' ? `<label>Modelo<select name="md"><option value="">Todos</option>${opciones(modelos, f.md)}</select></label>` : ''}
-        ${f.t === 'p' ? `<label>RAM mínima<select name="ram"><option value="0">Cualquiera</option>${opciones([3, 4, 6, 8, 12, 16, 24, 32, 64], f.ram, v => v + ' GB')}</select></label>` : ''}
-        ${f.t === 'p' ? `<label>Pantalla desde (")<input name="pmin" inputmode="decimal" placeholder="${f.t === 'm' ? '6.5' : '14'}" value="${esc(f.pmin)}"></label>
-        <label>Pantalla hasta (")<input name="pmax" inputmode="decimal" placeholder="${f.t === 'm' ? '6.9' : '16'}" value="${esc(f.pmax)}"></label>` : ''}
-        ${f.t === 'p' ? `<label>Sistema<select name="so"><option value="">Cualquiera</option>${opciones(['win', 'sin', 'mac', 'chrome'], f.so, v => ({ win: 'Windows', sin: 'Sin sistema', mac: 'macOS', chrome: 'Chrome OS' })[v])}</select></label>` : ''}
-        <label>PVP hasta (€)<input name="max" inputmode="numeric" placeholder="300" value="${esc(f.max)}"></label>
-        ${f.t === 'p' ? `<label>Margen % (opcional)<input name="mg" inputmode="numeric" placeholder="auto" value="${esc(f.mg)}"></label>
-        <label>Proveedor<select name="prov"><option value="">Todos</option>${opciones(provs, f.prov)}</select></label>` : ''}
-        <label>Ordenar<select name="ord">${opciones(['c', 'ram', 'alm'], f.ord, v => ({ c: 'Más barato', ram: 'Más RAM', alm: 'Más memoria' })[v])}</select></label>
-        <label>Buscar<input name="txt" placeholder="note 17, galaxy…" value="${esc(f.txt)}"></label>
-        <label>Almacenamiento mín.<select name="alm"><option value="0">Cualquiera</option>${opciones([64, 128, 256, 512, 1024, 2048], f.alm, gb)}</select></label>
-        <label class="ck"><input type="checkbox" name="tienda" ${f.tienda ? 'checked' : ''}> Solo lo que hay en tienda</label>
+        ${f.t === 'p' ? `<label>RAM mínima<select name="ram"><option value="0">Cualquiera</option>${opciones([4, 8, 16, 32], f.ram, v => v + ' GB')}</select></label>
+        <label>Pantalla<select name="pan"><option value="">Cualquiera</option>${opciones(['13', '14', '15', '16'], f.pan, v => ({ '13': 'Hasta 13,6"', '14': '14"', '15': '15,6"', '16': '16" o más' })[v])}</select></label>` : ''}
+        <label>Almacenamiento${f.t === 'p' ? ' mín.' : ''}<select name="alm"><option value="0">Cualquiera</option>${opciones(f.t === 'm' ? [64, 128, 256, 512, 1024] : [256, 512, 1024, 2048], f.alm, gb)}</select></label>
       </form>
       <div class="q" style="margin-bottom:6px">${r.length} resultado${r.length === 1 ? '' : 's'}</div>
       <div class="res">${r.slice(0, 150).map(x => `<div class="it">
@@ -115,11 +111,11 @@
           <div class="pr"><span class="pv">${eur(x._pvp)}</span><br><span class="q">Coste ${eur(x.c)} · ganas ${eur(x._pvp - x.c)} (${Math.round((x._pvp - x.c) / x._pvp * 100)} %)</span></div>
         </div>`).join('') || '<div class="vacio">No hay ningún equipo con esos datos. Prueba a quitar algún filtro.</div>'}</div>`;
     pan.querySelector('[data-x]').onclick = () => box.remove();
-    pan.querySelectorAll('[data-t]').forEach(b => b.onclick = () => { f.t = b.dataset.t; f.mc = ''; f.md = ''; f.so = ''; guarda(); pinta(box); });
+    pan.querySelectorAll('[data-t]').forEach(b => b.onclick = () => { f.t = b.dataset.t; f.mc = ''; f.md = ''; f.alm = 0; f.pan = ''; f.ram = 0; f.so = ''; guarda(); pinta(box); });
     const form = pan.querySelector('form');
     const lee = () => {
       const fd = new FormData(form);
-      ['mc', 'md', 'pmin', 'pmax', 'so', 'max', 'txt', 'mg', 'prov', 'ord'].forEach(k => { if (fd.has(k)) f[k] = String(fd.get(k)).replace(',', '.'); });
+      ['mc', 'md', 'pan'].forEach(k => { if (fd.has(k)) f[k] = String(fd.get(k)).replace(',', '.'); });
       f.ram = +fd.get('ram') || 0; f.alm = +fd.get('alm') || 0; f.g5 = fd.has('g5'); f.tienda = fd.has('tienda');
       guarda();
     };
