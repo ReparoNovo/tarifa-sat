@@ -6,10 +6,10 @@
 <meta name="apple-mobile-web-app-title" content="Reparo Novo">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" href="icons/icon-192.png">
-<link rel="stylesheet" href="boot.css?v=202610291319">
+<link rel="stylesheet" href="boot.css?v=202610291323">
 <script src="vendor/supabase-2.45.4.js"></script>
-<script src="config.js?v=202610291319"></script>
-<script src="shim.js?v=202610291319"></script>
+<script src="config.js?v=202610291323"></script>
+<script src="shim.js?v=202610291323"></script>
 </head><body>
 
 
@@ -306,6 +306,11 @@ header .jump{display:none}
 .rf-pick small{color:var(--muted);font-size:.8rem;white-space:nowrap}
 .rf-h{font:700 .78rem var(--display);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:4px 0 -4px}
 .rf-gen{color:var(--muted);font-size:.8rem;margin:10px 0 0}
+details.rf-fact{margin-top:8px;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
+details.rf-fact>summary{cursor:pointer;padding:9px 12px;font:600 .9rem var(--body);color:var(--accent)}
+details.rf-fact[open]>summary{border-bottom:1px solid var(--line)}
+details.rf-fact>.rf-fbody{padding:4px 12px 10px}
+.rf-st0{color:var(--muted)}.rf-st1{color:var(--ok);font-weight:700}
 /* ==== FIN REFERENCIAS ==== */
 
 /* ==== RESERVAS v1 ==== */
@@ -452,9 +457,9 @@ details.hechas summary{cursor:pointer}
   </details>
 
   <!-- ==== REFERENCIAS v1 ==== -->
-  <details class="serv" id="refs" open>
-    <summary>Buscar referencia y factura de Apokin</summary>
-    <p class="cut">Escanea o escribe el código de barras (la etiqueta de la tienda o el de la caja de Apokin), o escribe el producto: <i>a60 transparente</i>, <i>pc1010s</i>…</p>
+  <details class="serv" id="refs">
+    <summary>🔎 Fundas en stock y facturas de Apokin</summary>
+    <p class="cut">Escanea o escribe el código de barras (la etiqueta de la tienda o el de la caja de Apokin), o escribe el producto: <i>a60 transparente</i>, <i>15 pro max</i>… Primero salen las fichas de SATTPV con su stock; las facturas de Apokin se abren tocando «Buscar en las facturas de Apokin».</p>
     <div class="rf-bar">
       <input id="rf-q" type="search" inputmode="search" autocomplete="off" placeholder="Código de barras o producto" aria-label="Código de barras o producto">
       <button type="button" id="rf-clear" class="rf-x" aria-label="Borrar búsqueda">Borrar</button>
@@ -1656,22 +1661,23 @@ renderList();
       + (rest > 0 ? `<button type="button" class="rf-more" data-ref="${esc(ref)}">Ver ${rest} compra${rest === 1 ? '' : 's'} más</button>` : '')
       + '</div>';
   };
+  const fact = (t, body) => `<details class="rf-fact"><summary>${t}</summary><div class="rf-fbody">${body}</div></details>`;
   const prodCard = i => {
     const p = D.s[i], refs = p[6] || [];
     let h = `<article class="rf-prod"><h3>${esc(p[0])}</h3><div class="rf-meta">`
       + `<span>Código <b>${esc(p[1] || '—')}</b></span><span>Coste <b>${eur(p[2])}</b></span>`
-      + `<span>PVP <b>${eur(p[3])}</b></span><span>Stock <b>${p[4]}</b></span></div>`;
+      + `<span>PVP <b>${eur(p[3])}</b></span><span>En stock <b class="${p[4] > 0 ? 'rf-st1' : 'rf-st0'}">${p[4]}</b></span></div>`;
     if (!refs.length) {
       h += '<p class="rf-msg">No aparece en ningún pedido de Apokin. Seguramente se compró a otro proveedor.</p>';
     } else {
       h += p[5] >= 6.5 ? '<span class="rf-tag ok">Encontrado en Apokin</span>'
         : '<span class="rf-tag warn">Probable: comprueba que el nombre de Apokin es el mismo producto</span>';
-      h += refs.map(r => refBlock(r)).join('');
+      h += fact(`Ver facturas de Apokin (${refs.length === 1 ? (byRef.get(refs[0]) || []).length + ' compra' + ((byRef.get(refs[0]) || []).length === 1 ? '' : 's') : refs.length + ' referencias'})`, refs.map(r => refBlock(r)).join(''));
     }
     return h + '</article>';
   };
   const pickList = (title, ids) => `<p class="rf-h">${title}</p><div class="rf-list">`
-    + ids.map(i => `<button type="button" class="rf-pick" data-p="${i}"><span>${esc(D.s[i][0])}</span><small>stock ${D.s[i][4]}</small></button>`).join('') + '</div>';
+    + [...ids].sort((a, b) => (D.s[b][4] > 0) - (D.s[a][4] > 0)).map(i => `<button type="button" class="rf-pick" data-p="${i}"><span>${esc(D.s[i][0])}</span><small class="${D.s[i][4] > 0 ? 'rf-st1' : 'rf-st0'}">${D.s[i][4] > 0 ? D.s[i][4] + ' en stock' : 'sin stock'}</small></button>`).join('') + '</div>';
   const groupRefs = ix => {
     const seen = new Map();
     ix.forEach(i => { const r = D.l[i][0]; if (!seen.has(r)) seen.set(r, i); });
@@ -1703,11 +1709,11 @@ renderList();
         if (rest.length) refs = refs.filter(r => has(norm(r + ' ' + D.l[byRef.get(r)[0]][2]), rest));
         const shown = new Set(sIds.length === 1 ? (D.s[sIds[0]][6] || []) : []);
         refs = refs.filter(r => !shown.has(r));
-        if (refs.length === 1) h += `<p class="rf-h">Código de la caja de Apokin</p>` + refBlock(refs[0]);
+        if (refs.length === 1) h += fact('Buscar en las facturas de Apokin (código de la caja)', refBlock(refs[0]));
         else if (refs.length > 1) {
-          h += `<p class="rf-h">Código genérico de Apokin: lo comparten ${refs.length} productos</p>`
-            + `<p class="rf-msg">Añade el modelo detrás del código para quedarte con uno, por ejemplo <b>${esc(code)} 17t</b>.</p>`
-            + refs.slice(0, 12).map(r => refBlock(r, 1)).join('');
+          h += fact(`Buscar en las facturas de Apokin (código genérico: ${refs.length} productos)`,
+            `<p class="rf-msg">Añade el modelo detrás del código para quedarte con uno, por ejemplo <b>${esc(code)} 17t</b>.</p>`
+            + refs.slice(0, 12).map(r => refBlock(r, 1)).join(''));
         }
       }
       if (!h) h = '<p class="rf-msg">Ese código no está ni en SATTPV ni en los pedidos de Apokin. Prueba a escribir el nombre del producto.</p>';
@@ -1725,7 +1731,7 @@ renderList();
       const lx = [];
       D.l.forEach((l, i) => { if (has(norm(l[0] + ' ' + l[2]), words)) lx.push(i); });
       const refs = groupRefs(lx).filter(r => !(sIds.length === 1 && (D.s[sIds[0]][6] || []).includes(r)));
-      if (refs.length) h += `<p class="rf-h">En los pedidos de Apokin (${refs.length})</p>` + refs.slice(0, 10).map(r => refBlock(r, 1)).join('');
+      if (refs.length) h += fact(`Buscar en las facturas de Apokin (${refs.length} referencia${refs.length === 1 ? '' : 's'})`, refs.slice(0, 10).map(r => refBlock(r, 1)).join(''));
       if (!h) h = '<p class="rf-msg">No hay nada con ese nombre. Prueba con menos palabras o solo el modelo.</p>';
     }
     out.innerHTML = h;
@@ -1768,5 +1774,5 @@ renderList();
 
 
 
-<script src="boot.js?v=202610291319"></script>
+<script src="boot.js?v=202610291323"></script>
 </body></html>
