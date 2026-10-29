@@ -18,6 +18,7 @@ App interna (PWA) de la tienda Reparo Novo (Priego de Córdoba): tarifa de repar
 - `boot.js` / `boot.css`: login, comprobación de permiso, descifrado de la tarifa y arranque de la página. Oculta `#rn-aviso-app` (aviso que solo debe verse en la página de Claude).
 - `config.js`: URL y clave publishable de Supabase (públicas por diseño).
 - `consultor.js` + `consultor.enc`: consultor de precios de teléfonos y portátiles (J.J., Depau, Megasur), botón «💶 Consultor» en la cabecera. `consultor.enc` va cifrado con la misma clave que `data.enc`; se genera con `tools/consultor_enc.py datos.json <clave>` (datos.json fuera del repo; el parser y las fuentes están en el proyecto de Claude, `claude/tarifa-sat/consultor/`). Se actualiza los lunes, cuando Miguel pasa la tarifa de J.J.
+- `refs.enc`: buscador «Buscar referencia y factura de Apokin» (vista Más). Es el `refs.json` publicado junto a la página de Claude, cifrado con la misma clave: `python3 tools/cifrar.py refs.json refs.enc <clave>`. Cuando cambie el refs.json de la página, volver a generarlo y hacer push.
 - `sw.js`, `manifest.webmanifest`, `icons/`: PWA. Iconos generados por la acción `.github/workflows/iconos.yml` desde el logo de reparonovo.com.
 
 ## Dónde hacer cada cambio
