@@ -6,11 +6,12 @@
 <meta name="apple-mobile-web-app-title" content="Reparo Novo">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" href="icons/icon-192.png">
-<link rel="stylesheet" href="boot.css?v=202610281335">
+<link rel="stylesheet" href="boot.css?v=202610291319">
 <script src="vendor/supabase-2.45.4.js"></script>
-<script src="config.js?v=202610281335"></script>
-<script src="shim.js?v=202610281335"></script>
+<script src="config.js?v=202610291319"></script>
+<script src="shim.js?v=202610291319"></script>
 </head><body>
+
 
 
 
@@ -269,6 +270,44 @@ header .jump{display:none}
   .combo .chead .big{font-size:1.3rem}
 }
 /* ==== FIN VISTAS ==== */
+/* ==== REFERENCIAS v1 ==== */
+.rf-bar{display:flex;gap:8px;margin-top:12px}
+#rf-q{flex:1;min-width:0;font:500 1.1rem var(--body);padding:12px 14px;border:2px solid var(--line);border-radius:10px;background:var(--bg);color:var(--fg)}
+#rf-q:focus{outline:none;border-color:var(--accent)}
+.rf-x{font:600 .85rem var(--body);padding:0 14px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--fg);cursor:pointer}
+.rf-x:focus-visible,.rf-pick:focus-visible,.rf-copy:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.rf-out{display:flex;flex-direction:column;gap:12px;margin-top:12px}
+.rf-out:empty{display:none}
+.rf-msg{color:var(--muted);font-size:.92rem}
+.rf-prod{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:var(--bg);display:flex;flex-direction:column;gap:4px;min-width:0}
+.rf-prod h3{font:700 1.15rem var(--display);margin:0;text-wrap:balance}
+.rf-meta{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:.88rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.rf-meta b{color:var(--fg);font-weight:600}
+.rf-tag{display:inline-block;font:700 .7rem var(--display);letter-spacing:.05em;text-transform:uppercase;padding:2px 8px;border-radius:999px;width:max-content}
+.rf-tag.ok{color:var(--ok);background:var(--ok-bg)}
+.rf-tag.warn{color:var(--warn);background:var(--warn-bg)}
+.rf-ref{border-top:1px solid var(--line);padding-top:10px;margin-top:6px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.rf-refhead{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}
+.rf-code{font:700 1.05rem var(--display);letter-spacing:.02em;word-break:break-all}
+.rf-copy{font:600 .78rem var(--body);padding:4px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--fg);cursor:pointer}
+.rf-aname{font-size:.9rem;color:var(--fg)}
+.rf-buys{display:flex;flex-direction:column}
+.rf-buy{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;padding:7px 0;border-bottom:1px dashed var(--line);font-size:.9rem;font-variant-numeric:tabular-nums}
+.rf-buy:last-child{border-bottom:0}
+.rf-buy .inv{font-weight:700}
+.rf-buy .sub{color:var(--muted);font-size:.82rem;grid-column:1}
+.rf-buy .pr{text-align:right;grid-row:1 / span 2;grid-column:2;align-self:center}
+.rf-buy .pr small{display:block;color:var(--muted);font-size:.78rem}
+.rf-more{font:600 .82rem var(--body);color:var(--accent);background:none;border:0;padding:4px 0;cursor:pointer;text-align:left}
+.rf-list{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:10px;background:var(--bg);overflow:hidden}
+.rf-pick{display:flex;justify-content:space-between;gap:10px;text-align:left;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--fg);font:500 .95rem var(--body);padding:10px 12px;cursor:pointer}
+.rf-pick:last-child{border-bottom:0}
+.rf-pick:hover{background:var(--soft)}
+.rf-pick small{color:var(--muted);font-size:.8rem;white-space:nowrap}
+.rf-h{font:700 .78rem var(--display);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:4px 0 -4px}
+.rf-gen{color:var(--muted);font-size:.8rem;margin:10px 0 0}
+/* ==== FIN REFERENCIAS ==== */
+
 /* ==== RESERVAS v1 ==== */
 #r-list{counter-reset:rn;gap:8px}
 #r-list>.fitem{counter-increment:rn;flex-wrap:nowrap;align-items:flex-start;gap:12px;background:var(--bg);border:1px solid var(--line);border-left:4px solid var(--rc,var(--accent));border-radius:10px;padding:10px 12px}
@@ -412,6 +451,18 @@ details.hechas summary{cursor:pointer}
     <p class="foot">Se abre WhatsApp con el mensaje ya escrito (modelo, avería y el precio que haya calculado la página). Elige a Miguel y envíalo. Dile al cliente que le confirmas el precio por WhatsApp en un rato y apunta su teléfono.</p>
   </details>
 
+  <!-- ==== REFERENCIAS v1 ==== -->
+  <details class="serv" id="refs" open>
+    <summary>Buscar referencia y factura de Apokin</summary>
+    <p class="cut">Escanea o escribe el código de barras (la etiqueta de la tienda o el de la caja de Apokin), o escribe el producto: <i>a60 transparente</i>, <i>pc1010s</i>…</p>
+    <div class="rf-bar">
+      <input id="rf-q" type="search" inputmode="search" autocomplete="off" placeholder="Código de barras o producto" aria-label="Código de barras o producto">
+      <button type="button" id="rf-clear" class="rf-x" aria-label="Borrar búsqueda">Borrar</button>
+    </div>
+    <div id="rf-out" class="rf-out" aria-live="polite"></div>
+    <p class="rf-gen" id="rf-gen"></p>
+  </details>
+  <!-- ==== FIN REFERENCIAS ==== -->
   <details class="serv" id="tasador">
     <summary>Tasador de iPhone usados: ¿cuánto le damos por su móvil?</summary>
     <div class="tasgrid">
@@ -419,6 +470,7 @@ details.hechas summary{cursor:pointer}
         <select id="t-modelo"></select></label>
     </div>
     <div class="checks" role="group" aria-label="Estado del iPhone">
+      <label><input type="checkbox" id="t-perf"> <b>Perfecto estado</b>: sin arañazos ni marcas, batería al 90 % o más y con caja o accesorios (paga como el grado A de CeX)</label>
       <label><input type="checkbox" id="t-bat"> Batería por debajo del 85 % o aviso de batería no original (Ajustes › Batería › Estado)</label>
       <label><input type="checkbox" id="t-pant"> Pantalla rota o con manchas</label>
       <label><input type="checkbox" id="t-sucio"> Muy sucio (hay que limpiarlo a fondo): −25 €</label>
@@ -428,7 +480,7 @@ details.hechas summary{cursor:pointer}
     <div class="tasout" id="t-out" aria-live="polite"></div>
     <a class="wa" id="t-wa" href="#" target="_blank" rel="noopener">Mandar la tasación a Miguel para que la confirme</a>
     <p class="must"><b>Antes de dar la cifra comprueba:</b> que encienda y se pueda revisar, que tenga Buscar mi iPhone y la cuenta de iCloud quitados delante de ti, y que no esté bloqueado por la compañía. Para cerrar la compra hace falta el DNI y el contrato de compraventa en SATTPV.</p>
-    <p class="foot">Ofrece siempre primero el vale: se lleva más dinero si lo gasta aquí (móvil, reparación o accesorios). En efectivo se le da menos. Con el iPhone en buen estado la cifra se da cerrada. <b>Solo si tiene la pantalla rota o golpes</b>, mándasela a Miguel con el botón para que la ajuste. Para un Android o un iPhone que no esté en la lista, manda los datos a Miguel con el botón.</p>
+    <p class="foot">Ofrece siempre primero el vale: se lleva más dinero si lo gasta aquí (móvil, reparación o accesorios). En efectivo se le da menos. Las cifras son lo que paga CeX por un móvil en uso normal (grado B); marca «Perfecto estado» solo si de verdad está como nuevo (grado A). Con el iPhone en buen estado la cifra se da cerrada. <b>Solo si tiene la pantalla rota o golpes</b>, mándasela a Miguel con el botón para que la ajuste. Para un Android o un iPhone que no esté en la lista, manda los datos a Miguel con el botón.</p>
   </details>
 
   <!-- ==== FUNDAS v1 ==== -->
@@ -1214,7 +1266,8 @@ if (TAS) {
   const tas = () => {
     const t = TAS.modelos[+$('#t-modelo').value];
     const bat = $('#t-bat').checked, pant = $('#t-pant').checked, golpes = $('#t-golpes').checked;
-    let vale = t.vale; const desc = [];
+    const perf = $('#t-perf').checked && !bat && !pant && !golpes;
+    let vale = perf && t.valeA ? t.valeA : t.vale; const desc = [];
     if (bat) { vale -= TAS.bateria; desc.push('batería −' + TAS.bateria + ' €'); }
     const sucio = $('#t-sucio').checked, carga = $('#t-carga').checked;
     if (sucio) { vale -= 25; desc.push('muy sucio −25 €'); }
@@ -1227,10 +1280,10 @@ if (TAS) {
       <div><span class="lbl">En efectivo</span><span class="mid">${efe} €</span></div>
       ${desc.length ? `<div><span class="q">Ya descontado: ${esc(desc.join(' · '))}</span></div>` : ''}
       ${consultar ? `<div><span class="note">${t.est ? 'Precio orientativo (este modelo o capacidad aún no tiene cifra de Miguel)' : pant && !t.pant ? 'Pantalla rota en este modelo' : 'Golpes o tapa rota'}: Miguel ajusta la cifra. No la des cerrada.</span></div>` : ''}`;
-    const est = [bat ? 'batería baja' : 'batería bien', pant ? 'pantalla rota' : 'pantalla bien', golpes ? 'con golpes/tapa rota' : 'sin golpes'].concat(sucio ? ['muy sucio'] : [], carga ? ['problemas de carga'] : []).join(', ');
+    const est = (perf ? ['perfecto estado'] : []).concat([bat ? 'batería baja' : 'batería bien', pant ? 'pantalla rota' : 'pantalla bien', golpes ? 'con golpes/tapa rota' : 'sin golpes']).concat(sucio ? ['muy sucio'] : [], carga ? ['problemas de carga'] : []).join(', ');
     $('#t-wa').href = waLink(`Hola Miguel, tasación para confirmar:\n${t.m} ${t.cap}, ${est}.\nLa tarifa da ${vale} € en vale o ${efe} € en efectivo.\n¿Se lo ofrezco?`);
   };
-  ['#t-modelo', '#t-bat', '#t-pant', '#t-golpes', '#t-sucio', '#t-carga'].forEach(s => $(s).addEventListener('change', tas));
+  ['#t-modelo', '#t-perf', '#t-bat', '#t-pant', '#t-golpes', '#t-sucio', '#t-carga'].forEach(s => $(s).addEventListener('change', tas));
   tas();
 } else {
   $('#t-out').innerHTML = '<span class="q">Tasador sin datos: pregunta a Miguel.</span>';
@@ -1397,7 +1450,7 @@ new MutationObserver(() => document.querySelectorAll('#reservas form.fedit texta
 // ==== VISTAS v1 ====
 // Una sección cada vez (barra abajo en el móvil, arriba en el ordenador) para no tener que hacer scroll.
 (() => {
-  const V = {tarifa: ['.search', '#n-banner', '.grid', '#calc'], fundas: ['#fundas'], reservas: ['#reservas'], tareas: ['#notas', '#tareas'], garantias: ['#garantias'], mas: ['#tasador', '#faq', '#serv', '.wrap > p.foot']};
+  const V = {tarifa: ['.search', '#n-banner', '.grid', '#calc'], fundas: ['#fundas'], reservas: ['#reservas'], tareas: ['#notas', '#tareas'], garantias: ['#garantias'], mas: ['#refs', '#tasador', '#faq', '#serv', '.wrap > p.foot']};
   const todos = [...new Set(Object.values(V).flat())];
   const mostrar = (v, scroll = true) => {
     if (!V[v]) v = 'tarifa';
@@ -1561,6 +1614,145 @@ new MutationObserver(() => document.querySelectorAll('#reservas form.fedit texta
 fillReps();
 
 renderList();
+// ==== REFERENCIAS v1 ====
+// Busca un producto por código de barras o nombre y enseña la referencia de Apokin y las facturas en que vino.
+// Datos en refs.json: o = pedidos [pedido, fecha, factura], l = líneas [ref, ean, nombre, uds, precio sin IVA, pedido],
+// s = fichas de SATTPV [nombre, códigos, coste, pvp, stock, puntuación, refs Apokin].
+(() => {
+  const q = document.getElementById('rf-q'), out = document.getElementById('rf-out'), gen = document.getElementById('rf-gen');
+  if (!q || !out) return;
+  let D = null, loading = null;
+  const byRef = new Map(), byEan = new Map(), byCode = new Map();
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+  const norm = s => String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  const eur = n => (Math.round(n * 100) / 100).toFixed(2).replace('.', ',') + ' €';
+  const dk = d => { const [a, b, c] = String(d).split('/'); return (c || '') + (b || '').padStart(2, '0') + (a || '').padStart(2, '0'); };
+  const push = (m, k, v) => { if (!k) return; let a = m.get(k); if (!a) m.set(k, a = []); a.push(v); };
+
+  const load = () => loading || (loading = (window.RN_ABRIR ? window.RN_ABRIR('refs.enc') : fetch('refs.json').then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })).then(d => {
+    D = d;
+    d.l.forEach((l, i) => { push(byRef, l[0], i); push(byEan, l[1], i); });
+    byRef.forEach(a => a.sort((x, y) => dk(d.o[d.l[y][5]][1]).localeCompare(dk(d.o[d.l[x][5]][1]))));
+    d.s.forEach((p, i) => String(p[1]).split(' ').forEach(c => push(byCode, c, i)));
+    const [y, m, dd] = String(d.gen).split('-');
+    if (gen) gen.textContent = `Datos de SATTPV y de ${d.o.length} pedidos de Apokin, actualizados el ${dd}/${m}/${y}. Lo que se haya pedido después no aparece todavía.`;
+    if (q.value.trim()) run();
+  }).catch(() => { loading = null; out.innerHTML = '<p class="rf-msg">No se han podido cargar los datos. Vuelve a intentarlo en un momento.</p>'; }));
+
+  const buyRow = i => {
+    const l = D.l[i], o = D.o[l[5]];
+    return `<div class="rf-buy"><span class="inv">${o[2] ? esc(o[2]) : 'Factura aún no emitida'}</span>`
+      + `<span class="pr">${eur(l[4])} <small>sin IVA · ${eur(l[4] * 1.21)} con IVA</small></span>`
+      + `<span class="sub">${esc(o[1])} · pedido ${esc(o[0])} · ${l[3]} ud${l[3] === 1 ? '' : 's'}</span></div>`;
+  };
+  const refBlock = (ref, show = 3) => {
+    const ix = byRef.get(ref) || [];
+    if (!ix.length) return '';
+    const rest = ix.length - show;
+    return `<div class="rf-ref"><div class="rf-refhead"><span class="rf-code">${esc(ref)}</span>`
+      + `<button type="button" class="rf-copy" data-copy="${esc(ref)}">Copiar</button></div>`
+      + `<div class="rf-aname">${esc(D.l[ix[0]][2])}</div>`
+      + `<div class="rf-buys">${ix.slice(0, show).map(buyRow).join('')}</div>`
+      + (rest > 0 ? `<button type="button" class="rf-more" data-ref="${esc(ref)}">Ver ${rest} compra${rest === 1 ? '' : 's'} más</button>` : '')
+      + '</div>';
+  };
+  const prodCard = i => {
+    const p = D.s[i], refs = p[6] || [];
+    let h = `<article class="rf-prod"><h3>${esc(p[0])}</h3><div class="rf-meta">`
+      + `<span>Código <b>${esc(p[1] || '—')}</b></span><span>Coste <b>${eur(p[2])}</b></span>`
+      + `<span>PVP <b>${eur(p[3])}</b></span><span>Stock <b>${p[4]}</b></span></div>`;
+    if (!refs.length) {
+      h += '<p class="rf-msg">No aparece en ningún pedido de Apokin. Seguramente se compró a otro proveedor.</p>';
+    } else {
+      h += p[5] >= 6.5 ? '<span class="rf-tag ok">Encontrado en Apokin</span>'
+        : '<span class="rf-tag warn">Probable: comprueba que el nombre de Apokin es el mismo producto</span>';
+      h += refs.map(r => refBlock(r)).join('');
+    }
+    return h + '</article>';
+  };
+  const pickList = (title, ids) => `<p class="rf-h">${title}</p><div class="rf-list">`
+    + ids.map(i => `<button type="button" class="rf-pick" data-p="${i}"><span>${esc(D.s[i][0])}</span><small>stock ${D.s[i][4]}</small></button>`).join('') + '</div>';
+  const groupRefs = ix => {
+    const seen = new Map();
+    ix.forEach(i => { const r = D.l[i][0]; if (!seen.has(r)) seen.set(r, i); });
+    return [...seen.keys()].sort((a, b) => dk(D.o[D.l[byRef.get(b)[0]][5]][1]).localeCompare(dk(D.o[D.l[byRef.get(a)[0]][5]][1])));
+  };
+
+  const run = () => {
+    if (!D) { load(); out.innerHTML = '<p class="rf-msg">Cargando datos…</p>'; return; }
+    const raw = q.value.trim();
+    if (!raw) { out.innerHTML = ''; return; }
+    const words = norm(raw).split(/\s+/).filter(Boolean);
+    const code = words.find(w => /^\d{8,14}$/.test(w));
+    const rest = words.filter(w => w !== code);
+    const has = (txt, ws) => ws.every(w => txt.includes(w));
+    let h = '';
+    if (code && rest.length && !(byCode.get(code) || []).some(i => has(norm(D.s[i][0]), rest))
+        && !(byEan.get(code) || []).some(i => has(norm(D.l[i][0] + ' ' + D.l[i][2]), rest))) {
+      // El código es genérico y el modelo escrito no está en sus fichas: se busca solo por el modelo.
+      q2(rest); return;
+    }
+    if (code) {
+      let sIds = byCode.get(code) || [];
+      const eIx = byEan.get(code) || [];
+      if (rest.length) sIds = sIds.filter(i => has(norm(D.s[i][0]), rest));
+      if (sIds.length === 1) h += prodCard(sIds[0]);
+      else if (sIds.length > 1) h += pickList(`Este código está en ${sIds.length} fichas de SATTPV. Toca la que tienes delante o escribe el modelo detrás del código:`, sIds);
+      if (eIx.length) {
+        let refs = groupRefs(eIx);
+        if (rest.length) refs = refs.filter(r => has(norm(r + ' ' + D.l[byRef.get(r)[0]][2]), rest));
+        const shown = new Set(sIds.length === 1 ? (D.s[sIds[0]][6] || []) : []);
+        refs = refs.filter(r => !shown.has(r));
+        if (refs.length === 1) h += `<p class="rf-h">Código de la caja de Apokin</p>` + refBlock(refs[0]);
+        else if (refs.length > 1) {
+          h += `<p class="rf-h">Código genérico de Apokin: lo comparten ${refs.length} productos</p>`
+            + `<p class="rf-msg">Añade el modelo detrás del código para quedarte con uno, por ejemplo <b>${esc(code)} 17t</b>.</p>`
+            + refs.slice(0, 12).map(r => refBlock(r, 1)).join('');
+        }
+      }
+      if (!h) h = '<p class="rf-msg">Ese código no está ni en SATTPV ni en los pedidos de Apokin. Prueba a escribir el nombre del producto.</p>';
+    } else return q2(words);
+    out.innerHTML = h;
+  };
+  const q2 = words => {
+    const has = (txt, ws) => ws.every(w => txt.includes(w));
+    let h = '';
+    {
+      const sIds = [];
+      D.s.forEach((p, i) => { if (sIds.length < 30 && has(norm(p[0]), words)) sIds.push(i); });
+      if (sIds.length === 1) h += prodCard(sIds[0]);
+      else if (sIds.length) h += pickList(`En SATTPV (${sIds.length === 30 ? 'más de 30, afina la búsqueda' : sIds.length})`, sIds.slice(0, 12));
+      const lx = [];
+      D.l.forEach((l, i) => { if (has(norm(l[0] + ' ' + l[2]), words)) lx.push(i); });
+      const refs = groupRefs(lx).filter(r => !(sIds.length === 1 && (D.s[sIds[0]][6] || []).includes(r)));
+      if (refs.length) h += `<p class="rf-h">En los pedidos de Apokin (${refs.length})</p>` + refs.slice(0, 10).map(r => refBlock(r, 1)).join('');
+      if (!h) h = '<p class="rf-msg">No hay nada con ese nombre. Prueba con menos palabras o solo el modelo.</p>';
+    }
+    out.innerHTML = h;
+  };
+
+  let t;
+  q.addEventListener('focus', load);
+  q.addEventListener('input', () => { clearTimeout(t); t = setTimeout(run, 180); });
+  q.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); clearTimeout(t); run(); q.select(); } });
+  document.getElementById('rf-clear').addEventListener('click', () => { q.value = ''; out.innerHTML = ''; q.focus(); });
+  out.addEventListener('click', e => {
+    const pk = e.target.closest('.rf-pick');
+    if (pk) { out.innerHTML = prodCard(+pk.dataset.p); return; }
+    const mo = e.target.closest('.rf-more');
+    if (mo) { mo.closest('.rf-ref').outerHTML = refBlock(mo.dataset.ref, 999); return; }
+    const cp = e.target.closest('.rf-copy');
+    if (cp) {
+      const done = () => { cp.textContent = 'Copiado'; setTimeout(() => { cp.textContent = 'Copiar'; }, 1500); };
+      const fallback = () => { const r = document.createRange(); r.selectNodeContents(cp.previousElementSibling); const s = getSelection(); s.removeAllRanges(); s.addRange(r); };
+      try { navigator.clipboard.writeText(cp.dataset.copy).then(done, fallback); } catch (err) { fallback(); }
+    }
+  });
+  const nav = document.querySelector('#vnav button[data-v="mas"]');
+  if (nav) nav.addEventListener('click', load);
+  if (!document.getElementById('refs').hasAttribute('data-oculto')) load();
+})();
+// ==== FIN REFERENCIAS ====
 </script>
 
 
@@ -1575,5 +1767,6 @@ renderList();
 
 
 
-<script src="boot.js?v=202610281335"></script>
+
+<script src="boot.js?v=202610291319"></script>
 </body></html>

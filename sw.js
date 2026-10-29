@@ -1,6 +1,6 @@
 // Service worker: la app abre aunque no haya conexión (con la última tarifa descargada).
 // Página y tarifa: primero red, si falla la copia guardada. Resto de archivos: copia guardada.
-const VERSION = '202610281335';
+const VERSION = '202610291319';
 const CACHE = 'tarifa-sat-' + VERSION;
 const BASE = ['./', 'index.html', 'boot.css', 'boot.js', 'shim.js', 'envios.js', 'estado.js', 'consultor.js', 'config.js', 'manifest.webmanifest',
   'icons/icon-192.png', 'icons/apple-touch-icon.png', 'vendor/supabase-2.45.4.js'];
@@ -17,7 +17,7 @@ self.addEventListener('fetch', e => {
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
   if (url.hostname.endsWith('supabase.co')) return;               // datos en vivo: nunca desde caché
-  const primeroRed = req.mode === 'navigate' || url.pathname.endsWith('/data.enc') || url.pathname.endsWith('/consultor.enc') || url.pathname.endsWith('.html') || url.pathname.endsWith('/');
+  const primeroRed = req.mode === 'navigate' || url.pathname.endsWith('/data.enc') || url.pathname.endsWith('/consultor.enc') || url.pathname.endsWith('/refs.enc') || url.pathname.endsWith('.html') || url.pathname.endsWith('/');
   if (primeroRed) {
     // no-cache: pregunta siempre al servidor si hay versión nueva (si no, GitHub y el navegador la guardan hasta 10 min).
     // Con mala cobertura la red puede tardar mucho: si a los 6 s no ha contestado, se usa la copia guardada (si la hay).
