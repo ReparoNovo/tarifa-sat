@@ -6,10 +6,10 @@
 <meta name="apple-mobile-web-app-title" content="Reparo Novo">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" href="icons/icon-192.png">
-<link rel="stylesheet" href="boot.css?v=202610291951">
+<link rel="stylesheet" href="boot.css?v=202610311236">
 <script src="vendor/supabase-2.45.4.js"></script>
-<script src="config.js?v=202610291951"></script>
-<script src="shim.js?v=202610291951"></script>
+<script src="config.js?v=202610311236"></script>
+<script src="shim.js?v=202610311236"></script>
 </head><body>
 
 
@@ -725,6 +725,26 @@ DATA.modelos.forEach(m => m.items.forEach(it => { if (/^Tapa trasera/.test(it.r)
   });
   DATA.modelos = DATA.modelos.filter(m => !quitar.has(m));
 })();
+// ==== REVISION PRECIOS 31/10 v1 ==== (Miguel 31/10/2026: precios cobrados en SATTPV frente a la app; mandan sobre el histórico, los mínimos y la hoja. No cambiar sin que Miguel lo diga)
+// Tapas traseras de iPhone: ya no se ponen (solo chasis original), se quitan de la tarifa.
+(() => {
+  const F = 'Precio fijado por Miguel (31/10/2026).';
+  const R = [[["Galaxy S24"], "Pantalla · Original", 239], [["iPhone 15"], "Pantalla · Original desmontaje", 259], [["iPhone 14"], "Pantalla · Original desmontaje", 189], [["iPhone 13"], "Pantalla · Original desmontaje", 175, "Si no hay en stock, tarda 2–3 días hábiles."], [["iPhone 12"], "Pantalla · Compatible", 139], [["iPhone 12 Pro Max"], "CHASIS", 149], [["iPhone 13 Pro"], "CHASIS", 129], [["iPhone 13"], "CHASIS", 129], [["iPhone 14"], "CHASIS", 139], [["iPhone 14 Pro"], "CHASIS", 145], [["iPhone 14 Pro Max"], "CHASIS", 219], [["iPhone 13 Pro Max"], "Batería · Compatible", 85], [["iPhone 15 Pro"], "Batería · Compatible", 99], [["iPhone 13 mini"], "Batería · Compatible", 69], [["Redmi Note 12 Pro Plus 5G"], "Batería · Compatible", 69], [["Tcl 40 Se"], "Batería · Compatible", 59], [["Motorola G41"], "Batería · Compatible", 49], [["Galaxy S21 Plus"], "Batería · Original", 79], [["Poco X3 Pro"], "Batería · Original", 59], [["iPhone 16"], "Cámara · Compatible", 99], [["iPhone 13"], "Cámara · Original desmontaje", 59], [["Galaxy A25", "Galaxy A25 5G"], "Pantalla · Original", 99], [["Galaxy A16", "Galaxy A16 4G"], "Pantalla · Original", 99], [["Galaxy A16 5G"], "Pantalla · Original", 89], [["Galaxy A15", "Galaxy A15 4G", "Galaxy A15 5G"], "Pantalla · Original", 99], [["Galaxy A13", "Galaxy A13 4G"], "Pantalla · Original", 99], [["Galaxy M33", "Galaxy M33 5G"], "Pantalla · Original", 99], [["Galaxy A21S"], "Pantalla · Original", 99], [["Galaxy A22 5G"], "Pantalla · Original", 89], [["Redmi Note 13 5G"], "Pantalla · Original", 109], [["Redmi 15C"], "Pantalla · Compatible", 65], [["Redmi 15C"], "Pantalla · Original", 75], [["Redmi 13C", "Redmi 13C 4G", "Redmi 12C", "Redmi 14C"], "Pantalla · Original", 65], [["Redmi Note 14 4G"], "Pantalla · Original", 119], [["Redmi Note 14 4G"], "Pantalla · Compatible", 89], [["Galaxy M33", "Galaxy M33 5G"], "Conector de carga · Original", 45], [["Galaxy S21 5G"], "Conector de carga · Original", 59], [["Oppo Reno 12F 5G"], "Pantalla · Compatible", 95], [["Google Pixel 7A"], "Pantalla · Original", 169], [["Motorola Edge 60 5G"], "Pantalla · Compatible", 109], [["Motorola Moto G85 5G"], "Pantalla · Compatible", 99], [["Zte A51"], "Pantalla · Compatible", 59], [["Redmi Pad Se 11\""], "Pantalla · Compatible", 89]];
+  const by = n => DATA.modelos.find(m => m.m === n);
+  const esCh = r => /^Tapa trasera · Chasis/.test(r);
+  R.forEach(([ns, r, p, extra]) => ns.forEach(n => { const m = by(n); if (!m) return;
+    let it = m.items.find(x => r === 'CHASIS' ? esCh(x.r) : x.r === r);
+    if (!it) { const t = (DATA.modelos.find(o => o.b === m.b && o.items.some(x => r === 'CHASIS' ? esCh(x.r) : x.r === r)) || {items: []}).items.find(x => r === 'CHASIS' ? esCh(x.r) : x.r === r);
+      const rr = t ? t.r : (r === 'CHASIS' ? 'Tapa trasera · Chasis original de desmontaje' : r);
+      it = Object.assign({ts: '24 h', tw: '48 h', wh: 17, prov: 'esm'}, t || {}, {r: rr, sat: 0, nota: ((t && t.nota) || '').replace(/ ?Precio fijado por Miguel[^.]*\./g, ''), k: (n + '-' + rr).toLowerCase().replace(/[^a-z0-9]+/g, '-')}); m.items.push(it); }
+    it.p = p;
+    let nota = (it.nota || '').replace(/Precio (pendiente|base)[^.]*\.( Mientras[^.]*\.)?/g, '').trim();
+    if (extra && !nota.includes(extra)) nota = (nota + ' ' + extra).trim();
+    if (!nota.includes(F)) nota = (nota + ' ' + F).trim();
+    it.nota = nota; }));
+  DATA.modelos.filter(m => m.b === 'iPhone').forEach(m => { m.items = m.items.filter(it => !/^Tapa trasera/.test(it.r) || esCh(it.r)); });
+})();
+// ==== FIN REVISION PRECIOS 31/10 ====
 // ==== FIN PRECIOS FIJOS ====
 const BRANDS = ['Todas','iPhone','Samsung','Xiaomi','Otras Android','iPad','Tablet','Portátil','Ordenador','Consola','Mandos','Reloj / audio'];
 let brand = 'Todas', cur = null;
@@ -1776,5 +1796,5 @@ renderList();
 
 
 
-<script src="boot.js?v=202610291951"></script>
+<script src="boot.js?v=202610311236"></script>
 </body></html>
