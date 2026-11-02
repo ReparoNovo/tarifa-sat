@@ -6,10 +6,10 @@
 <meta name="apple-mobile-web-app-title" content="Reparo Novo">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" href="icons/icon-192.png">
-<link rel="stylesheet" href="boot.css?v=202611022007">
+<link rel="stylesheet" href="boot.css?v=202611022012">
 <script src="vendor/supabase-2.45.4.js"></script>
-<script src="config.js?v=202611022007"></script>
-<script src="shim.js?v=202611022007"></script>
+<script src="config.js?v=202611022012"></script>
+<script src="shim.js?v=202611022012"></script>
 </head><body>
 
 
@@ -241,6 +241,39 @@ details.serv summary{font:700 1.15rem var(--display);cursor:pointer}
 .f3 a{display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;color:var(--fg);font:600 .82rem var(--display);padding:8px 4px;border-radius:10px;border:1px solid var(--line);text-align:center}
 .f3 a b{font:700 1.3rem var(--display)}
 .f3 a[data-f3="fh-pend"]{border-left:5px solid #53ea8c}.f3 a[data-f3="fh-res"]{border-left:5px solid #4e9edd}.f3 a[data-f3="fh-int"]{border-left:5px solid #8e5bd6}
+/* ==== CUADRADO v1 (Miguel 2/11: «que quede perfecto y cuadrado», da igual lo que se escriba) ==== */
+#f-pend>.fitem,#f-res>.fitem{flex-wrap:wrap!important;align-content:space-between}
+#f-pend>.fitem>span:first-of-type,#f-res>.fitem>span:first-of-type{flex:1 1 calc(100% - 40px)!important;display:flex;flex-direction:column;gap:2px}
+#fundas .fcli{font-size:1.02rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#fundas .fprod{font-weight:600;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+#fundas .fpag{align-self:flex-start;margin:2px 0}
+#fundas .fobsv,#interes .fobsv{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer;margin-top:4px}
+#fundas .fobsv.abierta,#interes .fobsv.abierta{display:block}
+#fundas .acc,#fundas .gacc,#interes .acc{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;width:100%!important;padding-left:0!important;margin:8px 0 0!important;flex:none!important;max-width:100%}
+#fundas .acc>*,#fundas .gacc>*,#interes .acc>*{display:flex;align-items:center;justify-content:center;width:100%;min-width:0;height:36px;margin:0!important;padding:0 6px!important;box-sizing:border-box;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--fg);font:600 .8rem var(--body)!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-decoration:none;cursor:pointer}
+#fundas .acc>.fok,#interes .acc>.fok{grid-column:span 2;order:-2}
+#fundas .acc>a.afinar,#interes .acc>a.afinar{grid-column:span 2;order:-1;background:#1f8a4c;border-color:#1f8a4c;color:#fff!important}
+#fundas .acc>.masb,#fundas .gacc>.masb{border-style:dashed;color:var(--accent)}
+#fundas .gacc{grid-template-columns:repeat(2,minmax(0,1fr))}
+#fundas .gitem>span:first-child>b{font-size:.98rem}
+#fundas .gitem .fprod{font-size:.98rem}
+.iprod .fitem{display:flex;flex-direction:column;gap:0}
+@media (min-width:1100px){
+  #f-pend,#f-res,#i-list{align-items:stretch!important}
+  #f-pend>.fitem,#f-res>.fitem,#i-list>.iprod{height:100%!important}
+  #f-pend>.fitem.gcli,#f-res>.fitem.gcli{grid-row:span 2}
+  #f-pend,#f-res{grid-auto-flow:row dense}
+  .iprod{display:flex;flex-direction:column}
+}
+@media (max-width:640px){
+  #fundas .acc,#interes .acc{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #fundas .acc>.fok,#interes .acc>.fok{grid-column:1 / -1;order:-3}
+  #fundas .acc>a.afinar,#interes .acc>a.afinar{grid-column:auto;order:-2}
+  #fundas .acc>.masb{order:1}
+  #fundas .acc>.fanular,#interes .acc>.fanular{grid-column:1 / -1;order:2;height:32px}
+  #f-pend>.fitem,#f-res>.fitem{padding:10px!important}
+}
+/* ==== FIN CUADRADO ==== */
 /* ==== FIN INTERESADOS ==== */
 /* ==== FIN FUNDAS ==== */
 /* ==== VISTAS v1 ==== */
@@ -1405,8 +1438,8 @@ updAsk();
         <button data-col="${esc(f._id)}">Hecho</button></div>`).join('') +
       tareasC.map(c => `<div class="ftarea fitem"><span>Coloca <b>${esc(c.unidades)} × ${esc(c.producto)}</b> en <b>${esc(c.ubicacion || 'su sitio')}</b>.<span class="q">Entró ${esc(fmt(c.fecha))}</span></span><button data-hecho="${esc(c._id)}">Hecho</button></div>`).join('') : '';
     if (document.querySelector('#fundas form.fedit') && document.querySelector('#fundas form.fedit').contains(document.activeElement)) return; // no pisar lo que se está escribiendo
-    $('#f-pend').innerHTML = pend.length ? grupoCli(pend, f => f._id === editId ? editForm(f) : `<div class="gitem${urgF(f) ? ' urg' : ''}"><span>${urgF(f) ? `<span class="urgtag">🔴 Urgente · ${diasF(f)} días</span>` : ''}${pagTxt(f)}<b>${esc(f.modelo)}</b>${f.detalle ? ' · ' + esc(f.detalle) : ''}<span class="q">pedida ${esc(fmt(f.creado))}</span>${obsTxt(f)}</span><span class="acc"><button class="fok" data-aviso="${esc(f._id)}">✓ Ha llegado y está avisado</button><button data-editar="${esc(f._id)}">Editar</button>${waF(f)}<button class="fanular" data-cancel="${esc(f._id)}">Anular</button></span></div>`, urgF, f => f._id === editId ? editForm(f) : `<div class="fitem${urgF(f) ? ' urg' : ''}"><span>${urgF(f) ? `<span class="urgtag">🔴 Urgente · ${diasF(f)} días</span>` : ''}${pagTxt(f)}<b>${esc(f.modelo)}</b>${f.detalle ? ' · ' + esc(f.detalle) : ''}<span class="q">${esc(f.cliente)} · ${esc(f.telefono)} · pedida ${esc(fmt(f.creado))}</span>${obsTxt(f)}</span><span class="acc"><button class="fok" data-aviso="${esc(f._id)}">✓ Ha llegado y está avisado</button><button data-editar="${esc(f._id)}">Editar</button>${masB(f.cliente, f.telefono)}${waF(f)}<button class="fanular" data-cancel="${esc(f._id)}">Anular</button></span></div>`) : '<p class="q">No hay ningún accesorio pendiente.</p>';
-    $('#f-res').innerHTML = res.length ? grupoCli(res, f => f._id === editId ? editForm(f) : `<div class="gitem"><span>${pagTxt(f)}<b>${esc(f.producto || f.modelo)}</b><span class="q">${f.estado === 'avisado' ? 'Avisado ' + esc(fmt(f.avisado_at)) : 'Llegó ' + esc(fmt(f.llegada_at)) + ', aviso pendiente'} · ${esc(f.ubicacion || 'estantería de reservas')}</span>${obsTxt(f)}</span><span class="acc"><button data-editar="${esc(f._id)}">Editar</button>${waF(f)}<button class="fok" data-recog="${esc(f._id)}">✓ Recogida</button></span></div>`, () => false, f => f._id === editId ? editForm(f) : `<div class="fitem"><span>${pagTxt(f)}<b>${esc(f.cliente)}</b> · ${esc(f.producto || f.modelo)}<span class="q">${f.estado === 'avisado' ? 'Avisado ' + esc(fmt(f.avisado_at)) : 'Llegó ' + esc(fmt(f.llegada_at)) + ', aviso pendiente'} · ${esc(f.ubicacion || 'estantería de reservas')}</span>${obsTxt(f)}</span><span class="acc"><button data-editar="${esc(f._id)}">Editar</button>${masB(f.cliente, f.telefono)}${waF(f)}<button class="fok" data-recog="${esc(f._id)}">✓ Recogida</button></span></div>`) : '<p class="q">No hay accesorios esperando al cliente.</p>';
+    $('#f-pend').innerHTML = pend.length ? grupoCli(pend, f => f._id === editId ? editForm(f) : `<div class="gitem${urgF(f) ? ' urg' : ''}"><span>${urgF(f) ? `<span class="urgtag">🔴 Urgente · ${diasF(f)} días</span>` : ''}${pagTxt(f)}<b>${esc(f.modelo)}</b>${f.detalle ? ' · ' + esc(f.detalle) : ''}<span class="q">pedida ${esc(fmt(f.creado))}</span>${obsTxt(f)}</span><span class="acc"><button class="fok" data-aviso="${esc(f._id)}">✓ Ha llegado y está avisado</button><button data-editar="${esc(f._id)}">Editar</button>${waF(f)}<button class="fanular" data-cancel="${esc(f._id)}">Anular</button></span></div>`, urgF, f => f._id === editId ? editForm(f) : `<div class="fitem${urgF(f) ? ' urg' : ''}"><span>${urgF(f) ? `<span class="urgtag">🔴 Urgente · ${diasF(f)} días</span>` : ''}<b class="fcli">${esc(f.cliente)}</b>${pagTxt(f)}<span class="fprod">${esc(f.modelo)}${f.detalle ? ' · ' + esc(f.detalle) : ''}</span><span class="q">${esc(f.telefono)} · pedida ${esc(fmt(f.creado))}</span>${obsTxt(f)}</span><span class="acc"><button class="fok" data-aviso="${esc(f._id)}">✓ Ha llegado y está avisado</button><button data-editar="${esc(f._id)}">Editar</button>${masB(f.cliente, f.telefono)}${waF(f)}<button class="fanular" data-cancel="${esc(f._id)}">Anular</button></span></div>`) : '<p class="q">No hay ningún accesorio pendiente.</p>';
+    $('#f-res').innerHTML = res.length ? grupoCli(res, f => f._id === editId ? editForm(f) : `<div class="gitem"><span>${pagTxt(f)}<b>${esc(f.producto || f.modelo)}</b><span class="q">${f.estado === 'avisado' ? 'Avisado ' + esc(fmt(f.avisado_at)) : 'Llegó ' + esc(fmt(f.llegada_at)) + ', aviso pendiente'} · ${esc(f.ubicacion || 'estantería de reservas')}</span>${obsTxt(f)}</span><span class="acc"><button data-editar="${esc(f._id)}">Editar</button>${waF(f)}<button class="fok" data-recog="${esc(f._id)}">✓ Recogida</button></span></div>`, () => false, f => f._id === editId ? editForm(f) : `<div class="fitem"><span><b class="fcli">${esc(f.cliente)}</b>${pagTxt(f)}<span class="fprod">${esc(f.producto || f.modelo)}${f.detalle && !f.producto ? ' · ' + esc(f.detalle) : ''}</span><span class="q">${esc(f.telefono)} · ${f.estado === 'avisado' ? 'Avisado ' + esc(fmt(f.avisado_at)) : 'Llegó ' + esc(fmt(f.llegada_at)) + ', aviso pendiente'} · ${esc(f.ubicacion || 'estantería de reservas')}</span>${obsTxt(f)}</span><span class="acc"><button data-editar="${esc(f._id)}">Editar</button>${masB(f.cliente, f.telefono)}${waF(f)}<button class="fok" data-recog="${esc(f._id)}">✓ Recogida</button></span></div>`) : '<p class="q">No hay accesorios esperando al cliente.</p>';
   };
   db.collection('fundas').onSnapshot(s => { fundas = s.docs.map(d => ({...d.data(), _id: d.id})).sort((a, b) => (a.creado || 0) - (b.creado || 0)); render(); }, () => msg('No se pudieron cargar las peticiones.'));
   db.collection('colocar').onSnapshot(s => { colocar = s.docs.map(d => ({...d.data(), _id: d.id})); render(); }, () => {});
@@ -1461,7 +1494,7 @@ updAsk();
     const txt = `Hola ${nom}! soy Miguel de Reparo Novo 😊. Te escribo porque nos preguntaste por ${x.producto}: ya lo tenemos en tienda. Si te interesa, pásate cuando quieras. Estamos de lunes a viernes de 9:30 a 14:00 y de 17:00 a 20:30, y los sábados de 10:00 a 14:00. ¡Un saludo!`;
     return `<a class="afinar" target="_blank" rel="noopener" href="https://api.whatsapp.com/send?phone=34${tel}&text=${encodeURIComponent(txt)}">WhatsApp cliente</a>`; };
   const editForm = x => `<form class="fedit" data-iedit="${esc(x._id)}" autocomplete="off"><label>Producto<input name="producto" required value="${esc(x.producto)}"></label><label>Cliente<input name="cliente" required value="${esc(x.cliente)}"></label><label>Móvil<input name="telefono" required inputmode="tel" value="${esc(x.telefono)}"></label><label class="fobs">Observaciones<textarea name="obs" rows="2">${esc(x.obs || '')}</textarea></label><span class="fbtns"><button type="submit" class="wa fbtn">Guardar</button><button type="button" data-inoedit="1">Cancelar</button></span></form>`;
-  const item = x => x._id === editId ? editForm(x) : `<div class="fitem"><span><b>${esc(x.cliente)}</b> <span class="q" style="display:inline">${esc(x.telefono)} · desde ${esc(fmtD(x.creado))}</span>${x.obs ? `<span class="fobsv">${esc(x.obs)}</span>` : ''}</span><span class="acc">${waI(x)}<button class="fok" data-iavis="${esc(x._id)}">✓ Avisado</button><button data-ieditar="${esc(x._id)}">Editar</button><button class="fanular" data-iquitar="${esc(x._id)}">${seguro === x._id ? '¿Seguro? Toca otra vez' : 'Quitar'}</button></span></div>`;
+  const item = x => x._id === editId ? editForm(x) : `<div class="fitem"><span><b>${esc(x.cliente)}</b><span class="q">${esc(x.telefono)} · desde ${esc(fmtD(x.creado))}</span>${x.obs ? `<span class="fobsv">${esc(x.obs)}</span>` : ''}</span><span class="acc">${waI(x)}<button class="fok" data-iavis="${esc(x._id)}">✓ Avisado</button><button data-ieditar="${esc(x._id)}">Editar</button><button class="fanular" data-iquitar="${esc(x._id)}">${seguro === x._id ? '¿Seguro? Toca otra vez' : 'Quitar'}</button></span></div>`;
   const render = () => {
     const abiertos = lista.filter(x => x.estado === 'interesado');
     $('#i-count').textContent = abiertos.length || ''; $('#f3-i').textContent = abiertos.length;
@@ -1501,6 +1534,7 @@ updAsk();
   });
 })();
 document.addEventListener('click', e => { const a = e.target.closest('.f3 a'); if (!a) return; e.preventDefault(); e.stopPropagation(); const h = document.querySelector('#fundas .' + a.dataset.f3); if (h) h.scrollIntoView({block: 'start', behavior: 'smooth'}); }, true);
+document.addEventListener('click', e => { const o = e.target.closest('#fundas .fobsv, #interes .fobsv'); if (o) o.classList.toggle('abierta'); });
 // ==== FIN INTERESADOS ====
 
 // ==== RESERVAS v1 ====
@@ -1876,5 +1910,5 @@ renderList();
 })();
 // ==== FIN REFERENCIAS ====
 </script>
-<script src="boot.js?v=202611022007"></script>
+<script src="boot.js?v=202611022012"></script>
 </body></html>
