@@ -6,10 +6,10 @@
 <meta name="apple-mobile-web-app-title" content="Reparo Novo">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" href="icons/icon-192.png">
-<link rel="stylesheet" href="boot.css?v=202611022028">
+<link rel="stylesheet" href="boot.css?v=202611022033">
 <script src="vendor/supabase-2.45.4.js"></script>
-<script src="config.js?v=202611022028"></script>
-<script src="shim.js?v=202611022028"></script>
+<script src="config.js?v=202611022033"></script>
+<script src="shim.js?v=202611022033"></script>
 </head><body>
 
 
@@ -299,7 +299,6 @@ details.serv summary{font:700 1.15rem var(--display);cursor:pointer}
 #interes .acc{display:flex!important;flex-wrap:nowrap;gap:4px;width:100%!important;margin-top:6px!important;padding:0!important}
 #i-list{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(232px,1fr))!important;gap:10px!important;align-items:start}
 .iprod{border:1px solid var(--line)!important;border-top:5px solid #8e5bd6!important;border-left:1px solid var(--line)!important;border-radius:14px!important;background:var(--panel)!important;padding:10px 12px!important}
-.iprod h4 span::before{content:"👀 "}
 .iprod .fitem{padding:7px 0!important}
 /* Al editar, el formulario ocupa toda la fila (Miguel 2/11: «cuando escribes se sale el recuadro») */
 #f-pend>form.fedit,#f-res>form.fedit{grid-column:1 / -1;background:var(--panel);border:2px solid var(--accent);border-radius:14px;padding:12px!important;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr))}
@@ -309,6 +308,7 @@ details.serv summary{font:700 1.15rem var(--display);cursor:pointer}
 #f-form label:has([name=detalle]),#i-form label:has([name=producto]){grid-column:1 / -1}
 #interes .iprod form.fedit{grid-template-columns:1fr}
 #fundas form.fedit button[data-noedit],#interes form.fedit button[data-inoedit]{font:600 .9rem var(--body);padding:9px 16px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--fg);cursor:pointer}
+#fundas .tile .fprod{padding-right:26px}
 /* ==== FIN TARJETAS v2 ==== */
 /* ==== FIN INTERESADOS ==== */
 /* ==== FIN FUNDAS ==== */
@@ -1479,16 +1479,16 @@ updAsk();
     if (document.querySelector('#fundas form.fedit') && document.querySelector('#fundas form.fedit').contains(document.activeElement)) return; // no pisar lo que se está escribiendo
     // Miguel 2/11: recuadros más pequeños y visuales (icono del accesorio, días, botones con iconos).
     const fecha = ms => ms ? new Date(ms).toLocaleString('es-ES', {weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit'}) : '';
-    const hace = ms => { const d = Math.floor((Date.now() - (ms || Date.now())) / 864e5); return d <= 0 ? 'hoy' : d === 1 ? 'ayer' : d + ' días'; };
+    const hace = ms => { const d = Math.floor((Date.now() - (ms || Date.now())) / 864e5); return d <= 0 ? 'hoy' : d === 1 ? 'ayer' : 'hace ' + d + ' días'; };
     const prodTxt = f => esc(f.producto || f.modelo) + (f.detalle && !f.producto ? ' · ' + esc(f.detalle) : '');
-    const obsT = f => f.obs ? `<span class="fobsv" title="${esc(f.obs)}">📝 ${esc(f.obs)}</span>` : '';
+    const obsT = f => f.obs ? `<span class="fobsv" title="${esc(f.obs)}">${esc(f.obs)}</span>` : '';
     const pagT = f => f.pagada ? '<span class="tchip tpag">✓ Pagada</span>' : '';
     const btnP = (f, mas) => `<span class="acc tbtn"><button class="fok" data-aviso="${esc(f._id)}" title="Ha llegado y está avisado">✓ Llegó</button>${waF(f)}<button data-editar="${esc(f._id)}" title="Editar" aria-label="Editar">Editar</button>${mas ? masB(f.cliente, f.telefono) : ''}<button class="fanular" data-cancel="${esc(f._id)}" title="Anular" aria-label="Anular">Anular</button></span>`;
     const btnR = (f, mas) => `<span class="acc tbtn"><button class="fok" data-recog="${esc(f._id)}" title="Recogida">✓ Recogida</button>${waF(f)}<button data-editar="${esc(f._id)}" title="Editar" aria-label="Editar">Editar</button>${mas ? masB(f.cliente, f.telefono) : ''}</span>`;
-    const diasP = f => `<span class="tchip ${urgF(f) ? 'turg' : diasF(f) >= 4 ? 'tmed' : ''}" title="Pedida el ${esc(fecha(f.creado))}">⏳ ${hace(f.creado)}</span>`;
-    const diasR = f => `<span class="tchip" title="${f.estado === 'avisado' ? 'Avisado el ' + esc(fecha(f.avisado_at)) : 'Llegó el ' + esc(fecha(f.llegada_at)) + ', aviso pendiente'}">${f.estado === 'avisado' ? '📣 avisado ' + hace(f.avisado_at) : '⚠️ sin avisar'}</span>`;
-    const tile = (f, dias, btn) => `<div class="fitem tile${urgF(f) && f.estado === 'pendiente' ? ' urg' : ''}"><span class="tbody"><span class="tic" aria-hidden="true">${icoAcc(f)}</span><span class="fprod" title="${prodTxt(f)}">${prodTxt(f)}</span><span class="tcli"><b>${esc(f.cliente)}</b> ${esc(f.telefono)}</span><span class="tmeta">${dias(f)}${pagT(f)}</span>${obsT(f)}</span>${btn(f, true)}</div>`;
-    const sub = (f, dias, btn) => `<div class="gitem tsub${urgF(f) && f.estado === 'pendiente' ? ' urg' : ''}"><span class="tbody"><span class="tic" aria-hidden="true">${icoAcc(f)}</span><span class="fprod" title="${prodTxt(f)}">${prodTxt(f)}</span><span class="tmeta">${dias(f)}${pagT(f)}</span>${obsT(f)}</span>${btn(f, false)}</div>`;
+    const diasP = f => `<span class="tchip ${urgF(f) ? 'turg' : diasF(f) >= 4 ? 'tmed' : ''}" title="Pedida el ${esc(fecha(f.creado))}">pedida ${hace(f.creado)}</span>`;
+    const diasR = f => `<span class="tchip" title="${f.estado === 'avisado' ? 'Avisado el ' + esc(fecha(f.avisado_at)) : 'Llegó el ' + esc(fecha(f.llegada_at)) + ', aviso pendiente'}">${f.estado === 'avisado' ? 'avisado ' + hace(f.avisado_at) : 'sin avisar'}</span>`;
+    const tile = (f, dias, btn) => `<div class="fitem tile${urgF(f) && f.estado === 'pendiente' ? ' urg' : ''}"><span class="tbody"><span class="fprod" title="${prodTxt(f)}">${prodTxt(f)}</span><span class="tcli"><b>${esc(f.cliente)}</b> ${esc(f.telefono)}</span><span class="tmeta">${dias(f)}${pagT(f)}</span>${obsT(f)}</span>${btn(f, true)}</div>`;
+    const sub = (f, dias, btn) => `<div class="gitem tsub${urgF(f) && f.estado === 'pendiente' ? ' urg' : ''}"><span class="tbody"><span class="fprod" title="${prodTxt(f)}">${prodTxt(f)}</span><span class="tmeta">${dias(f)}${pagT(f)}</span>${obsT(f)}</span>${btn(f, false)}</div>`;
     $('#f-pend').innerHTML = pend.length ? grupoCli(pend, f => f._id === editId ? editForm(f) : sub(f, diasP, btnP), urgF, f => f._id === editId ? editForm(f) : tile(f, diasP, btnP)) : '<p class="q">No hay ningún accesorio pendiente.</p>';
     $('#f-res').innerHTML = res.length ? grupoCli(res, f => f._id === editId ? editForm(f) : sub(f, diasR, btnR), () => false, f => f._id === editId ? editForm(f) : tile(f, diasR, btnR)) : '<p class="q">No hay accesorios esperando al cliente.</p>';
   };
@@ -1961,5 +1961,5 @@ renderList();
 })();
 // ==== FIN REFERENCIAS ====
 </script>
-<script src="boot.js?v=202611022028"></script>
+<script src="boot.js?v=202611022033"></script>
 </body></html>
