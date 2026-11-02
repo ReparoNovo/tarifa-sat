@@ -6,10 +6,10 @@
 <meta name="apple-mobile-web-app-title" content="Reparo Novo">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" href="icons/icon-192.png">
-<link rel="stylesheet" href="boot.css?v=202610311236">
+<link rel="stylesheet" href="boot.css?v=202611022001">
 <script src="vendor/supabase-2.45.4.js"></script>
-<script src="config.js?v=202610311236"></script>
-<script src="shim.js?v=202610311236"></script>
+<script src="config.js?v=202611022001"></script>
+<script src="shim.js?v=202611022001"></script>
 </head><body>
 
 
@@ -225,6 +225,17 @@ details.serv summary{font:700 1.15rem var(--display);cursor:pointer}
 #f-pend>.fitem::before{background:#53ea8c;color:#0d2b1a}
 #f-res>.fitem{border-left-color:#4e9edd;background:color-mix(in srgb,#4e9edd 7%,var(--bg))}
 #f-res>.fitem::before{background:#4e9edd;color:#fff}
+/* ==== INTERESADOS v1 ==== */
+#i-list{display:flex;flex-direction:column;gap:10px}
+.iprod{border:1px solid var(--line);border-left:4px solid #8e5bd6;border-radius:10px;background:color-mix(in srgb,#8e5bd6 6%,var(--bg));padding:10px 12px}
+.iprod h4{font:700 1.05rem var(--display);margin:0 0 4px;display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.iprod h4 small{font:600 .78rem var(--display);color:var(--muted);white-space:nowrap}
+.iprod .fitem{border-bottom:1px dashed var(--line)}
+.iprod .fitem:last-child{border-bottom:0}
+.iprod .fitem .acc{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.ibus{width:100%;font:500 1rem var(--body);padding:9px 11px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg);margin-top:10px}
+@media (min-width:1100px){#i-list{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));align-items:start}}
+/* ==== FIN INTERESADOS ==== */
 /* ==== FIN FUNDAS ==== */
 /* ==== VISTAS v1 ==== */
 [data-oculto]{display:none!important}
@@ -511,6 +522,26 @@ details.hechas summary{cursor:pointer}
     <h3 class="fh fh-res">✅ Reservadas · esperando al cliente</h3><div id="f-res" class="flist"></div>
   </details>
   <!-- ==== FIN FUNDAS ==== -->
+  <!-- ==== INTERESADOS v1 ==== -->
+  <details class="serv" id="interes">
+    <summary>👀 Interesados · avisar si llega <span class="fcount" id="i-count"></span></summary>
+    <p class="foot" style="font-size:.95rem;color:var(--fg)">Clientes que han preguntado por algo que no tenemos, <b>sin pedirlo ni pagarlo</b>. Cuando entre el producto, búscalo aquí y avísales por WhatsApp.</p>
+    <p class="foot" style="margin-top:0">¿Lo ha pedido en firme o ha dejado señal? → <a href="#fundas" data-open>Accesorios</a> o <a href="#reservas" data-open>Equipos</a>.</p>
+    <button type="button" class="nuevo" data-abre="i-form" aria-expanded="false">+ Nuevo interesado</button>
+    <form class="fform plegado" id="i-form" autocomplete="off">
+      <label>Producto que le interesa<input name="producto" required placeholder="Ej.: Redmi Note 15 negro, funda MagSafe 16 Pro, PS5 Slim" list="i-prods"></label>
+      <label>Cliente<input name="cliente" required placeholder="Nombre"></label>
+      <label>Móvil del cliente<input name="telefono" required inputmode="tel" placeholder="600 000 000"></label>
+      <label class="fobs">Observaciones<textarea name="obs" rows="2" placeholder="Ej.: si baja de 250 € lo compra, le vale también en azul"></textarea></label>
+      <button type="submit" class="wa fbtn">Apuntar interesado</button>
+      <datalist id="i-prods"></datalist>
+    </form>
+    <p class="q" id="i-msg" aria-live="polite"></p>
+    <input id="i-q" class="ibus" type="search" placeholder="Buscar producto o cliente…" autocomplete="off" aria-label="Buscar interesados">
+    <div id="i-list" class="flist"></div>
+    <details class="hechas"><summary class="q">Avisados o quitados (último mes)</summary><div id="i-done" class="flist"></div></details>
+  </details>
+  <!-- ==== FIN INTERESADOS ==== -->
   <!-- ==== RESERVAS v1 ==== -->
   <details class="serv" id="reservas">
     <summary>📱 Equipos que encargan o reservan <span class="fcount" id="r-count"></span></summary>
@@ -565,11 +596,11 @@ details.hechas summary{cursor:pointer}
 
   <details class="serv" id="garantias">
     <summary>Garantías con proveedores <span class="fcount" id="g-count"></span></summary>
-    <p class="foot">Piezas o equipos en garantía con COOL, Apokin o Anovo. Si el cliente está esperando, aparece arriba y en rojo cuando lleva más de 14 días sin respuesta: reclama al proveedor y avisa al cliente de cómo va. Estados: Por enviar → Enviada, esperando respuesta → Recibido y pendiente de entrega → Entregada. Las entregadas se borran solas a las 24 horas.</p>
+    <p class="foot">Piezas o equipos en garantía con COOL, Apokin, Anovo o Utopya. Si el cliente está esperando, aparece arriba y en rojo cuando lleva más de 30 días sin respuesta: reclama al proveedor y avisa al cliente de cómo va. Estados: Por enviar → Enviada, esperando respuesta → Recibido y pendiente de entrega → Entregada. Las entregadas se borran solas a las 24 horas.</p>
     <div class="gsum" id="g-sum"></div>
     <button type="button" class="nuevo" data-abre="g-form" aria-expanded="false">+ Nueva garantía</button>
     <form class="fform plegado" id="g-form" autocomplete="off">
-      <label>Proveedor<select name="proveedor"><option>COOL</option><option>Apokin</option><option>Anovo</option><option>Otro</option></select></label>
+      <label>Proveedor<select name="proveedor"><option>COOL</option><option>Apokin</option><option>Anovo</option><option>Utopya</option><option>Otro</option></select></label>
       <label>Qué es<input name="equipo" required placeholder="p. ej. Pantalla iPhone 13 / Redmi Note 13"></label>
       <label>Problema<input name="problema" placeholder="p. ej. táctil falla, no carga"></label>
       <label>Estado<select name="estado"><option selected>Por enviar</option><option>Enviada, esperando respuesta</option><option>Recibido y pendiente de entrega</option><option>Entregada</option></select></label>
@@ -1408,6 +1439,62 @@ updAsk();
 })();
 // ==== FIN FUNDAS ====
 
+// ==== INTERESADOS v1 ====
+// Miguel 2/11: clientes interesados en un producto (sin pedido en firme) para avisarles si llega. Colección "interesados".
+(async () => {
+  const msg = t => { $('#i-msg').textContent = t; };
+  const fmtD = ms => ms ? new Date(ms).toLocaleDateString('es-ES', {day: 'numeric', month: 'short'}) : '';
+  let db = null;
+  try { db = await claude.use('db'); } catch (e) {}
+  if (!db) { $('#i-form').hidden = true; msg('Solo se puede apuntar desde la app de la tienda.'); return; }
+  let lista = [], editId = null, seguro = null;
+  const norm = t => String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim();
+  const telOk = t => String(t || '').replace(/\D/g, '').replace(/^34(?=\d{9}$)/, '');
+  const waI = x => { const tel = telOk(x.telefono); if (!tel) return ''; const nom = String(x.cliente || '').trim().split(' ')[0];
+    const txt = `Hola ${nom}! soy Miguel de Reparo Novo 😊. Te escribo porque nos preguntaste por ${x.producto}: ya lo tenemos en tienda. Si te interesa, pásate cuando quieras. Estamos de lunes a viernes de 9:30 a 14:00 y de 17:00 a 20:30, y los sábados de 10:00 a 14:00. ¡Un saludo!`;
+    return `<a class="afinar" target="_blank" rel="noopener" href="https://api.whatsapp.com/send?phone=34${tel}&text=${encodeURIComponent(txt)}">WhatsApp cliente</a>`; };
+  const editForm = x => `<form class="fedit" data-iedit="${esc(x._id)}" autocomplete="off"><label>Producto<input name="producto" required value="${esc(x.producto)}"></label><label>Cliente<input name="cliente" required value="${esc(x.cliente)}"></label><label>Móvil<input name="telefono" required inputmode="tel" value="${esc(x.telefono)}"></label><label class="fobs">Observaciones<textarea name="obs" rows="2">${esc(x.obs || '')}</textarea></label><span class="fbtns"><button type="submit" class="wa fbtn">Guardar</button><button type="button" data-inoedit="1">Cancelar</button></span></form>`;
+  const item = x => x._id === editId ? editForm(x) : `<div class="fitem"><span><b>${esc(x.cliente)}</b> <span class="q" style="display:inline">${esc(x.telefono)} · desde ${esc(fmtD(x.creado))}</span>${x.obs ? `<span class="fobsv">${esc(x.obs)}</span>` : ''}</span><span class="acc">${waI(x)}<button class="fok" data-iavis="${esc(x._id)}">✓ Avisado</button><button data-ieditar="${esc(x._id)}">Editar</button><button class="fanular" data-iquitar="${esc(x._id)}">${seguro === x._id ? '¿Seguro? Toca otra vez' : 'Quitar'}</button></span></div>`;
+  const render = () => {
+    const abiertos = lista.filter(x => x.estado === 'interesado');
+    $('#i-count').textContent = abiertos.length || '';
+    $('#i-prods').innerHTML = [...new Set(abiertos.map(x => x.producto))].map(p => `<option value="${esc(p)}">`).join('');
+    if (document.querySelector('#interes form.fedit') && document.querySelector('#interes form.fedit').contains(document.activeElement)) return;
+    const q = norm($('#i-q').value), ver = abiertos.filter(x => !q || norm(x.producto + ' ' + x.cliente + ' ' + x.telefono + ' ' + (x.obs || '')).includes(q));
+    const g = new Map(); ver.forEach(x => { const k = norm(x.producto); if (!g.has(k)) g.set(k, []); g.get(k).push(x); });
+    $('#i-list').innerHTML = g.size ? [...g.values()].sort((a, b) => b.length - a.length || (a[0].creado || 0) - (b[0].creado || 0)).map(it => `<div class="iprod"><h4><span>${esc(it[0].producto)}</span><small>${it.length} ${it.length === 1 ? 'interesado' : 'interesados'}</small></h4>${it.map(item).join('')}</div>`).join('')
+      : `<p class="empty">${q ? 'Nadie interesado en eso.' : 'No hay nadie apuntado.'}</p>`;
+    const mes = Date.now() - 31 * 864e5;
+    $('#i-done').innerHTML = lista.filter(x => x.estado !== 'interesado' && (x.cerrado_at || 0) > mes).sort((a, b) => b.cerrado_at - a.cerrado_at).map(x => `<div class="fitem"><span><b>${esc(x.producto)}</b> · ${esc(x.cliente)}<span class="q">${x.estado === 'avisado' ? 'Avisado' : 'Quitado'} ${esc(fmtD(x.cerrado_at))}</span></span><span class="acc"><button data-ivolver="${esc(x._id)}">Volver a la lista</button></span></div>`).join('') || '<p class="q">Nada todavía.</p>';
+  };
+  db.collection('interesados').onSnapshot(s => { lista = s.docs.map(d => ({...d.data(), _id: d.id})); render(); }, () => msg('No se pudo cargar la lista.'));
+  $('#i-q').addEventListener('input', render);
+  const leer = fd => ({producto: String(fd.get('producto')).trim(), cliente: String(fd.get('cliente')).trim(), telefono: telOk(fd.get('telefono')), obs: String(fd.get('obs') || '').trim()});
+  $('#i-form').addEventListener('submit', async e => {
+    e.preventDefault(); const d = leer(new FormData(e.target));
+    if (!/^[6-9]\d{8}$/.test(d.telefono)) { msg('El móvil debe tener 9 cifras.'); return; }
+    try { await db.collection('interesados').add({...d, estado: 'interesado', creado: Date.now()}); e.target.reset(); msg('Apuntado. Cuando llegue, búscalo aquí y avisa con «WhatsApp cliente».'); }
+    catch (err) { const t = 'No se pudo guardar: ' + (err && (err.code || err.message) || 'error'); msg(t); toastErr(t); }
+  });
+  $('#interes').addEventListener('submit', async e => {
+    const fe = e.target.closest('form.fedit'); if (!fe) return; e.preventDefault(); const d = leer(new FormData(fe));
+    if (!/^[6-9]\d{8}$/.test(d.telefono)) { msg('El móvil debe tener 9 cifras.'); return; }
+    try { await db.collection('interesados').doc(fe.dataset.iedit).update({...d, editada_at: Date.now()}); editId = null; document.activeElement.blur(); render(); msg('Cambios guardados.'); }
+    catch (err) { const t = 'No se pudo guardar: ' + (err && (err.code || err.message) || 'error'); msg(t); toastErr(t); }
+  });
+  $('#interes').addEventListener('click', async e => {
+    const b = e.target.closest('button'); if (!b || b.dataset.abre) return;
+    if (b.dataset.ieditar) { editId = b.dataset.ieditar; render(); const i = document.querySelector('#interes form.fedit input'); if (i) i.focus(); return; }
+    if (b.dataset.inoedit) { editId = null; document.activeElement.blur(); render(); return; }
+    try {
+      if (b.dataset.iavis) await db.collection('interesados').doc(b.dataset.iavis).update({estado: 'avisado', cerrado_at: Date.now()});
+      if (b.dataset.ivolver) await db.collection('interesados').doc(b.dataset.ivolver).update({estado: 'interesado', cerrado_at: null});
+      if (b.dataset.iquitar) { if (seguro === b.dataset.iquitar) { seguro = null; await db.collection('interesados').doc(b.dataset.iquitar).update({estado: 'quitado', cerrado_at: Date.now()}); } else { seguro = b.dataset.iquitar; render(); setTimeout(() => { if (seguro === b.dataset.iquitar) { seguro = null; render(); } }, 4000); } }
+    } catch (err) { const t = 'No se pudo guardar: ' + (err && (err.code || err.message) || 'error'); msg(t); toastErr(t); }
+  });
+})();
+// ==== FIN INTERESADOS ====
+
 // ==== RESERVAS v1 ====
 // Reservas y pedidos de equipos (colección "reservas" de la base de datos de la página).
 (async () => {
@@ -1476,7 +1563,7 @@ new MutationObserver(() => document.querySelectorAll('#reservas form.fedit texta
 // ==== VISTAS v1 ====
 // Una sección cada vez (barra abajo en el móvil, arriba en el ordenador) para no tener que hacer scroll.
 (() => {
-  const V = {tarifa: ['.search', '#n-banner', '.grid', '#calc'], fundas: ['#fundas'], reservas: ['#reservas'], tareas: ['#notas', '#tareas'], garantias: ['#garantias'], mas: ['#refs', '#tasador', '#faq', '#serv', '.wrap > p.foot']};
+  const V = {tarifa: ['.search', '#n-banner', '.grid', '#calc'], fundas: ['#fundas', '#interes'], reservas: ['#reservas'], tareas: ['#notas', '#tareas'], garantias: ['#garantias'], mas: ['#refs', '#tasador', '#faq', '#serv', '.wrap > p.foot']};
   const todos = [...new Set(Object.values(V).flat())];
   const mostrar = (v, scroll = true) => {
     if (!V[v]) v = 'tarifa';
@@ -1589,7 +1676,7 @@ new MutationObserver(() => document.querySelectorAll('#reservas form.fedit texta
   const G_BORRA = 24 * 3600e3; // las entregadas se borran a las 24 h (también lo hace Supabase cada hora)
   let gar = [], gEdit = null;
   const gForm = g => `<form class="fedit" data-gedit="${esc(g._id)}" autocomplete="off">
-      <label>Proveedor<select name="proveedor">${['COOL', 'Apokin', 'Anovo', 'Otro'].concat(['COOL', 'Apokin', 'Anovo', 'Otro'].includes(g.proveedor) ? [] : [g.proveedor]).map(p => `<option ${p === g.proveedor ? 'selected' : ''}>${p}</option>`).join('')}</select></label>
+      <label>Proveedor<select name="proveedor">${['COOL', 'Apokin', 'Anovo', 'Utopya', 'Otro'].concat(['COOL', 'Apokin', 'Anovo', 'Utopya', 'Otro'].includes(g.proveedor) ? [] : [g.proveedor]).map(p => `<option ${p === g.proveedor ? 'selected' : ''}>${p}</option>`).join('')}</select></label>
       <label>Qué es<input name="equipo" required value="${esc(g.equipo || '')}"></label>
       <label>Problema<input name="problema" value="${esc(g.problema || '')}"></label>
       <label>Fecha de tramitación<input type="date" name="fecha_tramite" value="${esc(g.fecha_tramite || hoyISO(g.creado))}"></label>
@@ -1604,10 +1691,10 @@ new MutationObserver(() => document.querySelectorAll('#reservas form.fedit texta
   const rG = () => {
     if (document.querySelector('#garantias form.fedit') && document.querySelector('#garantias form.fedit').contains(document.activeElement)) return; // no pisar lo que se está escribiendo
     const ab = gar.filter(g => !CERRADO(g.estado)).sort((a, b) => (b.esperando - a.esperando) || ((a.enviada_at || a.creado) - (b.enviada_at || b.creado)));
-    const tarde = g => g.estado === ESTADOS[1] && dias(g.enviada_at || g.creado) > 14;
+    const tarde = g => g.estado === ESTADOS[1] && dias(g.enviada_at || g.creado) > 30; // Miguel 2/11: aviso a los 30 días (antes 14)
     $('#g-count').textContent = ab.length || '';
     const por = p => ab.filter(g => g.proveedor === p).length;
-    $('#g-sum').innerHTML = ['COOL', 'Apokin', 'Anovo', 'Otro'].map(p => `<span><b>${por(p)}</b> ${p}</span>`).join('') + `<span><b>${ab.filter(g => g.esperando).length}</b> clientes esperando</span><span class="late"><b>${ab.filter(tarde).length}</b> sin respuesta +14 días</span><span><b>${ab.filter(g => g.estado === ESTADOS[2]).length}</b> para entregar</span>`;
+    $('#g-sum').innerHTML = ['COOL', 'Apokin', 'Anovo', 'Utopya', 'Otro'].map(p => `<span><b>${por(p)}</b> ${p}</span>`).join('') + `<span><b>${ab.filter(g => g.esperando).length}</b> clientes esperando</span><span class="late"><b>${ab.filter(tarde).length}</b> sin respuesta +30 días</span><span><b>${ab.filter(g => g.estado === ESTADOS[2]).length}</b> para entregar</span>`;
     $('#g-list').innerHTML = ab.length ? ab.map(g => {
       if (g._id === gEdit) return gForm(g);
       const d = dias(g.enviada_at || g.creado);
@@ -1781,20 +1868,5 @@ renderList();
 })();
 // ==== FIN REFERENCIAS ====
 </script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<script src="boot.js?v=202610311236"></script>
+<script src="boot.js?v=202611022001"></script>
 </body></html>
