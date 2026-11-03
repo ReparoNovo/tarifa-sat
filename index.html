@@ -6,10 +6,10 @@
 <meta name="apple-mobile-web-app-title" content="Reparo Novo">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" href="icons/icon-192.png">
-<link rel="stylesheet" href="boot.css?v=202611022119">
+<link rel="stylesheet" href="boot.css?v=202611031102">
 <script src="vendor/supabase-2.45.4.js"></script>
-<script src="config.js?v=202611022119"></script>
-<script src="shim.js?v=202611022119"></script>
+<script src="config.js?v=202611031102"></script>
+<script src="shim.js?v=202611031102"></script>
 </head><body>
 
 
@@ -235,9 +235,9 @@ details.serv summary{font:700 1.15rem var(--display);cursor:pointer}
 .iprod .fitem .acc{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .ibus{width:100%;font:500 1rem var(--body);padding:9px 11px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg);margin-top:10px}
 @media (min-width:1100px){#i-list{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));align-items:start}}
-#fundas .fh-int{font-size:.95rem;letter-spacing:.05em;padding:10px 14px;border-radius:10px;margin:30px 0 8px;color:var(--fg);background:color-mix(in srgb,#8e5bd6 16%,var(--bg));border-left:6px solid #8e5bd6}
+#interes .fh-int{font-size:.95rem;letter-spacing:.05em;padding:10px 14px;border-radius:10px;margin:30px 0 8px;color:var(--fg);background:color-mix(in srgb,#8e5bd6 16%,var(--bg));border-left:6px solid #8e5bd6}
 #interes .nuevo{background:#8e5bd6;color:#fff}#interes .nuevo[aria-expanded="true"]{background:var(--soft);color:#8e5bd6}
-.f3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:12px 0 4px}
+.f3{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin:12px 0 4px}
 .f3 a{display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;color:var(--fg);font:600 .82rem var(--display);padding:8px 4px;border-radius:10px;border:1px solid var(--line);text-align:center}
 .f3 a b{font:700 1.3rem var(--display)}
 .f3 a[data-f3="fh-pend"]{border-left:5px solid #53ea8c}.f3 a[data-f3="fh-res"]{border-left:5px solid #4e9edd}.f3 a[data-f3="fh-int"]{border-left:5px solid #8e5bd6}
@@ -600,28 +600,9 @@ details.hechas summary{cursor:pointer}
     </form>
     <p class="q" id="f-msg" aria-live="polite"></p>
     <div id="f-tareas"></div>
-    <nav class="f3" aria-label="Partes de Accesorios"><a href="#f-pend" data-f3="fh-pend">⏳ Pendientes <b id="f3-p"></b></a><a href="#f-res" data-f3="fh-res">✅ Reservadas en tienda <b id="f3-r"></b></a><a href="#interes" data-f3="fh-int">👀 Interesados <b id="f3-i"></b></a></nav>
+    <nav class="f3" aria-label="Partes de Accesorios"><a href="#f-pend" data-f3="fh-pend">⏳ Pendientes <b id="f3-p"></b></a><a href="#f-res" data-f3="fh-res">✅ Reservadas en tienda <b id="f3-r"></b></a></nav>
     <h3 class="fh fh-pend">⏳ Pendientes de llegar</h3><div id="f-pend" class="flist"></div>
     <h3 class="fh fh-res">✅ Reservadas en tienda · esperando al cliente</h3><div id="f-res" class="flist"></div>
-    <!-- ==== INTERESADOS v1 ==== (Miguel 2/11: tercera parte de Accesorios) -->
-    <div id="interes">
-    <h3 class="fh fh-int">👀 Interesados · avisar si llega <span class="fcount" id="i-count"></span></h3>
-    <p class="foot" style="margin-top:0">Han preguntado por algo que no tenemos, <b>sin pedirlo ni pagarlo</b>. Cuando entre, búscalo aquí y avísales por WhatsApp.</p>
-    <button type="button" class="nuevo nint" data-abre="i-form" aria-expanded="false">+ Nuevo interesado</button>
-    <form class="fform plegado" id="i-form" autocomplete="off">
-      <label>Producto que le interesa<input name="producto" required placeholder="Ej.: Redmi Note 15 negro, funda MagSafe 16 Pro, PS5 Slim" list="i-prods"></label>
-      <label>Cliente<input name="cliente" required placeholder="Nombre"></label>
-      <label>Móvil del cliente<input name="telefono" required inputmode="tel" placeholder="600 000 000"></label>
-      <label class="fobs">Observaciones<textarea name="obs" rows="2" placeholder="Ej.: si baja de 250 € lo compra, le vale también en azul"></textarea></label>
-      <button type="submit" class="wa fbtn">Apuntar interesado</button>
-      <datalist id="i-prods"></datalist>
-    </form>
-    <p class="q" id="i-msg" aria-live="polite"></p>
-    <input id="i-q" class="ibus" type="search" placeholder="Buscar producto o cliente…" autocomplete="off" aria-label="Buscar interesados">
-    <div id="i-list" class="flist"></div>
-    <details class="hechas"><summary class="q">Avisados o quitados (último mes)</summary><div id="i-done" class="flist"></div></details>
-    </div>
-    <!-- ==== FIN INTERESADOS ==== -->
   </details>
   <!-- ==== FIN FUNDAS ==== -->
   <!-- ==== RESERVAS v1 ==== -->
@@ -647,6 +628,25 @@ details.hechas summary{cursor:pointer}
     <p class="q" id="r-msg" aria-live="polite"></p>
     <div id="r-list" class="flist"></div>
     <details class="hechas"><summary class="q">Entregadas o anuladas (último mes)</summary><div id="r-done" class="flist"></div></details>
+    <!-- ==== INTERESADOS v1 ==== (Miguel 3/11: pasa de Accesorios a Equipos) -->
+    <div id="interes">
+    <h3 class="fh fh-int">👀 Interesados · avisar si llega <span class="fcount" id="i-count"></span></h3>
+    <p class="foot" style="margin-top:0">Han preguntado por un equipo que no tenemos, <b>sin pedirlo ni pagarlo</b>. Cuando entre, búscalo aquí y avísales por WhatsApp.</p>
+    <button type="button" class="nuevo nint" data-abre="i-form" aria-expanded="false">+ Nuevo interesado</button>
+    <form class="fform plegado" id="i-form" autocomplete="off">
+      <label>Producto que le interesa<input name="producto" required placeholder="Ej.: iPhone 15 256 GB, Redmi Note 15 negro, PS5 Slim" list="i-prods"></label>
+      <label>Cliente<input name="cliente" required placeholder="Nombre"></label>
+      <label>Móvil del cliente<input name="telefono" required inputmode="tel" placeholder="600 000 000"></label>
+      <label class="fobs">Observaciones<textarea name="obs" rows="2" placeholder="Ej.: si baja de 250 € lo compra, le vale también en azul"></textarea></label>
+      <button type="submit" class="wa fbtn">Apuntar interesado</button>
+      <datalist id="i-prods"></datalist>
+    </form>
+    <p class="q" id="i-msg" aria-live="polite"></p>
+    <input id="i-q" class="ibus" type="search" placeholder="Buscar producto o cliente…" autocomplete="off" aria-label="Buscar interesados">
+    <div id="i-list" class="flist"></div>
+    <details class="hechas"><summary class="q">Avisados o quitados (último mes)</summary><div id="i-done" class="flist"></div></details>
+    </div>
+    <!-- ==== FIN INTERESADOS ==== -->
   </details>
   <!-- ==== FIN RESERVAS ==== -->
   <!-- ==== TAREAS Y GARANTIAS v1 ==== -->
@@ -1555,7 +1555,7 @@ updAsk();
   const item = x => x._id === editId ? editForm(x) : `<div class="fitem"><span><b>${esc(x.cliente)}</b><span class="q">${esc(x.telefono)} · desde ${esc(fmtD(x.creado))}</span>${x.obs ? `<span class="fobsv">${esc(x.obs)}</span>` : ''}</span><span class="acc">${waI(x)}<button class="fok" data-iavis="${esc(x._id)}">✓ Avisado</button><button data-ieditar="${esc(x._id)}">Editar</button><button class="fanular" data-iquitar="${esc(x._id)}"${seguro === x._id ? ' data-seguro="1"' : ''} title="Quitar">${seguro === x._id ? '¿Seguro? Toca otra vez' : 'Quitar'}</button></span></div>`;
   const render = () => {
     const abiertos = lista.filter(x => x.estado === 'interesado');
-    $('#i-count').textContent = abiertos.length || ''; $('#f3-i').textContent = abiertos.length;
+    $('#i-count').textContent = abiertos.length || ''; 
     $('#i-prods').innerHTML = [...new Set(abiertos.map(x => x.producto))].map(p => `<option value="${esc(p)}">`).join('');
     if (document.querySelector('#interes form.fedit') && document.querySelector('#interes form.fedit').contains(document.activeElement)) return;
     const q = norm($('#i-q').value), ver = abiertos.filter(x => !q || norm(x.producto + ' ' + x.cliente + ' ' + x.telefono + ' ' + (x.obs || '')).includes(q));
@@ -1639,7 +1639,7 @@ document.addEventListener('click', e => { const o = e.target.closest('#fundas .f
   };
   db.collection('reservas').onSnapshot(s => { res = s.docs.map(d => ({...d.data(), _id: d.id})); render(); }, () => msg('No se pudieron cargar las reservas.'));
   $('#reservas').addEventListener('submit', async e => {
-    const f0 = e.target; if (f0.id !== 'r-form' && !f0.classList.contains('fedit')) return;
+    const f0 = e.target; if (f0.closest('#interes') || f0.id === 'i-form' || f0.dataset.iedit) return; // Interesados va dentro de Equipos (Miguel 3/11) if (f0.id !== 'r-form' && !f0.classList.contains('fedit')) return;
     e.preventDefault();
     const {tel, d} = leer(new FormData(f0));
     if (!/^[6-9]\d{8}$/.test(tel)) { msg('El móvil debe tener 9 cifras.'); return; }
@@ -1968,5 +1968,5 @@ renderList();
 })();
 // ==== FIN REFERENCIAS ====
 </script>
-<script src="boot.js?v=202611022119"></script>
+<script src="boot.js?v=202611031102"></script>
 </body></html>
