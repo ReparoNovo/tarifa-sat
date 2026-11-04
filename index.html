@@ -6,10 +6,10 @@
 <meta name="apple-mobile-web-app-title" content="Reparo Novo">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" href="icons/icon-192.png">
-<link rel="stylesheet" href="boot.css?v=202611032101">
+<link rel="stylesheet" href="boot.css?v=202611040902">
 <script src="vendor/supabase-2.45.4.js"></script>
-<script src="config.js?v=202611032101"></script>
-<script src="shim.js?v=202611032101"></script>
+<script src="config.js?v=202611040902"></script>
+<script src="shim.js?v=202611040902"></script>
 </head><body>
 
 
@@ -1708,7 +1708,9 @@ new MutationObserver(() => document.querySelectorAll('#reservas form.fedit texta
   const PRIOS = ['🔴 Para hoy', '🟠 Esta semana', 'Sin prioridad']; // Miguel 12/10
   const tPrio = t => (t.prio === undefined || t.prio === '' || isNaN(+t.prio)) ? 2 : Math.min(2, +t.prio);
   const tPos = t => typeof t.orden === 'number' ? t.orden : (t.creado || 0);
-  const tOrden = () => tareas.filter(t => !t.hecha).sort((a, b) => tPrio(a) - tPrio(b) || tPos(a) - tPos(b));
+  // Miguel 4/11: la tarea automática «Caja pendiente de revisión» va siempre la primera mientras no esté hecha.
+  const esRev = t => /^auto_revision_/.test(t._id || '') || (!!t.auto && /pendiente de revisi/i.test(t.texto || ''));
+  const tOrden = () => tareas.filter(t => !t.hecha).sort((a, b) => (esRev(b) - esRev(a)) || tPrio(a) - tPrio(b) || tPos(a) - tPos(b));
   const PARAS = ['Todos', 'Lourdes', 'Miguel'];
   const rT = () => {
     const hoy = new Date(); hoy.setHours(0,0,0,0);
@@ -1968,5 +1970,5 @@ renderList();
 })();
 // ==== FIN REFERENCIAS ====
 </script>
-<script src="boot.js?v=202611032101"></script>
+<script src="boot.js?v=202611040902"></script>
 </body></html>
