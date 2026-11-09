@@ -6,10 +6,10 @@
 <meta name="apple-mobile-web-app-title" content="Reparo Novo">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" href="icons/icon-192.png">
-<link rel="stylesheet" href="boot.css?v=202611091348">
+<link rel="stylesheet" href="boot.css?v=202611091848">
 <script src="vendor/supabase-2.45.4.js"></script>
-<script src="config.js?v=202611091348"></script>
-<script src="shim.js?v=202611091348"></script>
+<script src="config.js?v=202611091848"></script>
+<script src="shim.js?v=202611091848"></script>
 </head><body>
 
 
@@ -534,7 +534,7 @@ details.hechas summary{cursor:pointer}
       <label for="c-rep">Reparación
         <select id="c-rep"></select></label>
       <label for="c-prov">Proveedor
-        <select id="c-prov"><option value="esm">Esmovil (llega al día siguiente)</option><option value="ms">MobileSentrix (pedido antes de las 18:00, 2 días laborables)</option><option value="se">Spain Electro (pantallas originales de desmontaje; pedido antes de las 19:30, llega mañana)</option><option value="ssr">Apple Self Service Repair (baterías originales; viene de Alemania, 1,5–2 semanas)</option><option value="es">Otro distribuidor de España: SpainSeller, Recambiostablet…</option><option value="depau">Depau (informática: SSD, RAM…)</option><option value="ali">AliExpress (modelos raros)</option></select></label>
+        <select id="c-prov"><option value="esm">Esmovil (llega al día siguiente)</option><option value="ms">MobileSentrix (pedido antes de las 17:00, 2 días laborables)</option><option value="se">Spain Electro (pantallas originales de desmontaje; pedido antes de las 19:30, llega mañana)</option><option value="ssr">Apple Self Service Repair (baterías originales; viene de Alemania, 1,5–2 semanas)</option><option value="es">Otro distribuidor de España: SpainSeller, Recambiostablet…</option><option value="depau">Depau (informática: SSD, RAM…)</option><option value="ali">AliExpress (modelos raros)</option></select></label>
       <label for="c-coste"><span id="c-coste-lbl">Precio de la pieza SIN IVA, como sale en la web del proveedor</span>
         <input id="c-coste" type="number" inputmode="decimal" min="0" step="0.01" placeholder="p. ej. 32,50"></label>
     </div>
@@ -706,7 +706,7 @@ details.hechas summary{cursor:pointer}
     <div class="tablewrap"><table id="servt"></table></div>
   </details>
 
-  <p class="foot">Precio = lo que solemos cobrar por esa reparación (media del último año en SATTPV) o, si casi no la hemos hecho, la tarifa de la tienda. «Pieza en tienda» = lo que tardamos de normal en repararlo con la pieza aquí (sin contar la espera de pieza). «Si hay que pedirla» = cuándo estaría listo pidiéndola ahora: Esmovil sirve al día siguiente a las 9:30–10:00 los pedidos de lunes a viernes antes de las 19:15 (también entrega el sábado); MobileSentrix: pedido de lunes a viernes antes de las 18:00, llega 2 días laborables después hacia las 13:00. Si el pedido del día a Esmovil no llega a 100 € + IVA se pagan portes: intenta juntar piezas en un mismo pedido. Si un modelo no aparece, usa «¿El modelo no está?»: muchas piezas ya salen buscadas y el precio se rellena solo.</p>
+  <p class="foot">Precio = lo que solemos cobrar por esa reparación (media del último año en SATTPV) o, si casi no la hemos hecho, la tarifa de la tienda. «Pieza en tienda» = lo que tardamos de normal en repararlo con la pieza aquí (sin contar la espera de pieza). «Si hay que pedirla» = cuándo estaría listo pidiéndola ahora: Esmovil sirve al día siguiente a las 9:30–10:00 los pedidos de lunes a viernes antes de las 19:15 (también entrega el sábado); MobileSentrix: pedido de lunes a viernes antes de las 17:00, llega 2 días laborables después hacia las 13:00. Si el pedido del día a Esmovil no llega a 100 € + IVA se pagan portes: intenta juntar piezas en un mismo pedido. Si un modelo no aparece, usa «¿El modelo no está?»: muchas piezas ya salen buscadas y el precio se rellena solo.</p>
 </div>
 
 <script id="agenda" type="application/json"></script>
@@ -909,7 +909,7 @@ function esmovilArrival(now = new Date()){
 const ssrArrival = (now = new Date()) => { const d = new Date(now); let n = 10; // 1,5–2 semanas para no pillarnos los dedos
  while (n > 0) { d.setDate(d.getDate() + 1); if (d.getDay() >= 1 && d.getDay() <= 5) n--; } d.setHours(12,0,0,0); return d; };
 function seArrival(now = new Date()){ const wd = d => d.getDay() >= 1 && d.getDay() <= 5; const d = new Date(now); if (!wd(d) || d.getHours() * 60 + d.getMinutes() >= 1170) { do d.setDate(d.getDate() + 1); while (!wd(d)); } do d.setDate(d.getDate() + 1); while (!wd(d)); d.setHours(10,30,0,0); return d; }
-function msArrival(now = new Date()){ const wd = d => d.getDay() >= 1 && d.getDay() <= 5; const d = new Date(now); if (!wd(d) || d.getHours() >= 18) { do d.setDate(d.getDate() + 1); while (!wd(d)); } let n = 2; while (n > 0) { d.setDate(d.getDate() + 1); if (wd(d)) n--; } d.setHours(13,0,0,0); return d; }
+function msArrival(now = new Date()){ const wd = d => d.getDay() >= 1 && d.getDay() <= 5; const d = new Date(now); if (!wd(d) || d.getHours() >= 17) { do d.setDate(d.getDate() + 1); while (!wd(d)); } let n = 2; while (n > 0) { d.setDate(d.getDate() + 1); if (wd(d)) n--; } d.setHours(13,0,0,0); return d; }
 // ==== PLANIFICADOR v1 ====
 // Calcula cuándo estará listo y qué cita dar según el horario de la tienda, quién está (Miguel solo o con Lourdes),
 // las citas y ausencias del Google Calendar de Reparo Novo y lo que tarda cada reparación en el banco.
@@ -1071,7 +1071,7 @@ const franjaCita = d => { if (!d) return 'consultar'; return nombreDia(d) + ' a 
 function orderCell(it, m){
   if (!['esm', 'ms', 'se', 'ssr'].includes(it.prov)) return it.tw ? esc(it.tw) : '<span class="na">—</span>';
   const a = it.prov === 'esm' ? esmovilArrival(entrada()) : it.prov === 'ms' ? msArrival(entrada()) : it.prov === 'se' ? seArrival(entrada()) : ssrArrival(entrada()), p = planPedido(it, a);
-  const pieza = {esm: `Pieza ${dayName(a)} a primera hora (Esmovil)`, ms: `Pieza ${dayName(a)} hacia mediodía (MobileSentrix, pedido antes de las 18:00)`, se: `Pieza ${dayName(a)} por la mañana (Spain Electro, pedido antes de las 19:30)`, ssr: `Pieza ${dayName(a)} aprox. (Apple Self Service, viene de Alemania)`}[it.prov];
+  const pieza = {esm: `Pieza ${dayName(a)} a primera hora (Esmovil)`, ms: `Pieza ${dayName(a)} hacia mediodía (MobileSentrix, pedido antes de las 17:00)`, se: `Pieza ${dayName(a)} por la mañana (Spain Electro, pedido antes de las 19:30)`, ssr: `Pieza ${dayName(a)} aprox. (Apple Self Service, viene de Alemania)`}[it.prov];
   if (!p.cita) return `<span class="q">${esc(pieza)}</span>`;
   return `<b>Cita ${esc(franjaCita(p.cita))}</b><span class="q">Listo ${esc(franja(p.fin, necesitaSecado(m, it)))} · ${esc(pieza)}</span>`;
 }
@@ -1970,5 +1970,5 @@ renderList();
 })();
 // ==== FIN REFERENCIAS ====
 </script>
-<script src="boot.js?v=202611091348"></script>
+<script src="boot.js?v=202611091848"></script>
 </body></html>
