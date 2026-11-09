@@ -6,10 +6,10 @@
 <meta name="apple-mobile-web-app-title" content="Reparo Novo">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" href="icons/icon-192.png">
-<link rel="stylesheet" href="boot.css?v=202611091901">
+<link rel="stylesheet" href="boot.css?v=202611092024">
 <script src="vendor/supabase-2.45.4.js"></script>
-<script src="config.js?v=202611091901"></script>
-<script src="shim.js?v=202611091901"></script>
+<script src="config.js?v=202611092024"></script>
+<script src="shim.js?v=202611092024"></script>
 </head><body>
 
 
@@ -803,6 +803,17 @@ const SE_STOCK = ['iPhone 13', 'iPhone 14 Pro', 'iPhone 15 Pro', 'iPhone 16'];
   // SSD 240 GB según la hoja «Ordenador» (85 €).
   (DATA.servicios || []).forEach(x => { if (/^SSD 240/.test(x.s)) { x.p = 85; x.nota = 'Kingston A400 240GB · precio de la hoja de Miguel'; } });
   // ==== FIN SSD HOJA ====
+  // Redmi 12 5G (Miguel 9/11): pantalla compatible 69 €. Es otro móvil que el Redmi 12 (4G).
+  if (!DATA.modelos.some(m => /^Redmi 12 5G$/i.test(m.m))) {
+    const n = 'Redmi 12 5G', K = r => (n + '-' + r).toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const it = (r, p, ts, tw, wh, prov, nota) => ({r, p, ts, tw, wh, prov, nota, sat: 0, k: K(r)});
+    const nuevo = {m: n, b: 'Xiaomi', items: [
+      it('Pantalla · Compatible', 69, '24 h', '48 h', 17.3, 'esm', 'Precio fijado por Miguel. Ojo: no es la misma pantalla que la del Redmi 12 (4G).'),
+      it('Sellado de pantalla · Pantalla despegada', 35, 'En el día', null, 2, null, 'Precio orientativo: depende del valor del equipo y del tiempo. Si el móvil vale poco, consulta con Miguel.'),
+      it('Conector de carga · Tipo C soldado', 39, 'En el día', null, 2, null, 'Opción más rápida: se suelda un conector nuevo, sin esperar pieza.'),
+      it('Limpieza conector', 15, 'En el día', null, 1.3, null, '')]};
+    const i = DATA.modelos.findIndex(m => m.m === 'Redmi 12 4G'); DATA.modelos.splice(i < 0 ? DATA.modelos.length : i + 1, 0, nuevo);
+  }
   // Oppo Find X5 Lite (Miguel 13/10): pantalla compatible con marco 119 €.
   if (!DATA.modelos.some(m => /^Oppo Find X5 Lite$/i.test(m.m))) {
     const n = 'Oppo Find X5 Lite', K = r => (n + '-' + r).toLowerCase().replace(/[^a-z0-9]+/g, '-');
@@ -1970,5 +1981,5 @@ renderList();
 })();
 // ==== FIN REFERENCIAS ====
 </script>
-<script src="boot.js?v=202611091901"></script>
+<script src="boot.js?v=202611092024"></script>
 </body></html>
