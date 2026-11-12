@@ -6,10 +6,10 @@
 <meta name="apple-mobile-web-app-title" content="Reparo Novo">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" href="icons/icon-192.png">
-<link rel="stylesheet" href="boot.css?v=202611101231">
+<link rel="stylesheet" href="boot.css?v=202611121241">
 <script src="vendor/supabase-2.45.4.js"></script>
-<script src="config.js?v=202611101231"></script>
-<script src="shim.js?v=202611101231"></script>
+<script src="config.js?v=202611121241"></script>
+<script src="shim.js?v=202611121241"></script>
 </head><body>
 
 
@@ -1231,7 +1231,7 @@ window.grupoCli = (lista, sub, urg, solo) => { const g = new Map();
 window.waF = f => { const tel = String(f.telefono || '').replace(/\D/g, '').replace(/^34(?=\d{9}$)/, ''); if (!tel) return '';
   const nom = String(f.cliente || '').trim().split(' ')[0], cosa = (f.producto || f.modelo || '') + (f.detalle ? ` (${f.detalle})` : '');
   const txt = f.estado === 'pendiente' ? `Hola ${nom}! soy Miguel de Reparo Novo. Te escribo por lo que nos pediste: ${cosa}. `
-    : `Hola ${nom}! soy Miguel de Reparo Novo 😊. Ya tenemos aquí lo que nos pediste: ${cosa}. Pásate cuando quieras a recogerlo. Estamos de lunes a viernes de 9:30 a 14:00 y de 17:00 a 20:30, y los sábados de 10:00 a 14:00. ¡Un saludo!`;
+    : `Hola ${nom}! Soy Miguel de Reparo Novo 😊. Ya ha llegado lo que nos pediste: ${f.detalle && !f.producto ? f.detalle + ' (' + (f.modelo || '') + ')' : cosa}. Te lo guardamos en tienda, pásate cuando quieras. ¡Un saludo!`; // Miguel 12/11: mensaje corto
   return `<a class="afinar" target="_blank" rel="noopener" href="https://api.whatsapp.com/send?phone=34${tel}&text=${encodeURIComponent(txt)}">WhatsApp cliente</a>`; };
 // Miguel 25/10: añadir otro accesorio o equipo a la misma persona (rellena cliente y móvil).
 window.icoAcc = f => { const t = String((f.modelo || '') + ' ' + (f.detalle || '') + ' ' + (f.producto || '')).toLowerCase();
@@ -1981,5 +1981,5 @@ renderList();
 })();
 // ==== FIN REFERENCIAS ====
 </script>
-<script src="boot.js?v=202611101231"></script>
+<script src="boot.js?v=202611121241"></script>
 </body></html>
