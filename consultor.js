@@ -13,7 +13,7 @@
 
   const css = document.createElement('style');
   css.textContent = `
-  #rn-con{display:inline-flex;align-items:center;gap:6px;font:600 .8rem var(--body,system-ui);border:1px solid var(--line,#d9e0e3);background:var(--panel,#fff);color:var(--fg,#14232b);border-radius:999px;padding:5px 11px;cursor:pointer;margin-left:6px}
+  #rn-con,#rn-tas{display:inline-flex;align-items:center;gap:6px;font:600 .8rem var(--body,system-ui);border:1px solid var(--line,#d9e0e3);background:var(--panel,#fff);color:var(--fg,#14232b);border-radius:999px;padding:5px 11px;cursor:pointer;margin-left:6px}
   #rn-conbox{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.35);display:flex;align-items:flex-start;justify-content:center;padding:calc(14px + env(safe-area-inset-top,0px)) 8px 14px}
   #rn-conbox .pan{box-sizing:border-box;overflow-x:hidden;background:var(--panel,#fff);color:var(--fg,#14232b);border-radius:14px;max-width:980px;width:100%;max-height:calc(100vh - 28px);overflow:auto;padding:14px 16px;box-shadow:0 12px 40px rgba(0,0,0,.3)}
   #rn-conbox h2{font:700 1.25rem var(--display,system-ui);margin:0 0 4px;display:flex;justify-content:space-between;align-items:center;gap:8px}
@@ -42,6 +42,15 @@
   const btn = document.createElement('button'); btn.type = 'button'; btn.id = 'rn-con'; btn.textContent = '💶 Consultor';
   btn.title = 'Consultor de precios de teléfonos y portátiles (J.J., Depau, Megasur)';
   (document.querySelector('header') || document.body).appendChild(btn);
+  // Miguel 13/11: el tasador de iPhone, al lado del consultor. Abre la sección «Tasador de iPhone» de la vista Más.
+  const tas = document.createElement('button'); tas.type = 'button'; tas.id = 'rn-tas'; tas.textContent = '📱 Tasador';
+  tas.title = 'Tasador de iPhone usados: cuánto le damos por su móvil';
+  btn.after(tas);
+  tas.onclick = () => {
+    const v = document.querySelector('.vnav button[data-v="mas"]'); if (v) v.click();
+    const d = document.getElementById('tasador'); if (!d) return;
+    setTimeout(() => { d.hidden = false; d.removeAttribute('data-oculto'); d.open = true; d.style.scrollMarginTop = '90px'; d.scrollIntoView({block: 'start', behavior: 'smooth'}); }, 50);
+  };
 
   let datos = null, items = [];
   const f = { t: 'm', mc: '', md: '', ram: 0, alm: 0, pmin: '', pmax: '', g5: false, so: '', max: '', txt: '', mg: '', prov: '', tienda: false, ord: 'c' };
