@@ -1,11 +1,11 @@
-// Consultor de precios: teléfonos y portátiles de J.J., Depau y Megasur.
+// Consultor de precios: teléfonos, portátiles y consolas de J.J., Depau y Megasur.
 // Los datos van cifrados en consultor.enc (misma clave que la tarifa); se actualizan los lunes con la tarifa de J.J.
 // Coste real = lo que le cuesta a la tienda con IVA y recargo de equivalencia (y canon). PVP sugerido = coste / (1 − margen), acabado en 9.
 (function () {
   if (!window.RN_ABRIR) return;
   const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const eur = n => (Math.round(n * 100) / 100).toLocaleString('es-ES', { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 }) + ' €';
-  const MARGEN = { m: 25, ma: 8, p: 20 }; // móvil Android, móvil Apple (nuevo), portátil
+  const MARGEN = { m: 25, ma: 8, p: 20, c: 10 }; // móvil Android, móvil Apple (nuevo), portátil, consola (Miguel 18/11/2026: consolas también)
   const GANA_MIN_MOVIL = 70; // Miguel 28/10/2026: en cada teléfono que se pida hay que ganar como mínimo 70–80 €
   const a9 = p => Math.ceil((p + 1) / 10) * 10 - 1;   // redondeo hacia arriba a un precio acabado en 9
   const pvp = (c, mg, movil) => { let p = a9(c / (1 - mg / 100)); if (movil && p - c < GANA_MIN_MOVIL) p = a9(c + GANA_MIN_MOVIL); return p; };
@@ -40,7 +40,7 @@
   document.head.appendChild(css);
 
   const btn = document.createElement('button'); btn.type = 'button'; btn.id = 'rn-con'; btn.textContent = '💶 Consultor';
-  btn.title = 'Consultor de precios de teléfonos y portátiles (J.J., Depau, Megasur)';
+  btn.title = 'Consultor de precios de teléfonos, portátiles y consolas (J.J., Depau, Megasur)';
   (document.querySelector('header') || document.body).appendChild(btn);
   // Miguel 13/11: el tasador de iPhone, al lado del consultor. Abre la sección «Tasador de iPhone» de la vista Más.
   const tas = document.createElement('button'); tas.type = 'button'; tas.id = 'rn-tas'; tas.textContent = '📱 Tasador';
@@ -67,7 +67,7 @@
   const base = x => { const b = base0(x); return /^\d/.test(b) ? (x.mc + ' ' + b) : b; };
   const base0 = x => x.n.split('/')[0].replace(/\s+\d+\s*(GB|TB)\b.*$/i, '').replace(new RegExp('^' + (x.mc || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s+', 'i'), '').trim();
 
-  function margenDe(x) { if (f.mg !== '' && !isNaN(+f.mg)) return +f.mg; return x.t === 'p' ? MARGEN.p : (x.mc === 'Apple' ? MARGEN.ma : MARGEN.m); }
+  function margenDe(x) { if (f.mg !== '' && !isNaN(+f.mg)) return +f.mg; return x.t === 'p' ? MARGEN.p : x.t === 'c' ? MARGEN.c : (x.mc === 'Apple' ? MARGEN.ma : MARGEN.m); }
 
   function filtra() {
     // consultor sencillo: solo marca, modelo/RAM/pantalla y almacenamiento; lo demás no se filtra
@@ -105,17 +105,17 @@
     pan.innerHTML = `<h2><span>💶 Consultor de precios</span><button type="button" data-x>Cerrar</button></h2>
       <div class="q">Precios de ${fechas}. El PVP ya lleva tu margen.</div>
       <form>
-        <div class="seg"><button type="button" data-t="m" class="${f.t === 'm' ? 'on' : ''}">📱 Teléfonos</button><button type="button" data-t="p" class="${f.t === 'p' ? 'on' : ''}">💻 Portátiles</button></div>
+        <div class="seg"><button type="button" data-t="m" class="${f.t === 'm' ? 'on' : ''}">📱 Teléfonos</button><button type="button" data-t="p" class="${f.t === 'p' ? 'on' : ''}">💻 Portátiles</button><button type="button" data-t="c" class="${f.t === 'c' ? 'on' : ''}">🎮 Consolas</button></div>
         <label>Marca<select name="mc"><option value="">Todas</option>${opciones(marcas, f.mc)}</select></label>
         ${f.t === 'm' ? `<label>Modelo<select name="md"><option value="">Todos</option>${opciones(modelos, f.md)}</select></label>` : ''}
         ${f.t === 'p' ? `<label>RAM mínima<select name="ram"><option value="0">Cualquiera</option>${opciones([4, 8, 16, 32], f.ram, v => v + ' GB')}</select></label>
         <label>Pantalla<select name="pan"><option value="">Cualquiera</option>${opciones(['13', '14', '15', '16'], f.pan, v => ({ '13': 'Hasta 13,6"', '14': '14"', '15': '15,6"', '16': '16" o más' })[v])}</select></label>` : ''}
-        <label>Almacenamiento${f.t === 'p' ? ' mín.' : ''}<select name="alm"><option value="0">Cualquiera</option>${opciones(f.t === 'm' ? [64, 128, 256, 512, 1024] : [256, 512, 1024, 2048], f.alm, gb)}</select></label>
+        ${f.t !== 'c' ? `<label>Almacenamiento${f.t === 'p' ? ' mín.' : ''}<select name="alm"><option value="0">Cualquiera</option>${opciones(f.t === 'm' ? [64, 128, 256, 512, 1024] : [256, 512, 1024, 2048], f.alm, gb)}</select></label>` : ''}
       </form>
       <div class="q" style="margin-bottom:6px">${r.length} resultado${r.length === 1 ? '' : 's'}</div>
       <div class="res">${r.slice(0, 150).map(x => `<div class="it">
           <div><b>${esc(x.n.replace(/\//g, ' / '))}</b><br>
-            <span class="tag">${esc(x.prov)}</span>${x._best ? '<span class="tag best">El más barato</span>' : ''}${x.ti ? `<span class="tag st">En tienda: ${x.ti} a ${eur(x.pt)}</span>` : ''}
+            <span class="tag">${esc(x.prov)}</span>${x._best ? '<span class="tag best">El más barato</span>' : ''}${x.promo ? `<span class="tag best">${esc(x.promo)}</span>` : ''}${x.ti ? `<span class="tag st">En tienda: ${x.ti} a ${eur(x.pt)}</span>` : ''}
             <span class="q">${[x.ram ? x.ram + ' GB RAM' : '', x.alm ? gb(x.alm) : '', x.pant ? x.pant + '"' : '', x.g5 ? '5G' : '', x.cpu || '', x.col && x.col.length ? x.col.join(', ') : ''].filter(Boolean).map(esc).join(' · ')}</span></div>
           <div class="pr"><span class="pv">${eur(x._pvp)}</span><br><span class="q">Coste ${eur(x.c)} · ganas ${eur(x._pvp - x.c)} (${Math.round((x._pvp - x.c) / x._pvp * 100)} %)</span></div>
         </div>`).join('') || '<div class="vacio">No hay ningún equipo con esos datos. Prueba a quitar algún filtro.</div>'}</div>`;
