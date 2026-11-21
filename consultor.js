@@ -9,6 +9,10 @@
   const GANA_MIN_MOVIL = 70; // Miguel 28/10/2026: en cada teléfono que se pida hay que ganar como mínimo 70–80 €
   const a9 = p => Math.ceil((p + 1) / 10) * 10 - 1;   // redondeo hacia arriba a un precio acabado en 9
   const pvp = (c, mg, movil) => { let p = a9(c / (1 - mg / 100)); if (movil && p - c < GANA_MIN_MOVIL) p = a9(c + GANA_MIN_MOVIL); return p; };
+  // Miguel 20-21/11/2026: iPhone nuevo = coste + lo mínimo que hay que ganar (80 € hasta 1.200 € de coste, 100 € de 1.200 € en adelante), acabado en 9
+  const pvpIphone = c => a9(c + (c < 1200 ? 80 : 100));
+  // modelo + capacidad, para no repetir un iPhone «vendido antes» que ya vuelve a estar en la tarifa de J.J.
+  const claveIph = x => { const m = /iPhone\s+(.+?)\s+(\d+)\s*(GB|TB)/i.exec(x.n); return m ? (m[1].toLowerCase().replace(/\s+/g, ' ') + '|' + (+m[2] * (/tb/i.test(m[3]) ? 1024 : 1))) : null; };
   const gb = n => n >= 1024 ? (n / 1024) + ' TB' : n + ' GB';
 
   const css = document.createElement('style');
@@ -60,7 +64,10 @@
     if (datos) return;
     datos = await window.RN_ABRIR('consultor.enc');
     items = [];
-    Object.values(datos.prov || {}).forEach(p => (p.items || []).forEach(x => items.push(Object.assign({ prov: p.nombre, fecha: p.fecha }, x))));
+    Object.entries(datos.prov || {}).filter(([k]) => k !== 'hist').forEach(([, p]) => (p.items || []).forEach(x => items.push(Object.assign({ prov: p.nombre, fecha: p.fecha }, x))));
+    // iPhone que ya hemos vendido y J.J. ya no tiene: se quedan con su último coste conocido (Miguel 21/11/2026)
+    const h = (datos.prov || {}).hist;
+    if (h) { const hay = new Set(items.filter(x => x.mc === 'Apple' && x.t === 'm').map(claveIph)); (h.items || []).forEach(x => { if (!hay.has(claveIph(x))) items.push(Object.assign({ prov: h.nombre }, x)); }); }
   }
 
   // modelo sin memoria ni color: «Xiaomi Redmi Note 17 6GB/256GB» -> «Redmi Note 17»
@@ -83,7 +90,7 @@
       && (!f.g5 || x.g5) && (!f.tienda || x.ti)
       && (!f.so || (f.so === 'win' ? /win/i.test(x.so || x.n) : f.so === 'sin' ? /sin sistema|freedos/i.test(x.so || x.n) : f.so === 'mac' ? x.mc === 'Apple' : /chrome/i.test(x.so || x.n)))
       && txt.every(w => x.n.toLowerCase().includes(w)));
-    r.forEach(x => { x._mg = margenDe(x); x._pvp = pvp(x.c, x._mg, x.t === 'm'); });
+    r.forEach(x => { x._mg = margenDe(x); x._pvp = (x.t === 'm' && x.mc === 'Apple' && f.mg === '') ? pvpIphone(x.c) : pvp(x.c, x._mg, x.t === 'm'); });
     if (f.max !== '') r = r.filter(x => x._pvp <= +f.max);
     r.sort(f.ord === 'ram' ? (a, b) => (b.ram || 0) - (a.ram || 0) || a.c - b.c : f.ord === 'alm' ? (a, b) => (b.alm || 0) - (a.alm || 0) || a.c - b.c : (a, b) => a.c - b.c);
     // el más barato del mismo modelo entre proveedores
@@ -100,7 +107,7 @@
     const modelos = [...new Set(items.filter(x => x.t === 'm' && (!f.mc || x.mc === f.mc)).map(base))].sort((a, b) => a.localeCompare(b, 'es', { numeric: true }));
     if (f.md && !modelos.includes(f.md)) f.md = '';
     const provs = [...new Set(items.map(x => x.prov))].sort();
-    const fechas = Object.values(datos.prov || {}).map(p => `${esc(p.nombre)} ${esc((p.fecha || '').split('-').reverse().join('/'))}`).join(' · ');
+    const fechas = Object.values(datos.prov || {}).filter(p => p.fecha).map(p => `${esc(p.nombre)} ${esc((p.fecha || '').split('-').reverse().join('/'))}`).join(' · ');
     const r = filtra();
     pan.innerHTML = `<h2><span>💶 Consultor de precios</span><button type="button" data-x>Cerrar</button></h2>
       <div class="q">Precios de ${fechas}. El PVP ya lleva tu margen.</div>
@@ -115,7 +122,7 @@
       <div class="q" style="margin-bottom:6px">${r.length} resultado${r.length === 1 ? '' : 's'}</div>
       <div class="res">${r.slice(0, 150).map(x => `<div class="it">
           <div><b>${esc(x.n.replace(/\//g, ' / '))}</b><br>
-            <span class="tag">${esc(x.prov)}</span>${x._best ? '<span class="tag best">El más barato</span>' : ''}${x.promo ? `<span class="tag best">${esc(x.promo)}</span>` : ''}${x.ti ? `<span class="tag st">En tienda: ${x.ti} a ${eur(x.pt)}</span>` : ''}
+            <span class="tag">${esc(x.prov)}</span>${x._best ? '<span class="tag best">El más barato</span>' : ''}${x.promo ? `<span class="tag best">${esc(x.promo)}</span>` : ''}${x.uc ? `<span class="tag">Último coste ${esc(x.uc.split('-').reverse().join('/'))} · ya no está en J.J.</span>` : ''}${x.ti ? `<span class="tag st">En tienda: ${x.ti} a ${eur(x.pt)}</span>` : ''}
             <span class="q">${[x.ram ? x.ram + ' GB RAM' : '', x.alm ? gb(x.alm) : '', x.pant ? x.pant + '"' : '', x.g5 ? '5G' : '', x.cpu || '', x.col && x.col.length ? x.col.join(', ') : ''].filter(Boolean).map(esc).join(' · ')}</span></div>
           <div class="pr"><span class="pv">${eur(x._pvp)}</span><br><span class="q">Coste ${eur(x.c)} · ganas ${eur(x._pvp - x.c)} (${Math.round((x._pvp - x.c) / x._pvp * 100)} %)</span></div>
         </div>`).join('') || '<div class="vacio">No hay ningún equipo con esos datos. Prueba a quitar algún filtro.</div>'}</div>`;
