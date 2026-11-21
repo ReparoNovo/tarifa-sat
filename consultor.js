@@ -10,7 +10,7 @@
   const a9 = p => Math.ceil((p + 1) / 10) * 10 - 1;   // redondeo hacia arriba a un precio acabado en 9
   const pvp = (c, mg, movil) => { let p = a9(c / (1 - mg / 100)); if (movil && p - c < GANA_MIN_MOVIL) p = a9(c + GANA_MIN_MOVIL); return p; };
   // Miguel 20-21/11/2026: iPhone nuevo = coste + lo mínimo que hay que ganar (80 € hasta 1.200 € de coste, 100 € de 1.200 € en adelante), acabado en 9
-  const pvpIphone = c => a9(c + (c < 1200 ? 80 : 100));
+  const pvpIphone = c => a9(Math.ceil(c) + (c < 1200 ? 80 : 100));
   // modelo + capacidad, para no repetir un iPhone «vendido antes» que ya vuelve a estar en la tarifa de J.J.
   const claveIph = x => { const m = /iPhone\s+(.+?)\s+(\d+)\s*(GB|TB)/i.exec(x.n); return m ? (m[1].toLowerCase().replace(/\s+/g, ' ') + '|' + (+m[2] * (/tb/i.test(m[3]) ? 1024 : 1))) : null; };
   const gb = n => n >= 1024 ? (n / 1024) + ' TB' : n + ' GB';
@@ -122,9 +122,9 @@
       <div class="q" style="margin-bottom:6px">${r.length} resultado${r.length === 1 ? '' : 's'}</div>
       <div class="res">${r.slice(0, 150).map(x => `<div class="it">
           <div><b>${esc(x.n.replace(/\//g, ' / '))}</b><br>
-            <span class="tag">${esc(x.prov)}</span>${x._best ? '<span class="tag best">El más barato</span>' : ''}${x.promo ? `<span class="tag best">${esc(x.promo)}</span>` : ''}${x.uc ? `<span class="tag">Último coste ${esc(x.uc.split('-').reverse().join('/'))} · ya no está en J.J.</span>` : ''}${x.ti ? `<span class="tag st">En tienda: ${x.ti} a ${eur(x.pt)}</span>` : ''}
+            <span class="tag">${esc(x.prov)}</span>${x._best ? '<span class="tag best">El más barato</span>' : ''}${x.promo ? `<span class="tag best">${esc(x.promo)}</span>` : ''}${x.uc ? `<span class="tag">Último coste ${esc(x.uc.split('-').reverse().join('/'))} · ya no está en J.J.</span>` : ''}${x.ti ? `<span class="tag st">En tienda: ${x.ti} a ${eur(Math.ceil(x.pt))}</span>` : ''}
             <span class="q">${[x.ram ? x.ram + ' GB RAM' : '', x.alm ? gb(x.alm) : '', x.pant ? x.pant + '"' : '', x.g5 ? '5G' : '', x.cpu || '', x.col && x.col.length ? x.col.join(', ') : ''].filter(Boolean).map(esc).join(' · ')}</span></div>
-          <div class="pr"><span class="pv">${eur(x._pvp)}</span><br><span class="q">Coste ${eur(x.c)} · ganas ${eur(x._pvp - x.c)} (${Math.round((x._pvp - x.c) / x._pvp * 100)} %)</span></div>
+          <div class="pr"><span class="pv">${eur(x._pvp)}</span><br><span class="q">Coste ${eur(Math.ceil(x.c))} · ganas ${eur(x._pvp - Math.ceil(x.c))} (${Math.round((x._pvp - Math.ceil(x.c)) / x._pvp * 100)} %)</span></div>
         </div>`).join('') || '<div class="vacio">No hay ningún equipo con esos datos. Prueba a quitar algún filtro.</div>'}</div>`;
     pan.querySelector('[data-x]').onclick = () => box.remove();
     pan.querySelectorAll('[data-t]').forEach(b => b.onclick = () => { f.t = b.dataset.t; f.mc = ''; f.md = ''; f.alm = 0; f.pan = ''; f.ram = 0; f.so = ''; guarda(); pinta(box); });
