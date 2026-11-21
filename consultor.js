@@ -138,6 +138,8 @@
     const box = document.createElement('div'); box.id = 'rn-conbox'; box.innerHTML = '<div class="pan"><p class="q">Cargando precios…</p></div>';
     box.addEventListener('click', e => { if (e.target === box) box.remove(); });
     document.body.appendChild(box);
+    // Miguel 21/11/2026: al abrir, siempre Teléfonos + Apple
+    Object.assign(f, { t: 'm', mc: 'Apple', md: '', alm: 0, pan: '', ram: 0, so: '' });
     try { await carga(); pinta(box); }
     catch (e) { box.querySelector('.pan').innerHTML = `<p class="q">No se han podido cargar los precios (${esc(e.message)}).</p><button type="button" onclick="this.closest('#rn-conbox').remove()">Cerrar</button>`; }
   };
