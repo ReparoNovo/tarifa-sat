@@ -122,7 +122,7 @@
       <div class="q" style="margin-bottom:6px">${r.length} resultado${r.length === 1 ? '' : 's'}</div>
       <div class="res">${r.slice(0, 150).map(x => `<div class="it">
           <div><b>${esc(x.n.replace(/\//g, ' / '))}</b><br>
-            <span class="tag">${esc(x.prov)}</span>${x._best ? '<span class="tag best">El más barato</span>' : ''}${x.promo ? `<span class="tag best">${esc(x.promo)}</span>` : ''}${x.uc ? `<span class="tag">Último coste ${esc(x.uc.split('-').reverse().join('/'))} · ya no está en J.J.</span>` : ''}${x.ti ? `<span class="tag st">En tienda: ${x.ti} a ${eur(Math.ceil(x.pt))}</span>` : ''}
+            <span class="tag">${esc(x.prov)}</span>${x.promo ? `<span class="tag best">${esc(x.promo)}</span>` : ''}${x.uc ? `<span class="tag">Último coste ${esc(x.uc.split('-').reverse().join('/'))} · ya no está en J.J.</span>` : ''}${x.ti ? `<span class="tag st">En tienda: ${x.ti} a ${eur(Math.ceil(x.pt))}</span>` : ''}
             <span class="q">${[x.ram ? x.ram + ' GB RAM' : '', x.alm ? gb(x.alm) : '', x.pant ? x.pant + '"' : '', x.g5 ? '5G' : '', x.cpu || '', x.col && x.col.length ? x.col.join(', ') : ''].filter(Boolean).map(esc).join(' · ')}</span></div>
           <div class="pr"><span class="pv">${eur(x._pvp)}</span><br><span class="q">Coste ${eur(Math.ceil(x.c))} · ganas ${eur(x._pvp - Math.ceil(x.c))} (${Math.round((x._pvp - Math.ceil(x.c)) / x._pvp * 100)} %)</span></div>
         </div>`).join('') || '<div class="vacio">No hay ningún equipo con esos datos. Prueba a quitar algún filtro.</div>'}</div>`;
