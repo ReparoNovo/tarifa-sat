@@ -20,33 +20,76 @@
   }
   function emitir(c) { const s = snap(c); c.subs.forEach(o => { try { o.cb(s); } catch (e) { console.error(e); } }); }
 
+  // Marca de la última modificación vista (updated_at de la tabla docs): sirve para pedir solo lo que ha cambiado.
+  let ultima = null;
+  const marca = t => { if (t && (!ultima || t > ultima)) ultima = t; };
+
   async function cargar(nombre) {
     const c = cols[nombre];
-    const { data, error } = await sb.from('docs').select('id,data').eq('coleccion', nombre).limit(5000);
+    const { data, error } = await sb.from('docs').select('id,data,updated_at').eq('coleccion', nombre).limit(5000);
     if (error) { c.subs.forEach(o => o.err && o.err(error)); return; }
     c.map = new Map(data.map(r => [r.id, r.data]));
+    data.forEach(r => marca(r.updated_at));
     c.cargado = true;
     emitir(c);
   }
 
-  function col(nombre) {
-    if (cols[nombre]) return cols[nombre];
-    const c = cols[nombre] = { map: new Map(), subs: new Set(), canal: null, cargado: false };
-    c.canal = sb.channel('docs-' + nombre)
+  // Tiempo real. Si el canal se cae (móvil en segundo plano, cambio de wifi, sesión renovada…), se vuelve a abrir solo.
+  function abrirCanal(nombre) {
+    const c = cols[nombre];
+    if (c.canal) { try { sb.removeChannel(c.canal); } catch (e) {} }
+    c.canal = sb.channel('docs-' + nombre + '-' + Date.now())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'docs', filter: 'coleccion=eq.' + nombre }, p => {
         if (p.eventType === 'DELETE') c.map.delete(p.old.id);
-        else c.map.set(p.new.id, p.new.data);
+        else { c.map.set(p.new.id, p.new.data); marca(p.new.updated_at); }
         emitir(c);
       })
-      .subscribe(st => { if (st === 'SUBSCRIBED') cargar(nombre); });
-    return c;
+      .subscribe(st => {
+        if (st === 'SUBSCRIBED') cargar(nombre);
+        else if (st === 'CHANNEL_ERROR' || st === 'TIMED_OUT' || st === 'CLOSED') {
+          clearTimeout(c.reabrir); c.reabrir = setTimeout(() => abrirCanal(nombre), 4000);
+        }
+      });
   }
 
-  // Al volver a la app (móvil que estaba en segundo plano) se recarga todo por si se perdió algún cambio.
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') Object.keys(cols).forEach(n => cargar(n));
-  });
-  window.addEventListener('online', () => Object.keys(cols).forEach(n => cargar(n)));
+  function col(nombre) {
+    if (cols[nombre]) return cols[nombre];
+    cols[nombre] = { map: new Map(), subs: new Set(), canal: null, cargado: false };
+    abrirCanal(nombre);
+    return cols[nombre];
+  }
+
+  // Cuando se renueva la sesión, el tiempo real tiene que usar la clave nueva; si no, deja de avisar sin dar error.
+  sb.auth.onAuthStateChange((ev, s) => { if (s && s.access_token) { try { sb.realtime.setAuth(s.access_token); } catch (e) {} } });
+
+  // Red de seguridad: cada 15 s (con la app a la vista) se piden los apuntes que han cambiado desde la última vez.
+  // Así, aunque el tiempo real falle, lo que apunta otro ordenador o móvil aparece solo, sin salir y volver a entrar.
+  let pidiendo = false;
+  async function revisar() {
+    const nombres = Object.keys(cols).filter(n => cols[n].cargado);
+    if (pidiendo || !nombres.length || !ultima || document.visibilityState !== 'visible') return;
+    pidiendo = true;
+    try {
+      const { data, error } = await sb.from('docs').select('coleccion,id,data,updated_at')
+        .in('coleccion', nombres).gt('updated_at', ultima).order('updated_at').limit(500);
+      if (error || !data || !data.length) return;
+      const tocadas = new Set();
+      data.forEach(r => { const c = cols[r.coleccion]; if (!c) return; c.map.set(r.id, r.data); marca(r.updated_at); tocadas.add(c); });
+      tocadas.forEach(emitir);
+    } finally { pidiendo = false; }
+  }
+  setInterval(revisar, 15000);
+
+  // Al volver a la app (móvil que estaba en segundo plano) se recarga todo y se reabre el tiempo real.
+  function despertar() {
+    Object.keys(cols).forEach(n => {
+      const c = cols[n];
+      if (!c.canal || c.canal.state !== 'joined') abrirCanal(n); else cargar(n);
+    });
+  }
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') despertar(); });
+  window.addEventListener('online', despertar);
+  window.addEventListener('focus', revisar);
 
   function fallo(error) { const e = new Error(error.message || 'Error al guardar'); e.code = error.code; return e; }
 

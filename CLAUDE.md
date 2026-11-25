@@ -14,7 +14,7 @@ App interna (PWA) de la tienda Reparo Novo (Priego de Córdoba): tarifa de repar
 
 ## Archivos
 - `index.html` y `data.enc`: GENERADOS por `tools/to_pages.py <tarifa-sat.html> <clave>`. No editar a mano: se pisan cada mañana.
-- `shim.js`: sustituye `claude.use('db'|'user')` del artifact por Supabase (misma forma: `collection().onSnapshot/add`, `doc(id).update/set/get`).
+- `shim.js`: sustituye `claude.use('db'|'user')` del artifact por Supabase (misma forma: `collection().onSnapshot/add`, `doc(id).update/set/get`). Sincroniza con tiempo real (reabre el canal si se cae y pasa la sesión renovada a realtime) y, como red de seguridad, cada 15 s pide los docs con `updated_at` mayor que el último visto (trigger `docs_marca_cambio` en la tabla; Miguel 25/11/2026: los cambios no llegaban al otro usuario hasta salir y entrar).
 - `boot.js` / `boot.css`: login, comprobación de permiso, descifrado de la tarifa y arranque de la página. Oculta `#rn-aviso-app` (aviso que solo debe verse en la página de Claude).
 - `config.js`: URL y clave publishable de Supabase (públicas por diseño).
 - `consultor.js` + `consultor.enc`: consultor de precios de teléfonos y portátiles (J.J., Depau, Megasur), botón «💶 Consultor» en la cabecera. `consultor.enc` va cifrado con la misma clave que `data.enc`; se genera con `tools/consultor_enc.py datos.json <clave>` (datos.json fuera del repo; el parser y las fuentes están en el proyecto de Claude, `claude/tarifa-sat/consultor/`). Se actualiza los lunes, cuando Miguel pasa la tarifa de J.J.
