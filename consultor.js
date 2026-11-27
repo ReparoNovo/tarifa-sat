@@ -8,7 +8,8 @@
   const MARGEN = { m: 25, ma: 8, p: 20, c: 10 }; // tablets (t): las de Apple van con la regla del iPhone (coste + 80/100 €; Miguel 27/11/2026: iPad en el consultor) // móvil Android, móvil Apple (nuevo), portátil, consola (Miguel 18/11/2026: consolas también)
   const GANA_MIN_MOVIL = 70; // Miguel 28/10/2026: en cada teléfono que se pida hay que ganar como mínimo 70–80 €
   const a9 = p => Math.ceil((p + 1) / 10) * 10 - 1;   // redondeo hacia arriba a un precio acabado en 9
-  const pvp = (c, mg, movil) => { let p = a9(c / (1 - mg / 100)); if (movil && p - c < GANA_MIN_MOVIL) p = a9(c + GANA_MIN_MOVIL); return p; };
+  const GANA_MIN_TABLET = 50; // Miguel 27/11/2026: en una tablet no se puede ganar menos de 50 €
+  const pvp = (c, mg, movil, tablet) => { let p = a9(c / (1 - mg / 100)); if (movil && p - c < GANA_MIN_MOVIL) p = a9(c + GANA_MIN_MOVIL); if (tablet && p - Math.ceil(c) < GANA_MIN_TABLET) p = a9(Math.ceil(c) + GANA_MIN_TABLET); return p; };
   // Miguel 20-21/11/2026: iPhone nuevo = coste + lo mínimo que hay que ganar (80 € hasta 1.200 € de coste, 100 € de 1.200 € en adelante), acabado en 9
   const pvpIphone = c => a9(Math.ceil(c) + (c < 1200 ? 80 : 100));
   // modelo + capacidad, para no repetir un iPhone «vendido antes» que ya vuelve a estar en la tarifa de J.J.
@@ -90,7 +91,7 @@
       && (!f.g5 || x.g5) && (!f.tienda || x.ti)
       && (!f.so || (f.so === 'win' ? /win/i.test(x.so || x.n) : f.so === 'sin' ? /sin sistema|freedos/i.test(x.so || x.n) : f.so === 'mac' ? x.mc === 'Apple' : /chrome/i.test(x.so || x.n)))
       && txt.every(w => x.n.toLowerCase().includes(w)));
-    r.forEach(x => { x._mg = margenDe(x); x._pvp = ((x.t === 'm' || x.t === 't') && x.mc === 'Apple' && f.mg === '') ? pvpIphone(x.c) : pvp(x.c, x._mg, x.t === 'm'); });
+    r.forEach(x => { x._mg = margenDe(x); x._pvp = ((x.t === 'm' || x.t === 't') && x.mc === 'Apple' && f.mg === '') ? pvpIphone(x.c) : pvp(x.c, x._mg, x.t === 'm', x.t === 't'); });
     if (f.max !== '') r = r.filter(x => x._pvp <= +f.max);
     r.sort(f.ord === 'ram' ? (a, b) => (b.ram || 0) - (a.ram || 0) || a.c - b.c : f.ord === 'alm' ? (a, b) => (b.alm || 0) - (a.alm || 0) || a.c - b.c : (a, b) => a.c - b.c);
     // el más barato del mismo modelo entre proveedores
