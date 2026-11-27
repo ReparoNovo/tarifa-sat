@@ -5,7 +5,7 @@
   if (!window.RN_ABRIR) return;
   const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const eur = n => (Math.round(n * 100) / 100).toLocaleString('es-ES', { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 }) + ' €';
-  const MARGEN = { m: 25, ma: 8, p: 20, c: 10 }; // móvil Android, móvil Apple (nuevo), portátil, consola (Miguel 18/11/2026: consolas también)
+  const MARGEN = { m: 25, ma: 8, p: 20, c: 10 }; // tablets (t): las de Apple van con la regla del iPhone (coste + 80/100 €; Miguel 27/11/2026: iPad en el consultor) // móvil Android, móvil Apple (nuevo), portátil, consola (Miguel 18/11/2026: consolas también)
   const GANA_MIN_MOVIL = 70; // Miguel 28/10/2026: en cada teléfono que se pida hay que ganar como mínimo 70–80 €
   const a9 = p => Math.ceil((p + 1) / 10) * 10 - 1;   // redondeo hacia arriba a un precio acabado en 9
   const pvp = (c, mg, movil) => { let p = a9(c / (1 - mg / 100)); if (movil && p - c < GANA_MIN_MOVIL) p = a9(c + GANA_MIN_MOVIL); return p; };
@@ -85,12 +85,12 @@
     const txt = f.txt.trim().toLowerCase().split(/\s+/).filter(Boolean);
     let r = items.filter(x => x.t === f.t
       && (!f.mc || x.mc === f.mc) && (!f.md || f.t !== 'm' || base(x) === f.md) && (!f.prov || x.prov === f.prov)
-      && (!f.ram || (x.ram || 0) >= f.ram) && (!f.alm || (f.t === 'm' ? x.alm === f.alm : (x.alm || 0) >= f.alm))
+      && (!f.ram || (x.ram || 0) >= f.ram) && (!f.alm || (f.t === 'm' || f.t === 't' ? x.alm === f.alm : (x.alm || 0) >= f.alm))
       && (f.pmin === '' || (x.pant || 0) >= +f.pmin) && (f.pmax === '' || (x.pant || 99) <= +f.pmax)
       && (!f.g5 || x.g5) && (!f.tienda || x.ti)
       && (!f.so || (f.so === 'win' ? /win/i.test(x.so || x.n) : f.so === 'sin' ? /sin sistema|freedos/i.test(x.so || x.n) : f.so === 'mac' ? x.mc === 'Apple' : /chrome/i.test(x.so || x.n)))
       && txt.every(w => x.n.toLowerCase().includes(w)));
-    r.forEach(x => { x._mg = margenDe(x); x._pvp = (x.t === 'm' && x.mc === 'Apple' && f.mg === '') ? pvpIphone(x.c) : pvp(x.c, x._mg, x.t === 'm'); });
+    r.forEach(x => { x._mg = margenDe(x); x._pvp = ((x.t === 'm' || x.t === 't') && x.mc === 'Apple' && f.mg === '') ? pvpIphone(x.c) : pvp(x.c, x._mg, x.t === 'm'); });
     if (f.max !== '') r = r.filter(x => x._pvp <= +f.max);
     r.sort(f.ord === 'ram' ? (a, b) => (b.ram || 0) - (a.ram || 0) || a.c - b.c : f.ord === 'alm' ? (a, b) => (b.alm || 0) - (a.alm || 0) || a.c - b.c : (a, b) => a.c - b.c);
     // el más barato del mismo modelo entre proveedores
@@ -112,12 +112,12 @@
     pan.innerHTML = `<h2><span>💶 Consultor de precios</span><button type="button" data-x>Cerrar</button></h2>
       <div class="q">Precios de ${fechas}. El PVP ya lleva tu margen.</div>
       <form>
-        <div class="seg"><button type="button" data-t="m" class="${f.t === 'm' ? 'on' : ''}">📱 Teléfonos</button><button type="button" data-t="p" class="${f.t === 'p' ? 'on' : ''}">💻 Portátiles</button><button type="button" data-t="c" class="${f.t === 'c' ? 'on' : ''}">🎮 Consolas</button></div>
+        <div class="seg"><button type="button" data-t="m" class="${f.t === 'm' ? 'on' : ''}">📱 Teléfonos</button><button type="button" data-t="p" class="${f.t === 'p' ? 'on' : ''}">💻 Portátiles</button><button type="button" data-t="t" class="${f.t === 't' ? 'on' : ''}">📲 Tablets</button><button type="button" data-t="c" class="${f.t === 'c' ? 'on' : ''}">🎮 Consolas</button></div>
         <label>Marca<select name="mc"><option value="">Todas</option>${opciones(marcas, f.mc)}</select></label>
         ${f.t === 'm' ? `<label>Modelo<select name="md"><option value="">Todos</option>${opciones(modelos, f.md)}</select></label>` : ''}
         ${f.t === 'p' ? `<label>RAM mínima<select name="ram"><option value="0">Cualquiera</option>${opciones([4, 8, 16, 32], f.ram, v => v + ' GB')}</select></label>
         <label>Pantalla<select name="pan"><option value="">Cualquiera</option>${opciones(['13', '14', '15', '16'], f.pan, v => ({ '13': 'Hasta 13,6"', '14': '14"', '15': '15,6"', '16': '16" o más' })[v])}</select></label>` : ''}
-        ${f.t !== 'c' ? `<label>Almacenamiento${f.t === 'p' ? ' mín.' : ''}<select name="alm"><option value="0">Cualquiera</option>${opciones(f.t === 'm' ? [64, 128, 256, 512, 1024] : [256, 512, 1024, 2048], f.alm, gb)}</select></label>` : ''}
+        ${f.t !== 'c' ? `<label>Almacenamiento${f.t === 'p' ? ' mín.' : ''}<select name="alm"><option value="0">Cualquiera</option>${opciones(f.t === 'm' || f.t === 't' ? [64, 128, 256, 512, 1024] : [256, 512, 1024, 2048], f.alm, gb)}</select></label>` : ''}
       </form>
       <div class="q" style="margin-bottom:6px">${r.length} resultado${r.length === 1 ? '' : 's'}</div>
       <div class="res">${r.slice(0, 150).map(x => `<div class="it">
