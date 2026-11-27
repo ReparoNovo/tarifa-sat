@@ -12,6 +12,8 @@
   const pvp = (c, mg, movil, tablet) => { let p = a9(c / (1 - mg / 100)); if (movil && p - c < GANA_MIN_MOVIL) p = a9(c + GANA_MIN_MOVIL); if (tablet && p - Math.ceil(c) < GANA_MIN_TABLET) p = a9(Math.ceil(c) + GANA_MIN_TABLET); return p; };
   // Miguel 20-21/11/2026: iPhone nuevo = coste + lo mínimo que hay que ganar (80 € hasta 1.200 € de coste, 100 € de 1.200 € en adelante), acabado en 9
   const pvpIphone = c => a9(Math.ceil(c) + (c < 1200 ? 80 : 100));
+  // Miguel 27/11/2026: «hay que ser más competitivo en las Samsung» → tablets Samsung = coste + 50 € (hasta 300 €), + 70 € (300–800 €), + 100 € (desde 800 €), acabado en 9
+  const pvpTabSamsung = c => a9(Math.ceil(c) + (c < 300 ? 50 : c < 800 ? 70 : 100));
   // modelo + capacidad, para no repetir un iPhone «vendido antes» que ya vuelve a estar en la tarifa de J.J.
   const claveIph = x => { const m = /iPhone\s+(.+?)\s+(\d+)\s*(GB|TB)/i.exec(x.n); return m ? (m[1].toLowerCase().replace(/\s+/g, ' ') + '|' + (+m[2] * (/tb/i.test(m[3]) ? 1024 : 1))) : null; };
   const gb = n => n >= 1024 ? (n / 1024) + ' TB' : n + ' GB';
@@ -91,7 +93,7 @@
       && (!f.g5 || x.g5) && (!f.tienda || x.ti)
       && (!f.so || (f.so === 'win' ? /win/i.test(x.so || x.n) : f.so === 'sin' ? /sin sistema|freedos/i.test(x.so || x.n) : f.so === 'mac' ? x.mc === 'Apple' : /chrome/i.test(x.so || x.n)))
       && txt.every(w => x.n.toLowerCase().includes(w)));
-    r.forEach(x => { x._mg = margenDe(x); x._pvp = ((x.t === 'm' || x.t === 't') && x.mc === 'Apple' && f.mg === '') ? pvpIphone(x.c) : pvp(x.c, x._mg, x.t === 'm', x.t === 't'); });
+    r.forEach(x => { x._mg = margenDe(x); x._pvp = ((x.t === 'm' || x.t === 't') && x.mc === 'Apple' && f.mg === '') ? pvpIphone(x.c) : (x.t === 't' && x.mc === 'Samsung' && f.mg === '') ? pvpTabSamsung(x.c) : pvp(x.c, x._mg, x.t === 'm', x.t === 't'); });
     if (f.max !== '') r = r.filter(x => x._pvp <= +f.max);
     r.sort(f.ord === 'ram' ? (a, b) => (b.ram || 0) - (a.ram || 0) || a.c - b.c : f.ord === 'alm' ? (a, b) => (b.alm || 0) - (a.alm || 0) || a.c - b.c : (a, b) => a.c - b.c);
     // el más barato del mismo modelo entre proveedores
